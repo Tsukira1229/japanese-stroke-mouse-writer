@@ -1,0 +1,8 @@
+__pycache__/
+*.py[cod]
+preview*.png
+*_preview.png
+*.log
+dist/
+build/
+*.spec
