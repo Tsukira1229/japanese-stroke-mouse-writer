@@ -1,44 +1,50 @@
-# 日文筆順滑鼠書寫工具 V1.0
+# Japanese Stroke Mouse Writer V2.0 Portable
 
-這個 Windows 工具會依照 KanjiVG 筆順，用滑鼠在小畫家或其他畫布程式中書寫平假名、片假名與漢字。一般使用者可在圖形介面中輸入文字、調整位置與尺寸、預覽筆順並開始書寫，不必操作程式碼或命令列參數。
+Windows 10/11 x64 免安裝日文筆順書寫工具。程式使用 KanjiVG 筆順資料，透過 Windows SendInput 在小畫家或其他畫布中書寫平假名、片假名與漢字。
 
-## 第一次安裝
+## 一般使用者
 
-1. 安裝 [Python 3](https://www.python.org/downloads/windows/)，安裝時勾選 **Add Python to PATH**。
-2. 在本資料夾開啟終端機。
-3. 執行：
+1. 下載 `JapaneseStrokeMouseWriter-v2.0.0-win-x64-portable.zip`。
+2. 將 ZIP 完整解壓到可寫入的資料夾。
+3. 雙擊 `JapaneseStrokeMouseWriter.exe`。
+
+不需要安裝 Python、不需要管理員權限，也不會建立安裝或解除安裝項目。程式設定保存在同一資料夾的 `user_data/settings.json`。
+
+## 主要功能
+
+- 平假名、片假名與漢字皆使用 KanjiVG 筆順中心線。
+- 水平／垂直排版，並可選擇向左／向右流向。
+- 偵測起始座標與末端座標，形成實際可書寫矩形。
+- 到達主方向邊界時自動換行，整體超出畫布時在書寫前停止。
+- 完整保留空格、全形空格、Tab 與明確換行。
+- 預覽與實際書寫共用相同排版資料。
+- 可保存多個一般排版自訂選項。
+- ESC 全域緊急停止，並保留滑鼠移到螢幕角落的 failsafe。
+
+完整步驟請閱讀 [圖文使用教學](圖文使用教學.md)。
+
+## 開發與測試
 
 ```powershell
-python -m pip install -r requirements.txt
+python -m pip install -r requirements.txt -r requirements-build.txt
+python -B -m unittest discover -s tests -v
+.\scripts\build_portable.ps1
 ```
 
-專案已包含 KanjiVG 筆順資料，不需要另外下載。
+建置結果位於：
 
-## 開啟工具
+```text
+dist/JapaneseStrokeMouseWriter-v2.0.0-win-x64-portable.zip
+```
 
-雙擊 `run_writer.bat`，即可開啟「日文筆順書寫工具」視窗。
+執行封裝自測：
 
-## 基本操作
-
-1. 在「書寫文字」輸入平假名、片假名或漢字。
-2. 按「擷取滑鼠位置」，在 3 秒內把滑鼠移到畫布的書寫起點。
-3. 調整字寬、字高、字距或速度。
-4. 按「產生預覽」確認筆順。
-5. 開啟小畫家並選擇鉛筆或筆刷。
-6. 按「開始書寫」，視窗會自動最小化並倒數。
-
-執行期間若需緊急停止，將滑鼠快速移到螢幕左上角。
-
-## 檔案用途
-
-- `run_writer.bat`：一般使用者的 UI 啟動器。
-- `mouse_writer_ui.pyw`：圖形操作介面。
-- `mouse_writer_pro.py`：筆順解析與滑鼠書寫核心，也可供進階命令列操作。
-- `data/kanjivg`：平假名、片假名與漢字筆順資料。
-- `install_kanjivg.py`：需要重新下載筆順資料時使用。
-
-完整操作與問題排除請閱讀 [圖文使用教學](圖文使用教學.md)。
+```powershell
+JapaneseStrokeMouseWriter.exe --self-test
+```
 
 ## 資料來源
 
-筆順資料來自 [KanjiVG](https://kanjivg.tagaini.net/)（[GitHub](https://github.com/KanjiVG/kanjivg)），採 Creative Commons Attribution-Share Alike 3.0 授權。
+筆順資料來自 [KanjiVG](https://kanjivg.tagaini.net/)（[GitHub](https://github.com/KanjiVG/kanjivg)），採 Creative Commons Attribution-ShareAlike 3.0 授權。詳見 [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)。
+
+V2.0 首次發布為未簽章版本，Windows SmartScreen 可能顯示未知發行者提示。

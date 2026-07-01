@@ -1,10 +1,13 @@
 from __future__ import annotations
 
 import runpy
+import tempfile
 import time
 import tkinter as tk
 import unittest
 from pathlib import Path
+
+from mouse_writer_pro import WritingCancelled
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -14,42 +17,51 @@ JapaneseWriterApp = UI_NAMESPACE["JapaneseWriterApp"]
 
 class JapaneseWriterUiTests(unittest.TestCase):
     def setUp(self) -> None:
+        self.temp = tempfile.TemporaryDirectory()
         self.root = tk.Tk()
         self.root.withdraw()
-        self.app = JapaneseWriterApp(self.root)
+        self.app = JapaneseWriterApp(
+            self.root,
+            settings_path=Path(self.temp.name) / "user_data/settings.json",
+        )
         self.root.update_idletasks()
 
     def tearDown(self) -> None:
+        self.app.closing = True
+        self.app.cancel_scheduled_callbacks()
         self.root.destroy()
+        self.temp.cleanup()
 
-    def test_default_settings_build_japanese_paths(self) -> None:
-        text, settings, countdown, point_delay, stroke_delay = self.app.read_settings()
-        result, _, _, _ = self.app.build_result()
+    def test_three_configuration_areas_exist(self) -> None:
+        self.assertEqual(self.app.notebook.index("end"), 3)
+        self.assertEqual(self.app.text_input.cget("wrap"), "none")
 
-        self.assertEqual(text, "こんにちは日本語")
-        self.assertEqual(settings.char_width, 150)
-        self.assertEqual(countdown, 5)
-        self.assertEqual(point_delay, 0.008)
-        self.assertEqual(stroke_delay, 0.03)
+    def test_default_layout_builds_paths(self) -> None:
+        result, environment = self.app.build_result()
         self.assertGreater(len(result.paths), 0)
+        self.assertEqual(environment.countdown, 5)
 
-    def test_non_japanese_text_is_rejected(self) -> None:
-        self.app.text_input.delete("1.0", "end")
-        self.app.text_input.insert("1.0", "A")
-
-        with self.assertRaises(SystemExit):
-            self.app.build_result()
-
-    def test_preview_completes_and_updates_summary(self) -> None:
-        self.app.generate_preview()
+    def test_preview_completes_on_canvas(self) -> None:
+        self.app.refresh_preview()
         deadline = time.time() + 15
-        while self.app.busy and time.time() < deadline:
+        while self.app.current_layout is None and time.time() < deadline:
             self.root.update()
             time.sleep(0.02)
-
-        self.assertFalse(self.app.busy, "Preview generation timed out")
-        self.assertIsNotNone(self.app.preview_image)
+        self.assertIsNotNone(self.app.current_layout)
         self.assertIn("筆", self.app.summary.get())
+
+    def test_coordinate_detection_can_overwrite_values(self) -> None:
+        self.app._coordinate_detected("start", -200, 50)
+        self.app._coordinate_detected("start", -100, 70)
+        self.app._coordinate_detected("end", 900, 700)
+        self.assertEqual((self.app.start_x.get(), self.app.start_y.get()), ("-100", "70"))
+        self.assertEqual((self.app.end_x.get(), self.app.end_y.get()), ("900", "700"))
+
+    def test_escape_cancel_keeps_existing_coordinates(self) -> None:
+        before = (self.app.start_x.get(), self.app.start_y.get())
+        self.app._restore_after_operation(WritingCancelled("cancelled"))
+        self.assertEqual((self.app.start_x.get(), self.app.start_y.get()), before)
+        self.assertIn("ESC", self.app.status.get())
 
 
 if __name__ == "__main__":

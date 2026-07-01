@@ -1,9 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-Mouse writer for Japanese kana and kanji.
-
-All non-space characters are drawn from KanjiVG stroke-order SVG data.
-"""
+"""Japanese kana and kanji stroke-order layout and mouse automation."""
 
 from __future__ import annotations
 
@@ -12,17 +8,20 @@ import ctypes
 import sys
 import time
 import xml.etree.ElementTree as ET
+from collections.abc import Callable, Iterable
 from ctypes import wintypes
 from dataclasses import dataclass, field
+from enum import Enum
 from pathlib import Path
-from typing import Iterable
 
 Point = tuple[float, float]
 PathList = list[list[Point]]
 
-APP_VERSION = "1.0"
+APP_VERSION = "2.0.0"
 SCRIPT_DIR = Path(__file__).resolve().parent
-DEFAULT_KANJIVG_DIR = SCRIPT_DIR / "data/kanjivg/20250816/main/kanji"
+BUNDLE_DIR = Path(getattr(sys, "_MEIPASS", SCRIPT_DIR))
+EXECUTABLE_DIR = Path(sys.executable).resolve().parent if getattr(sys, "frozen", False) else SCRIPT_DIR
+DEFAULT_KANJIVG_DIR = BUNDLE_DIR / "data/kanjivg/20250816/main/kanji"
 
 
 def configure_console_encoding() -> None:
@@ -34,8 +33,49 @@ def configure_console_encoding() -> None:
 configure_console_encoding()
 
 
+class Orientation(str, Enum):
+    HORIZONTAL = "horizontal"
+    VERTICAL = "vertical"
+
+
+class FlowDirection(str, Enum):
+    RIGHT = "right"
+    LEFT = "left"
+
+
+@dataclass(frozen=True)
+class GeneralSettings:
+    font_size: float = 150.0
+    char_gap: float = 12.0
+    line_gap: float = 24.0
+    orientation: Orientation = Orientation.HORIZONTAL
+    flow: FlowDirection = FlowDirection.RIGHT
+
+
+@dataclass(frozen=True)
+class EnvironmentSettings:
+    countdown: int = 5
+    sample_spacing: float = 2.0
+    point_delay: float = 0.008
+    move_duration: float = 0.0
+    stroke_delay: float = 0.03
+
+
+@dataclass(frozen=True)
+class LayoutSettings:
+    start_x: float
+    start_y: float
+    end_x: float | None = None
+    end_y: float | None = None
+    general: GeneralSettings = field(default_factory=GeneralSettings)
+    point_step: int = 1
+    preserve_aspect: bool = True
+
+
 @dataclass(frozen=True)
 class DrawSettings:
+    """V1-compatible settings accepted by build_paths()."""
+
     start_x: float
     start_y: float
     char_width: float
@@ -47,22 +87,51 @@ class DrawSettings:
     preserve_aspect: bool
 
 
+@dataclass(frozen=True)
+class GlyphPlacement:
+    char: str
+    source_index: int
+    x: float
+    y: float
+    span: int = 1
+    is_whitespace: bool = False
+    automatic_wrap_before: bool = False
+
+
 @dataclass
-class BuildResult:
+class LayoutResult:
     paths: PathList = field(default_factory=list)
+    placements: list[GlyphPlacement] = field(default_factory=list)
     kanjivg_chars: list[str] = field(default_factory=list)
-    unsupported_chars: list[str] = field(default_factory=list)
-    missing_chars: list[str] = field(default_factory=list)
+    automatic_wraps: list[int] = field(default_factory=list)
+    explicit_wraps: list[int] = field(default_factory=list)
+    canvas_bounds: tuple[float, float, float, float] = (0.0, 0.0, 1.0, 1.0)
+
+
+BuildResult = LayoutResult
+
+
+class LayoutError(ValueError):
+    pass
+
+
+class LayoutOverflowError(LayoutError):
+    pass
+
+
+class UnsupportedCharacterError(LayoutError):
+    pass
+
+
+class WritingCancelled(RuntimeError):
+    pass
 
 
 def require_svg_path():
     try:
         from svg.path import parse_path
     except ModuleNotFoundError as exc:
-        raise SystemExit(
-            "缺少套件 svg.path。請先執行：python -m pip install -r requirements.txt"
-        ) from exc
-
+        raise SystemExit("缺少套件 svg.path。請先安裝 requirements.txt。") from exc
     return parse_path
 
 
@@ -70,22 +139,16 @@ def bounds(paths: Iterable[Iterable[Point]]) -> tuple[float, float, float, float
     points = [point for path in paths for point in path]
     if not points:
         return 0.0, 0.0, 1.0, 1.0
-
     xs = [point[0] for point in points]
     ys = [point[1] for point in points]
     min_x, max_x = min(xs), max(xs)
     min_y, max_y = min(ys), max(ys)
-    if max_x == min_x:
-        max_x += 1.0
-    if max_y == min_y:
-        max_y += 1.0
-    return min_x, min_y, max_x, max_y
+    return min_x, min_y, max(max_x, min_x + 1), max(max_y, min_y + 1)
 
 
 def decimate(path: list[Point], point_step: int) -> list[Point]:
     if point_step <= 1 or len(path) <= 2:
         return path
-
     reduced = path[::point_step]
     if reduced[-1] != path[-1]:
         reduced.append(path[-1])
@@ -105,7 +168,6 @@ def transform_paths(
     min_x, min_y, max_x, max_y = bounds(paths)
     source_width = max_x - min_x
     source_height = max_y - min_y
-
     if preserve_aspect:
         scale = min(box_width / source_width, box_height / source_height)
         used_width = source_width * scale
@@ -122,17 +184,16 @@ def transform_paths(
     for path in paths:
         if len(path) < 2:
             continue
-
-        screen_path = []
+        screen_path: list[Point] = []
         for x, y in decimate(path, point_step):
             sx = origin_x + pad_x + (x - min_x) * scale_x
-            if flip_y:
-                sy = origin_y + box_height - (pad_y + (y - min_y) * scale_y)
-            else:
-                sy = origin_y + pad_y + (y - min_y) * scale_y
+            sy = (
+                origin_y + box_height - (pad_y + (y - min_y) * scale_y)
+                if flip_y
+                else origin_y + pad_y + (y - min_y) * scale_y
+            )
             screen_path.append((sx, sy))
         transformed.append(screen_path)
-
     return transformed
 
 
@@ -164,17 +225,13 @@ def path_sample_count(segment, sample_spacing: float) -> int:
     try:
         segment_length = float(segment.length(error=1e-4))
     except Exception:
-        start = segment.point(0)
-        end = segment.point(1)
-        segment_length = abs(end - start)
+        segment_length = abs(segment.point(1) - segment.point(0))
     return max(1, int(segment_length / max(sample_spacing, 0.1)))
 
 
 def sample_svg_path(path_data: str, sample_spacing: float) -> list[Point]:
-    parse_path = require_svg_path()
-    parsed = parse_path(path_data)
+    parsed = require_svg_path()(path_data)
     points: list[Point] = []
-
     for segment in parsed:
         steps = path_sample_count(segment, sample_spacing)
         for index in range(steps + 1):
@@ -182,7 +239,6 @@ def sample_svg_path(path_data: str, sample_spacing: float) -> list[Point]:
                 continue
             point = segment.point(index / steps)
             points.append((float(point.real), float(point.imag)))
-
     return points
 
 
@@ -190,21 +246,17 @@ def load_kanjivg_strokes(char: str, kanjivg_dir: Path, sample_spacing: float) ->
     svg_path = kanjivg_file_for_char(char, kanjivg_dir)
     if not svg_path.exists():
         return None
-
     root = ET.parse(svg_path).getroot()
     strokes: PathList = []
     for element in root.iter():
         if not element.tag.endswith("path"):
             continue
-
         path_data = element.attrib.get("d")
         if not path_data:
             continue
-
         sampled = sample_svg_path(path_data, sample_spacing)
         if len(sampled) >= 2:
             strokes.append(sampled)
-
     return strokes
 
 
@@ -217,7 +269,6 @@ def transform_kanjivg(
     preserve_aspect: bool,
     point_step: int,
 ) -> PathList:
-    # KanjiVG already uses SVG/screen-like coordinates: x rightward, y downward.
     return transform_paths(
         strokes,
         origin_x,
@@ -230,58 +281,166 @@ def transform_kanjivg(
     )
 
 
-def build_paths(
+def _validate_layout_settings(settings: LayoutSettings) -> None:
+    general = settings.general
+    if not 10 <= general.font_size <= 1000:
+        raise LayoutError("字體大小必須介於 10 與 1000 px。")
+    if general.char_gap < 0 or general.line_gap < 0:
+        raise LayoutError("字距與行距不可為負數。")
+    if (settings.end_x is None) != (settings.end_y is None):
+        raise LayoutError("末端 X 與 Y 座標必須同時設定。")
+    if settings.end_x is None:
+        return
+
+    size = general.font_size
+    if settings.end_y < settings.start_y + size:
+        raise LayoutError("起點與末端的垂直範圍小於一個字格。")
+    if general.flow is FlowDirection.RIGHT and settings.end_x < settings.start_x + size:
+        raise LayoutError("向右排版時，末端 X 必須位於起點右側且至少容納一個字格。")
+    if general.flow is FlowDirection.LEFT and settings.end_x > settings.start_x:
+        raise LayoutError("向左排版時，末端 X 必須位於起點左側。")
+
+
+def _token_span(char: str) -> int:
+    return 4 if char == "\t" else 1
+
+
+def build_layout(
     text: str,
     kanjivg_dir: Path,
-    settings: DrawSettings,
-) -> BuildResult:
-    result = BuildResult()
+    settings: LayoutSettings,
+    environment: EnvironmentSettings | None = None,
+) -> LayoutResult:
+    if not text or not any(not char.isspace() for char in text):
+        raise LayoutError("請輸入至少一個可書寫的日文字元。")
+    _validate_layout_settings(settings)
+    environment = environment or EnvironmentSettings()
+    general = settings.general
+    size = general.font_size
+    primary_step = size + general.char_gap
+    secondary_step = size + general.line_gap
+    bounded = settings.end_x is not None and settings.end_y is not None
+    result = LayoutResult()
     cursor_x = settings.start_x
     cursor_y = settings.start_y
+    cells_on_line = 0
 
-    for char in text:
-        if char == "\n":
+    def secondary_fits() -> bool:
+        if not bounded:
+            return True
+        assert settings.end_x is not None and settings.end_y is not None
+        if general.orientation is Orientation.HORIZONTAL:
+            return cursor_y + size <= settings.end_y
+        if general.flow is FlowDirection.RIGHT:
+            return cursor_x + size <= settings.end_x
+        return cursor_x >= settings.end_x
+
+    def primary_fits(span: int) -> bool:
+        if not bounded:
+            return True
+        assert settings.end_x is not None and settings.end_y is not None
+        if general.orientation is Orientation.VERTICAL:
+            return cursor_y + (span - 1) * primary_step + size <= settings.end_y
+        if general.flow is FlowDirection.RIGHT:
+            return cursor_x + (span - 1) * primary_step + size <= settings.end_x
+        return cursor_x - (span - 1) * primary_step >= settings.end_x
+
+    def wrap(source_index: int, explicit: bool) -> None:
+        nonlocal cursor_x, cursor_y, cells_on_line
+        if general.orientation is Orientation.HORIZONTAL:
             cursor_x = settings.start_x
-            cursor_y += settings.char_height + settings.line_gap
+            cursor_y += secondary_step
+        else:
+            cursor_y = settings.start_y
+            cursor_x += secondary_step if general.flow is FlowDirection.RIGHT else -secondary_step
+        cells_on_line = 0
+        (result.explicit_wraps if explicit else result.automatic_wraps).append(source_index)
+        if not secondary_fits():
+            raise LayoutOverflowError(f"第 {source_index + 1} 個字元換行後超出畫布範圍。")
+
+    for source_index, char in enumerate(text):
+        if char == "\r":
             continue
-        if char.isspace():
-            cursor_x += settings.char_width + settings.char_gap
+        if char == "\n":
+            wrap(source_index, explicit=True)
             continue
 
-        if not is_japanese_writing_char(char):
-            result.unsupported_chars.append(char)
-            cursor_x += settings.char_width + settings.char_gap
-            continue
+        span = _token_span(char)
+        automatic_wrap = False
+        if not primary_fits(span):
+            if cells_on_line == 0:
+                raise LayoutOverflowError(f"第 {source_index + 1} 個字元無法放入目前畫布寬度或高度。")
+            wrap(source_index, explicit=False)
+            automatic_wrap = True
+            if not primary_fits(span):
+                raise LayoutOverflowError(f"第 {source_index + 1} 個字元換行後仍無法放入畫布。")
+        if not secondary_fits():
+            raise LayoutOverflowError(f"第 {source_index + 1} 個字元超出畫布範圍。")
 
-        strokes = load_kanjivg_strokes(char, kanjivg_dir, settings.sample_spacing)
-        if strokes:
+        placement = GlyphPlacement(
+            char=char,
+            source_index=source_index,
+            x=cursor_x,
+            y=cursor_y,
+            span=span,
+            is_whitespace=char.isspace(),
+            automatic_wrap_before=automatic_wrap,
+        )
+        result.placements.append(placement)
+
+        if not char.isspace():
+            if not is_japanese_writing_char(char):
+                raise UnsupportedCharacterError(f"第 {source_index + 1} 個字元「{char}」不是支援的日文字元。")
+            strokes = load_kanjivg_strokes(char, kanjivg_dir, environment.sample_spacing)
+            if not strokes:
+                raise UnsupportedCharacterError(f"找不到第 {source_index + 1} 個字元「{char}」的 KanjiVG 筆順資料。")
             result.paths.extend(
                 transform_kanjivg(
                     strokes,
                     cursor_x,
                     cursor_y,
-                    settings.char_width,
-                    settings.char_height,
+                    size,
+                    size,
                     settings.preserve_aspect,
                     settings.point_step,
                 )
             )
             result.kanjivg_chars.append(char)
+
+        if general.orientation is Orientation.HORIZONTAL:
+            cursor_x += span * primary_step if general.flow is FlowDirection.RIGHT else -span * primary_step
         else:
-            result.missing_chars.append(char)
+            cursor_y += span * primary_step
+        cells_on_line += span
 
-        cursor_x += settings.char_width + settings.char_gap
-
-    if result.unsupported_chars or result.missing_chars:
-        if result.unsupported_chars:
-            unique = "".join(dict.fromkeys(result.unsupported_chars))
-            print(f"不支援的非日文書寫字元：{unique}", file=sys.stderr)
-        unique = "".join(dict.fromkeys(result.missing_chars))
-        if unique:
-            print(f"找不到這些字的 KanjiVG 筆順資料：{unique}", file=sys.stderr)
-        raise SystemExit("此工具僅支援有 KanjiVG 筆順資料的平假名、片假名與漢字。")
-
+    if bounded:
+        assert settings.end_x is not None and settings.end_y is not None
+        min_x = min(settings.start_x, settings.end_x)
+        max_x = max(settings.start_x + size, settings.end_x)
+        result.canvas_bounds = (min_x, settings.start_y, max_x, settings.end_y)
+    elif result.placements:
+        placement_min_x = min(p.x - ((p.span - 1) * primary_step if general.orientation is Orientation.HORIZONTAL and general.flow is FlowDirection.LEFT else 0) for p in result.placements)
+        placement_max_x = max(p.x + size + ((p.span - 1) * primary_step if general.orientation is Orientation.HORIZONTAL and general.flow is FlowDirection.RIGHT else 0) for p in result.placements)
+        placement_max_y = max(p.y + size + ((p.span - 1) * primary_step if general.orientation is Orientation.VERTICAL else 0) for p in result.placements)
+        result.canvas_bounds = (placement_min_x, settings.start_y, placement_max_x, placement_max_y)
     return result
+
+
+def build_paths(text: str, kanjivg_dir: Path, settings: DrawSettings) -> BuildResult:
+    general = GeneralSettings(
+        font_size=min(settings.char_width, settings.char_height),
+        char_gap=settings.char_gap,
+        line_gap=settings.line_gap,
+    )
+    layout = LayoutSettings(
+        start_x=settings.start_x,
+        start_y=settings.start_y,
+        general=general,
+        point_step=settings.point_step,
+        preserve_aspect=settings.preserve_aspect,
+    )
+    environment = EnvironmentSettings(sample_spacing=settings.sample_spacing)
+    return build_layout(text, kanjivg_dir, layout, environment)
 
 
 def path_stats(paths: PathList) -> tuple[int, int]:
@@ -295,26 +454,18 @@ def preview_paths(paths: PathList, output: Path) -> None:
         matplotlib.use("Agg")
         import matplotlib.pyplot as plt
     except ModuleNotFoundError as exc:
-        raise SystemExit(
-            "缺少套件 matplotlib。請先執行：python -m pip install -r requirements.txt"
-        ) from exc
-
+        raise SystemExit("缺少套件 matplotlib。請先安裝 requirements.txt。") from exc
     if not paths:
         raise SystemExit("沒有可預覽的筆跡路徑。")
-
     min_x, min_y, max_x, max_y = bounds(paths)
     padding = 20
-
-    fig_width = max(4, (max_x - min_x + padding * 2) / 120)
-    fig_height = max(3, (max_y - min_y + padding * 2) / 120)
-    fig, ax = plt.subplots(figsize=(fig_width, fig_height), dpi=120)
-
+    fig, ax = plt.subplots(
+        figsize=(max(4, (max_x - min_x + padding * 2) / 120), max(3, (max_y - min_y + padding * 2) / 120)),
+        dpi=120,
+    )
     for index, path in enumerate(paths, start=1):
-        xs = [point[0] for point in path]
-        ys = [point[1] for point in path]
-        ax.plot(xs, ys, color="black", linewidth=1.4)
-        ax.text(xs[0], ys[0], str(index), fontsize=8, color="#b00020")
-
+        ax.plot([p[0] for p in path], [p[1] for p in path], color="black", linewidth=1.4)
+        ax.text(path[0][0], path[0][1], str(index), fontsize=8, color="#b00020")
     ax.set_aspect("equal", adjustable="box")
     ax.set_xlim(min_x - padding, max_x + padding)
     ax.set_ylim(max_y + padding, min_y - padding)
@@ -344,8 +495,6 @@ class _Input(ctypes.Structure):
 
 
 class WindowsSendInputMouse:
-    """Inject uncoalesced absolute mouse events through the Windows API."""
-
     MOUSEEVENTF_MOVE = 0x0001
     MOUSEEVENTF_LEFTDOWN = 0x0002
     MOUSEEVENTF_LEFTUP = 0x0004
@@ -356,13 +505,8 @@ class WindowsSendInputMouse:
     def __init__(self) -> None:
         self.user32 = ctypes.WinDLL("user32", use_last_error=True)
         self.send_input = self.user32.SendInput
-        self.send_input.argtypes = (
-            wintypes.UINT,
-            ctypes.POINTER(_Input),
-            ctypes.c_int,
-        )
+        self.send_input.argtypes = (wintypes.UINT, ctypes.POINTER(_Input), ctypes.c_int)
         self.send_input.restype = wintypes.UINT
-
         self.virtual_left = self.user32.GetSystemMetrics(76)
         self.virtual_top = self.user32.GetSystemMetrics(77)
         self.virtual_width = self.user32.GetSystemMetrics(78)
@@ -370,29 +514,28 @@ class WindowsSendInputMouse:
         if self.virtual_width <= 1 or self.virtual_height <= 1:
             raise OSError("無法取得 Windows 虛擬螢幕尺寸。")
 
+    @property
+    def screen_bounds(self) -> tuple[int, int, int, int]:
+        return (
+            self.virtual_left,
+            self.virtual_top,
+            self.virtual_left + self.virtual_width,
+            self.virtual_top + self.virtual_height,
+        )
+
     def absolute_coordinates(self, x: int, y: int) -> tuple[int, int]:
-        absolute_x = round((x - self.virtual_left) * 65535 / (self.virtual_width - 1))
-        absolute_y = round((y - self.virtual_top) * 65535 / (self.virtual_height - 1))
-        return absolute_x, absolute_y
+        return (
+            round((x - self.virtual_left) * 65535 / (self.virtual_width - 1)),
+            round((y - self.virtual_top) * 65535 / (self.virtual_height - 1)),
+        )
 
     def send(self, flags: int, x: int = 0, y: int = 0) -> None:
         event = _Input(
             type=0,
-            data=_InputUnion(
-                mi=_MouseInput(
-                    dx=x,
-                    dy=y,
-                    mouseData=0,
-                    dwFlags=flags,
-                    time=0,
-                    dwExtraInfo=0,
-                )
-            ),
+            data=_InputUnion(mi=_MouseInput(x, y, 0, flags, 0, 0)),
         )
-        sent = self.send_input(1, ctypes.byref(event), ctypes.sizeof(_Input))
-        if sent != 1:
-            error = ctypes.get_last_error()
-            raise OSError(error, "Windows SendInput 滑鼠事件傳送失敗。")
+        if self.send_input(1, ctypes.byref(event), ctypes.sizeof(_Input)) != 1:
+            raise OSError(ctypes.get_last_error(), "Windows SendInput 滑鼠事件傳送失敗。")
 
     def move_to(self, x: int, y: int) -> None:
         absolute_x, absolute_y = self.absolute_coordinates(x, y)
@@ -412,32 +555,40 @@ class WindowsSendInputMouse:
         self.send(self.MOUSEEVENTF_LEFTUP)
 
 
+def escape_pressed() -> bool:
+    if sys.platform != "win32":
+        return False
+    return bool(ctypes.windll.user32.GetAsyncKeyState(0x1B) & 0x8000)
+
+
+def interruptible_sleep(seconds: float, stop_requested: Callable[[], bool] | None = None) -> None:
+    deadline = time.monotonic() + max(0.0, seconds)
+    while True:
+        if stop_requested and stop_requested():
+            raise WritingCancelled("已按下 ESC，操作已停止。")
+        remaining = deadline - time.monotonic()
+        if remaining <= 0:
+            return
+        time.sleep(min(0.02, remaining))
+
+
 def validate_screen_bounds(paths: PathList, allow_offscreen: bool) -> None:
-    if allow_offscreen:
+    if allow_offscreen or not paths:
         return
-
-    try:
+    if sys.platform == "win32":
+        min_x, min_y, max_x, max_y = WindowsSendInputMouse().screen_bounds
+    else:
         import pyautogui
-    except ModuleNotFoundError as exc:
-        raise SystemExit(
-            "缺少套件 pyautogui。請先執行：python -m pip install -r requirements.txt"
-        ) from exc
 
-    screen_width, screen_height = pyautogui.size()
-    offscreen = [
-        (x, y)
-        for path in paths
-        for x, y in path
-        if x < 0 or y < 0 or x >= screen_width or y >= screen_height
-    ]
-    if offscreen:
-        sample_x, sample_y = offscreen[0]
-        raise SystemExit(
-            "有筆跡座標超出螢幕範圍："
-            f"({sample_x:.0f}, {sample_y:.0f})，螢幕大小 {screen_width}x{screen_height}。"
-            "請調整 --start-x、--start-y、--char-width、--char-height，"
-            "或確認後加上 --allow-offscreen。"
-        )
+        width, height = pyautogui.size()
+        min_x, min_y, max_x, max_y = 0, 0, width, height
+    for path in paths:
+        for x, y in path:
+            if not (min_x <= x < max_x and min_y <= y < max_y):
+                raise LayoutError(
+                    f"筆跡座標 ({x:.0f}, {y:.0f}) 超出虛擬螢幕範圍 "
+                    f"({min_x}, {min_y})–({max_x - 1}, {max_y - 1})。"
+                )
 
 
 def draw_with_mouse(
@@ -447,152 +598,147 @@ def draw_with_mouse(
     point_delay: float,
     stroke_delay: float,
     allow_offscreen: bool,
+    stop_requested: Callable[[], bool] | None = None,
 ) -> None:
     try:
         import pyautogui
     except ModuleNotFoundError as exc:
-        raise SystemExit(
-            "缺少套件 pyautogui。請先執行：python -m pip install -r requirements.txt"
-        ) from exc
+        raise SystemExit("缺少套件 pyautogui。請先安裝 requirements.txt。") from exc
 
     validate_screen_bounds(paths, allow_offscreen)
-
     pyautogui.FAILSAFE = True
     pyautogui.PAUSE = 0
+    stop_requested = stop_requested or escape_pressed
     move_duration = max(0.0, move_duration)
     point_delay = max(0.0, point_delay)
     stroke_delay = max(0.0, stroke_delay)
     windows_mouse = WindowsSendInputMouse() if sys.platform == "win32" else None
+    button_down = False
 
-    if windows_mouse:
-        print("滑鼠輸入：Windows SendInput（已禁止合併移動事件）")
-    else:
-        print("滑鼠輸入：PyAutoGUI")
-
-    def check_failsafe() -> None:
+    def check_stop() -> None:
+        if stop_requested and stop_requested():
+            raise WritingCancelled("已按下 ESC，書寫已停止。")
         if pyautogui.position() in pyautogui.FAILSAFE_POINTS:
             raise pyautogui.FailSafeException("滑鼠已移到安全停止角落，書寫已中止。")
 
     def move_to_sample(x: float, y: float) -> None:
-        check_failsafe()
+        check_stop()
         if windows_mouse:
             windows_mouse.move_to(round(x), round(y))
-            if move_duration:
-                time.sleep(move_duration)
-            return
-
-        if move_duration >= pyautogui.MINIMUM_DURATION:
+            interruptible_sleep(move_duration, stop_requested)
+        elif move_duration >= pyautogui.MINIMUM_DURATION:
             pyautogui.moveTo(round(x), round(y), duration=move_duration)
-            return
+        else:
+            pyautogui.moveTo(round(x), round(y), duration=0)
+            interruptible_sleep(move_duration, stop_requested)
 
-        # PyAutoGUI ignores sub-threshold durations. Send the point immediately,
-        # then wait explicitly so Windows does not merge the mouse events.
-        pyautogui.moveTo(round(x), round(y), duration=0)
-        if move_duration:
-            time.sleep(move_duration)
+    try:
+        for remaining in range(max(0, countdown), 0, -1):
+            print(remaining)
+            interruptible_sleep(1, stop_requested)
 
-    print(f"{countdown} 秒後開始移動滑鼠。請切到畫布並選好鉛筆或筆刷，不要選直線工具。")
-    print("緊急停止：把滑鼠快速移到螢幕左上角。")
-    for remaining in range(countdown, 0, -1):
-        print(remaining)
-        time.sleep(1)
-
-    for index, path in enumerate(paths, start=1):
-        if len(path) < 2:
-            continue
-        start_x, start_y = path[0]
-        try:
-            move_to_sample(start_x, start_y)
-            time.sleep(max(stroke_delay, 0.02))
+        for path in paths:
+            if len(path) < 2:
+                continue
+            move_to_sample(*path[0])
+            interruptible_sleep(max(stroke_delay, 0.02), stop_requested)
             if windows_mouse:
                 windows_mouse.left_down()
             else:
                 pyautogui.mouseDown()
-            for x, y in path[1:]:
-                move_to_sample(x, y)
-                if point_delay:
-                    time.sleep(point_delay)
-        finally:
+            button_down = True
+            try:
+                for x, y in path[1:]:
+                    move_to_sample(x, y)
+                    interruptible_sleep(point_delay, stop_requested)
+            finally:
+                if windows_mouse:
+                    windows_mouse.left_up()
+                else:
+                    pyautogui.mouseUp()
+                button_down = False
+            interruptible_sleep(stroke_delay, stop_requested)
+    finally:
+        if button_down:
             if windows_mouse:
                 windows_mouse.left_up()
             else:
                 pyautogui.mouseUp()
 
-        if stroke_delay:
-            time.sleep(stroke_delay)
-        if index % 20 == 0:
-            print(f"已完成 {index}/{len(paths)} 筆路徑")
-
 
 def parse_args(argv: list[str]) -> argparse.Namespace:
-    parser = argparse.ArgumentParser(
-        description="用滑鼠在小畫家或相似畫布程式中依筆順書寫日文假名與漢字。"
-    )
+    parser = argparse.ArgumentParser(description="依 KanjiVG 筆順控制滑鼠書寫日文。")
     parser.add_argument("--version", action="version", version=f"%(prog)s {APP_VERSION}")
-    parser.add_argument("--text", default="こんにちは", help="要寫的日文文字，可包含平假名、片假名、漢字與換行。")
-    parser.add_argument("--kanjivg-dir", default=str(DEFAULT_KANJIVG_DIR), help="KanjiVG kanji SVG 資料夾。")
-    parser.add_argument("--start-x", type=float, default=877, help="第一個字左上角的螢幕 X 座標。")
-    parser.add_argument("--start-y", type=float, default=325, help="第一個字左上角的螢幕 Y 座標。")
-    parser.add_argument("--char-width", type=float, default=150, help="每個字的寬度，單位像素。")
-    parser.add_argument("--char-height", type=float, default=150, help="每個字的高度，單位像素。")
-    parser.add_argument("--char-gap", type=float, default=12, help="字與字之間的間距，單位像素。")
-    parser.add_argument("--line-gap", type=float, default=24, help="換行間距，單位像素。")
-    parser.add_argument("--point-step", type=int, default=1, help="每隔幾個點取樣一次；1 最細但最慢。")
-    parser.add_argument("--sample-spacing", type=float, default=2.0, help="KanjiVG 曲線取樣間距；越小越細但越慢。")
-    parser.add_argument("--no-preserve-aspect", action="store_true", help="允許字形拉伸填滿設定寬高。")
-    parser.add_argument("--preview", nargs="?", const="preview.png", help="輸出筆跡預覽圖，不移動滑鼠。")
-    parser.add_argument("--execute", action="store_true", help="真的移動滑鼠開始書寫。")
-    parser.add_argument("--countdown", type=int, default=5, help="開始前倒數秒數。")
-    parser.add_argument("--move-duration", type=float, default=0.0, help="每個取樣點的移動時間。太快漏畫可調高。")
-    parser.add_argument("--point-delay", type=float, default=0.008, help="每個取樣點送出後的停頓秒數。")
-    parser.add_argument("--stroke-delay", type=float, default=0.03, help="每條筆畫之間的停頓秒數。")
-    parser.add_argument("--allow-offscreen", action="store_true", help="允許座標超出螢幕範圍。")
+    parser.add_argument("--text", default="こんにちは")
+    parser.add_argument("--kanjivg-dir", default=str(DEFAULT_KANJIVG_DIR))
+    parser.add_argument("--start-x", type=float, default=877)
+    parser.add_argument("--start-y", type=float, default=325)
+    parser.add_argument("--end-x", type=float)
+    parser.add_argument("--end-y", type=float)
+    parser.add_argument("--font-size", type=float)
+    parser.add_argument("--char-width", type=float, default=150)
+    parser.add_argument("--char-height", type=float, default=150)
+    parser.add_argument("--char-gap", type=float, default=12)
+    parser.add_argument("--line-gap", type=float, default=24)
+    parser.add_argument("--orientation", choices=[item.value for item in Orientation], default="horizontal")
+    parser.add_argument("--flow", choices=[item.value for item in FlowDirection], default="right")
+    parser.add_argument("--point-step", type=int, default=1)
+    parser.add_argument("--sample-spacing", type=float, default=2.0)
+    parser.add_argument("--no-preserve-aspect", action="store_true")
+    parser.add_argument("--preview", nargs="?", const="preview.png")
+    parser.add_argument("--execute", action="store_true")
+    parser.add_argument("--countdown", type=int, default=5)
+    parser.add_argument("--move-duration", type=float, default=0.0)
+    parser.add_argument("--point-delay", type=float, default=0.008)
+    parser.add_argument("--stroke-delay", type=float, default=0.03)
+    parser.add_argument("--allow-offscreen", action="store_true")
     return parser.parse_args(argv)
 
 
 def main(argv: list[str] | None = None) -> int:
     args = parse_args(sys.argv[1:] if argv is None else argv)
-    kanjivg_dir = Path(args.kanjivg_dir)
-    settings = DrawSettings(
-        start_x=args.start_x,
-        start_y=args.start_y,
-        char_width=args.char_width,
-        char_height=args.char_height,
+    font_size = args.font_size or min(args.char_width, args.char_height)
+    general = GeneralSettings(
+        font_size=font_size,
         char_gap=args.char_gap,
         line_gap=args.line_gap,
-        point_step=max(1, args.point_step),
+        orientation=Orientation(args.orientation),
+        flow=FlowDirection(args.flow),
+    )
+    environment = EnvironmentSettings(
+        countdown=max(0, args.countdown),
         sample_spacing=max(0.1, args.sample_spacing),
+        point_delay=max(0.0, args.point_delay),
+        move_duration=max(0.0, args.move_duration),
+        stroke_delay=max(0.0, args.stroke_delay),
+    )
+    layout = LayoutSettings(
+        start_x=args.start_x,
+        start_y=args.start_y,
+        end_x=args.end_x,
+        end_y=args.end_y,
+        general=general,
+        point_step=max(1, args.point_step),
         preserve_aspect=not args.no_preserve_aspect,
     )
-
-    result = build_paths(args.text, kanjivg_dir, settings)
+    result = build_layout(args.text, Path(args.kanjivg_dir), layout, environment)
     stroke_count, point_count = path_stats(result.paths)
-    print(f"KanjiVG 資料夾：{kanjivg_dir.resolve()}")
-    print("筆跡來源：KanjiVG 筆順資料")
     print(f"文字：{args.text}")
     print(f"產生 {stroke_count} 條筆畫路徑、{point_count} 個滑鼠點。")
-    print(f"KanjiVG 真筆順字數：{len(result.kanjivg_chars)}")
-    if result.kanjivg_chars:
-        print(f"KanjiVG：{''.join(result.kanjivg_chars)}")
-
     if args.preview:
-        preview_output = Path(args.preview)
-        preview_paths(result.paths, preview_output)
-        print(f"已輸出預覽圖：{preview_output.resolve()}")
-
+        preview_paths(result.paths, Path(args.preview))
+        print(f"已輸出預覽圖：{Path(args.preview).resolve()}")
     if args.execute:
         draw_with_mouse(
             result.paths,
-            countdown=args.countdown,
-            move_duration=args.move_duration,
-            point_delay=args.point_delay,
-            stroke_delay=args.stroke_delay,
+            countdown=environment.countdown,
+            move_duration=environment.move_duration,
+            point_delay=environment.point_delay,
+            stroke_delay=environment.stroke_delay,
             allow_offscreen=args.allow_offscreen,
         )
-        print("完成。")
     elif not args.preview:
-        print("這次沒有移動滑鼠。要實際書寫請加上 --execute；要先看效果請加上 --preview。")
-
+        print("未移動滑鼠；請使用 --preview 或 --execute。")
     return 0
 
 

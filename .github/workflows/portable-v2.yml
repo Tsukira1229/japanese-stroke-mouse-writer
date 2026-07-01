@@ -1,0 +1,55 @@
+name: Build Portable V2
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - "v2.*"
+
+permissions:
+  contents: write
+
+jobs:
+  build-windows-x64:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+          cache: pip
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements.txt -r requirements-build.txt
+
+      - name: Run tests
+        env:
+          PYTHONUTF8: "1"
+        run: python -B -m unittest discover -s tests -v
+
+      - name: Build and verify portable package
+        shell: powershell
+        run: .\scripts\build_portable.ps1
+
+      - name: Upload workflow artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: JapaneseStrokeMouseWriter-v2.0.0-win-x64-portable
+          path: |
+            dist/JapaneseStrokeMouseWriter-v2.0.0-win-x64-portable.zip
+            dist/JapaneseStrokeMouseWriter-v2.0.0-win-x64-portable.zip.sha256
+
+      - name: Publish GitHub release
+        if: startsWith(github.ref, 'refs/tags/v2.')
+        shell: powershell
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "${{ github.ref_name }}" `
+            "dist/JapaneseStrokeMouseWriter-v2.0.0-win-x64-portable.zip" `
+            "dist/JapaneseStrokeMouseWriter-v2.0.0-win-x64-portable.zip.sha256" `
+            --title "Japanese Stroke Mouse Writer V2.0 Portable" `
+            --notes "Unsigned Windows x64 portable release. Extract the ZIP and run JapaneseStrokeMouseWriter.exe. Windows SmartScreen may show a warning for this unsigned build."

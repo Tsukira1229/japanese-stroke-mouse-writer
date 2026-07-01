@@ -5,4 +5,5 @@ preview*.png
 *.log
 dist/
 build/
-*.spec
+user_data/
+*.sha256
