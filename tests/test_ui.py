@@ -40,6 +40,50 @@ class JapaneseWriterUiTests(unittest.TestCase):
         result, environment = self.app.build_result()
         self.assertGreater(len(result.paths), 0)
         self.assertEqual(environment.countdown, 5)
+        self.assertEqual(environment.point_delay, 0.008)
+        self.assertEqual(environment.move_duration, 0.0)
+
+    def test_environment_uses_milliseconds_without_speed_control(self) -> None:
+        texts: list[str] = []
+
+        def collect(widget: tk.Misc) -> None:
+            try:
+                text = widget.cget("text")
+            except tk.TclError:
+                text = ""
+            if text:
+                texts.append(str(text))
+            for child in widget.winfo_children():
+                collect(child)
+
+        collect(self.app.environment_tab)
+        self.assertTrue(any("取樣點停頓（毫秒）" in text for text in texts))
+        self.assertTrue(any("0.1–20" in text for text in texts))
+        self.assertFalse(any("書寫速度" in text for text in texts))
+
+    def test_environment_boundaries(self) -> None:
+        for milliseconds in ("1", "8", "1000"):
+            with self.subTest(milliseconds=milliseconds):
+                self.app.point_delay_ms.set(milliseconds)
+                self.assertEqual(self.app.read_environment().point_delay, float(milliseconds) / 1000)
+        for milliseconds in ("0", "0.9", "1000.1"):
+            with self.subTest(milliseconds=milliseconds):
+                self.app.point_delay_ms.set(milliseconds)
+                with self.assertRaises(ValueError):
+                    self.app.read_environment()
+        for spacing in ("0.1", "20"):
+            self.app.point_delay_ms.set("8")
+            self.app.sample_spacing.set(spacing)
+            self.assertEqual(self.app.read_environment().sample_spacing, float(spacing))
+        for spacing in ("0.09", "20.1"):
+            self.app.sample_spacing.set(spacing)
+            with self.assertRaises(ValueError):
+                self.app.read_environment()
+
+    def test_loaded_seconds_are_displayed_as_milliseconds(self) -> None:
+        environment_type = type(self.app.read_environment())
+        self.app._apply_environment(environment_type(point_delay=0.012))
+        self.assertEqual(self.app.point_delay_ms.get(), "12")
 
     def test_preview_completes_on_canvas(self) -> None:
         self.app.refresh_preview()

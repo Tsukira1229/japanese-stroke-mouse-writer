@@ -1,10 +1,10 @@
-# Japanese Stroke Mouse Writer V2.0 Portable
+# Japanese Stroke Mouse Writer V2.0.1 Portable
 
 Windows 10/11 x64 免安裝日文筆順書寫工具。程式使用 KanjiVG 筆順資料，透過 Windows SendInput 在小畫家或其他畫布中書寫平假名、片假名與漢字。
 
 ## 一般使用者
 
-1. 下載 `JapaneseStrokeMouseWriter-v2.0.0-win-x64-portable.zip`。
+1. 下載 `JapaneseStrokeMouseWriter-v2.0.1-win-x64-portable.zip`。
 2. 將 ZIP 完整解壓到可寫入的資料夾。
 3. 雙擊 `JapaneseStrokeMouseWriter.exe`。
 
@@ -34,7 +34,7 @@ python -B -m unittest discover -s tests -v
 建置結果位於：
 
 ```text
-dist/JapaneseStrokeMouseWriter-v2.0.0-win-x64-portable.zip
+dist/JapaneseStrokeMouseWriter-v2.0.1-win-x64-portable.zip
 ```
 
 執行封裝自測：
@@ -47,4 +47,4 @@ JapaneseStrokeMouseWriter.exe --self-test
 
 筆順資料來自 [KanjiVG](https://kanjivg.tagaini.net/)（[GitHub](https://github.com/KanjiVG/kanjivg)），採 Creative Commons Attribution-ShareAlike 3.0 授權。詳見 [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)。
 
-V2.0 首次發布為未簽章版本，Windows SmartScreen 可能顯示未知發行者提示。
+V2.0.1 為未簽章版本，Windows SmartScreen 可能顯示未知發行者提示。

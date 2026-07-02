@@ -154,8 +154,7 @@ class JapaneseWriterApp:
         self.flow = tk.StringVar(value="向右")
         self.countdown = tk.StringVar(value="5")
         self.sample_spacing = tk.StringVar(value="2.0")
-        self.point_delay = tk.StringVar(value="0.008")
-        self.move_duration = tk.StringVar(value="0")
+        self.point_delay_ms = tk.StringVar(value="8")
         self.preset_selection = tk.StringVar(value="")
         self.status = tk.StringVar(value="準備就緒")
         self.summary = tk.StringVar(value="")
@@ -377,13 +376,11 @@ class JapaneseWriterApp:
         ttk.Label(tab, text="書寫環境", style="Section.TLabel").grid(row=0, column=0, columnspan=2, sticky="w", pady=(0, 12))
         self._field(tab, 1, 0, "開始倒數（秒）", self.countdown)
         self._field(tab, 1, 1, "曲線精細度", self.sample_spacing)
-        self._field(tab, 3, 0, "取樣點停頓（秒）", self.point_delay)
-        self._field(tab, 3, 1, "書寫速度（秒）", self.move_duration)
+        self._field(tab, 3, 0, "取樣點停頓（毫秒）", self.point_delay_ms)
         descriptions = (
             "倒數：按下開始後保留的視窗切換時間。",
-            "曲線精細度：數字越小越細緻，但取樣點更多。",
-            "取樣點停頓：若筆畫斷線，可提高到 0.012。",
-            "書寫速度：每個移動點增加的時間，數字越小越快。",
+            "曲線精細度：範圍 0.1–20；數字越小越細緻，但書寫時間越長。",
+            "取樣點停頓：範圍 1–1000 毫秒；若筆畫斷線可適度提高。",
         )
         for index, text in enumerate(descriptions):
             ttk.Label(tab, text=text, style="Field.TLabel").grid(
@@ -430,7 +427,7 @@ class JapaneseWriterApp:
         )
         for variable in preview_variables:
             variable.trace_add("write", lambda *_args: self.schedule_preview())
-        for variable in (self.countdown, self.sample_spacing, self.point_delay, self.move_duration):
+        for variable in (self.countdown, self.sample_spacing, self.point_delay_ms):
             variable.trace_add("write", lambda *_args: self.schedule_environment_save())
 
     def _load_portable_settings(self) -> None:
@@ -494,8 +491,8 @@ class JapaneseWriterApp:
         return EnvironmentSettings(
             countdown=self._integer(self.countdown, "開始倒數", 0, 30),
             sample_spacing=self._float(self.sample_spacing, "曲線精細度", 0.1, 20),
-            point_delay=self._float(self.point_delay, "取樣點停頓", 0, 1),
-            move_duration=self._float(self.move_duration, "書寫速度", 0, 1),
+            point_delay=self._float(self.point_delay_ms, "取樣點停頓", 1, 1000) / 1000,
+            move_duration=0.0,
             stroke_delay=0.03,
         )
 
@@ -640,14 +637,16 @@ class JapaneseWriterApp:
         self.environment_after_id = None
         try:
             self.store.set_environment(self.read_environment())
-        except (ValueError, PermissionError):
+        except ValueError as exc:
+            self.status.set(str(exc))
+            return
+        except PermissionError:
             return
 
     def _apply_environment(self, environment: EnvironmentSettings) -> None:
         self.countdown.set(str(environment.countdown))
         self.sample_spacing.set(str(environment.sample_spacing))
-        self.point_delay.set(str(environment.point_delay))
-        self.move_duration.set(str(environment.move_duration))
+        self.point_delay_ms.set(f"{environment.point_delay * 1000:g}")
 
     def _apply_general(self, general: GeneralSettings) -> None:
         self.font_size.set(str(general.font_size))
@@ -817,7 +816,7 @@ class JapaneseWriterApp:
                 draw_with_mouse(
                     result.paths,
                     countdown=environment.countdown,
-                    move_duration=environment.move_duration,
+                    move_duration=0.0,
                     point_delay=environment.point_delay,
                     stroke_delay=environment.stroke_delay,
                     allow_offscreen=False,

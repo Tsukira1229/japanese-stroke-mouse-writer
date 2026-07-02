@@ -26,9 +26,9 @@ class LayoutTests(unittest.TestCase):
     def layout(self, orientation: Orientation, flow: FlowDirection):
         start_x = 300 if flow is FlowDirection.LEFT else 100
         if orientation is Orientation.HORIZONTAL:
-            end_x = 190 if flow is FlowDirection.LEFT else 310
+            end_x = 80 if flow is FlowDirection.LEFT else 310
         else:
-            end_x = 180 if flow is FlowDirection.LEFT else 320
+            end_x = 60 if flow is FlowDirection.LEFT else 320
         return build_layout(
             "あいう",
             DEFAULT_KANJIVG_DIR,
@@ -54,7 +54,8 @@ class LayoutTests(unittest.TestCase):
 
     def test_horizontal_left_wraps_down(self) -> None:
         result = self.layout(Orientation.HORIZONTAL, FlowDirection.LEFT)
-        self.assertEqual([(p.x, p.y) for p in result.placements], [(300, 100), (190, 100), (300, 220)])
+        self.assertEqual([(p.x, p.y) for p in result.placements], [(200, 100), (90, 100), (200, 220)])
+        self.assertTrue(all(80 <= x <= 300 for path in result.paths for x, _y in path))
 
     def test_vertical_right_wraps_to_next_column(self) -> None:
         result = self.layout(Orientation.VERTICAL, FlowDirection.RIGHT)
@@ -62,7 +63,42 @@ class LayoutTests(unittest.TestCase):
 
     def test_vertical_left_wraps_to_previous_column(self) -> None:
         result = self.layout(Orientation.VERTICAL, FlowDirection.LEFT)
-        self.assertEqual([(p.x, p.y) for p in result.placements], [(300, 100), (300, 210), (180, 100)])
+        self.assertEqual([(p.x, p.y) for p in result.placements], [(200, 100), (200, 210), (80, 100)])
+        self.assertTrue(all(60 <= x <= 300 for path in result.paths for x, _y in path))
+
+    def test_left_layout_requires_one_full_cell_width(self) -> None:
+        with self.assertRaisesRegex(ValueError, "至少需要容納一個字格"):
+            build_layout(
+                "あ",
+                DEFAULT_KANJIVG_DIR,
+                LayoutSettings(
+                    start_x=300,
+                    start_y=100,
+                    end_x=201,
+                    end_y=300,
+                    general=GeneralSettings(font_size=100, flow=FlowDirection.LEFT),
+                ),
+            )
+
+    def test_left_layout_preserves_space_tab_and_wrap_bounds(self) -> None:
+        result = build_layout(
+            "あ \tい\nう",
+            DEFAULT_KANJIVG_DIR,
+            LayoutSettings(
+                start_x=600,
+                start_y=0,
+                end_x=0,
+                end_y=300,
+                general=GeneralSettings(
+                    font_size=80,
+                    char_gap=5,
+                    line_gap=10,
+                    flow=FlowDirection.LEFT,
+                ),
+            ),
+        )
+        self.assertEqual([p.char for p in result.placements], ["あ", " ", "\t", "い", "う"])
+        self.assertTrue(all(0 <= p.x and p.x + 80 <= 600 for p in result.placements))
 
     def test_spaces_tabs_and_explicit_newlines_are_preserved(self) -> None:
         result = build_layout(

@@ -42,10 +42,36 @@ class SettingsStoreTests(unittest.TestCase):
             self.store.add_preset("sample", GeneralSettings())
 
     def test_environment_persists(self) -> None:
-        expected = EnvironmentSettings(countdown=8, sample_spacing=1.5, point_delay=0.02, move_duration=0.01)
+        expected = EnvironmentSettings(countdown=8, sample_spacing=1.5, point_delay=0.02, move_duration=0.0)
         self.store.set_environment(expected)
         loaded = SettingsStore(self.path).load().environment
         self.assertEqual(loaded, expected)
+        self.assertNotIn("move_duration", json.loads(self.path.read_text(encoding="utf-8"))["environment"])
+
+    def test_legacy_move_duration_is_ignored_and_removed_on_save(self) -> None:
+        self.path.write_text(
+            json.dumps(
+                {
+                    "schema_version": 1,
+                    "environment": {
+                        "countdown": 6,
+                        "sample_spacing": 1.25,
+                        "point_delay": 0.012,
+                        "move_duration": 0.5,
+                    },
+                    "last_preset_id": None,
+                    "presets": [],
+                }
+            ),
+            encoding="utf-8",
+        )
+        loaded = SettingsStore(self.path)
+        environment = loaded.load().environment
+        self.assertEqual(environment.point_delay, 0.012)
+        self.assertEqual(environment.move_duration, 0.0)
+        loaded.set_environment(environment)
+        payload = json.loads(self.path.read_text(encoding="utf-8"))
+        self.assertNotIn("move_duration", payload["environment"])
 
     def test_corrupt_json_is_backed_up(self) -> None:
         self.path.write_text("{invalid", encoding="utf-8")

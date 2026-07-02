@@ -6,7 +6,7 @@ from __future__ import annotations
 import json
 import os
 import shutil
-from dataclasses import asdict, dataclass, field
+from dataclasses import dataclass, field
 from pathlib import Path
 from uuid import uuid4
 
@@ -57,9 +57,11 @@ def general_from_dict(data: dict[str, object]) -> GeneralSettings:
 
 
 def environment_to_dict(settings: EnvironmentSettings) -> dict[str, object]:
-    data = asdict(settings)
-    data.pop("stroke_delay", None)
-    return data
+    return {
+        "countdown": settings.countdown,
+        "sample_spacing": settings.sample_spacing,
+        "point_delay": settings.point_delay,
+    }
 
 
 def environment_from_dict(data: dict[str, object]) -> EnvironmentSettings:
@@ -67,7 +69,7 @@ def environment_from_dict(data: dict[str, object]) -> EnvironmentSettings:
         countdown=int(data.get("countdown", 5)),
         sample_spacing=float(data.get("sample_spacing", 2.0)),
         point_delay=float(data.get("point_delay", 0.008)),
-        move_duration=float(data.get("move_duration", 0.0)),
+        move_duration=0.0,
         stroke_delay=0.03,
     )
 

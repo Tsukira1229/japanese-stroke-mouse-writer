@@ -17,7 +17,7 @@ from pathlib import Path
 Point = tuple[float, float]
 PathList = list[list[Point]]
 
-APP_VERSION = "2.0.0"
+APP_VERSION = "2.0.1"
 SCRIPT_DIR = Path(__file__).resolve().parent
 BUNDLE_DIR = Path(getattr(sys, "_MEIPASS", SCRIPT_DIR))
 EXECUTABLE_DIR = Path(sys.executable).resolve().parent if getattr(sys, "frozen", False) else SCRIPT_DIR
@@ -297,8 +297,8 @@ def _validate_layout_settings(settings: LayoutSettings) -> None:
         raise LayoutError("起點與末端的垂直範圍小於一個字格。")
     if general.flow is FlowDirection.RIGHT and settings.end_x < settings.start_x + size:
         raise LayoutError("向右排版時，末端 X 必須位於起點右側且至少容納一個字格。")
-    if general.flow is FlowDirection.LEFT and settings.end_x > settings.start_x:
-        raise LayoutError("向左排版時，末端 X 必須位於起點左側。")
+    if general.flow is FlowDirection.LEFT and settings.end_x > settings.start_x - size:
+        raise LayoutError("向左排版時，起點與末端的水平範圍至少需要容納一個字格。")
 
 
 def _token_span(char: str) -> int:
@@ -321,7 +321,7 @@ def build_layout(
     secondary_step = size + general.line_gap
     bounded = settings.end_x is not None and settings.end_y is not None
     result = LayoutResult()
-    cursor_x = settings.start_x
+    cursor_x = settings.start_x - size if general.flow is FlowDirection.LEFT else settings.start_x
     cursor_y = settings.start_y
     cells_on_line = 0
 
@@ -348,7 +348,7 @@ def build_layout(
     def wrap(source_index: int, explicit: bool) -> None:
         nonlocal cursor_x, cursor_y, cells_on_line
         if general.orientation is Orientation.HORIZONTAL:
-            cursor_x = settings.start_x
+            cursor_x = settings.start_x - size if general.flow is FlowDirection.LEFT else settings.start_x
             cursor_y += secondary_step
         else:
             cursor_y = settings.start_y
@@ -416,7 +416,7 @@ def build_layout(
     if bounded:
         assert settings.end_x is not None and settings.end_y is not None
         min_x = min(settings.start_x, settings.end_x)
-        max_x = max(settings.start_x + size, settings.end_x)
+        max_x = max(settings.start_x, settings.end_x)
         result.canvas_bounds = (min_x, settings.start_y, max_x, settings.end_y)
     elif result.placements:
         placement_min_x = min(p.x - ((p.span - 1) * primary_step if general.orientation is Orientation.HORIZONTAL and general.flow is FlowDirection.LEFT else 0) for p in result.placements)
