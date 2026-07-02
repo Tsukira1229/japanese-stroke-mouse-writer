@@ -1,12 +1,16 @@
 from __future__ import annotations
 
+import json
 import runpy
 import tempfile
 import time
 import tkinter as tk
 import unittest
 from pathlib import Path
+from tkinter import ttk
+from unittest.mock import patch
 
+from localization import LANGUAGE_OPTIONS, Language
 from mouse_writer_pro import WritingCancelled
 
 
@@ -20,10 +24,11 @@ class JapaneseWriterUiTests(unittest.TestCase):
         self.temp = tempfile.TemporaryDirectory()
         self.root = tk.Tk()
         self.root.withdraw()
-        self.app = JapaneseWriterApp(
-            self.root,
-            settings_path=Path(self.temp.name) / "user_data/settings.json",
-        )
+        with patch("localization._system_locale_name", return_value="zh-TW"):
+            self.app = JapaneseWriterApp(
+                self.root,
+                settings_path=Path(self.temp.name) / "user_data/settings.json",
+            )
         self.root.update_idletasks()
 
     def tearDown(self) -> None:
@@ -35,6 +40,44 @@ class JapaneseWriterUiTests(unittest.TestCase):
     def test_three_configuration_areas_exist(self) -> None:
         self.assertEqual(self.app.notebook.index("end"), 3)
         self.assertEqual(self.app.text_input.cget("wrap"), "none")
+        self.assertFalse(
+            any(isinstance(child, ttk.Scrollbar) for child in self.app.text_input.master.winfo_children())
+        )
+
+    def test_environment_fields_are_numeric_spinboxes(self) -> None:
+        self.assertEqual(len(self.app.numeric_inputs), 3)
+        self.assertTrue(all(control.widget.winfo_class() == "TSpinbox" for control in self.app.numeric_inputs))
+        curve_control = self.app.numeric_inputs[1]
+        self.assertFalse(curve_control._validate("２。５"))
+        self.root.update()
+        self.assertEqual(curve_control.variable.get(), "2.5")
+        self.assertFalse(curve_control._validate("2a"))
+
+    def test_numeric_control_reverts_invalid_range(self) -> None:
+        delay_control = self.app.numeric_inputs[2]
+        previous = delay_control.variable.get()
+        delay_control.variable.set("0")
+        delay_control._commit()
+        self.assertEqual(delay_control.variable.get(), previous)
+
+    def test_language_switch_is_immediate_and_preserves_session_data(self) -> None:
+        content = "あ ア\n日本語"
+        self.app.text_input.delete("1.0", "end")
+        self.app.text_input.insert("1.0", content)
+        self.app.start_x.set("432")
+        english_label = dict(LANGUAGE_OPTIONS)[Language.ENGLISH]
+        self.app.language_selection.set(english_label)
+        self.app._language_selected()
+        self.assertIs(self.app.language, Language.ENGLISH)
+        self.assertEqual(self.app.text_input.get("1.0", "end-1c"), content)
+        self.assertEqual(self.app.start_x.get(), "432")
+        self.assertEqual(self.app.notebook.tab(0, "text"), "Content & Preview")
+        self.assertEqual(self.app.orientation.get(), "Horizontal")
+        self.assertIn("language", self.app.status.get().lower())
+        self.assertEqual(
+            json.loads((Path(self.temp.name) / "user_data/settings.json").read_text(encoding="utf-8"))["language"],
+            "en",
+        )
 
     def test_default_layout_builds_paths(self) -> None:
         result, environment = self.app.build_result()

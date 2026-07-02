@@ -10,6 +10,13 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from uuid import uuid4
 
+from localization import (
+    Language,
+    LocalizedPermissionError,
+    LocalizedValueError,
+    detect_system_language,
+    language_from_code,
+)
 from mouse_writer_pro import (
     EXECUTABLE_DIR,
     EnvironmentSettings,
@@ -34,6 +41,7 @@ class SettingsState:
     environment: EnvironmentSettings = field(default_factory=EnvironmentSettings)
     presets: list[Preset] = field(default_factory=list)
     last_preset_id: str | None = None
+    language: Language = field(default_factory=detect_system_language)
 
 
 def general_to_dict(settings: GeneralSettings) -> dict[str, object]:
@@ -85,10 +93,7 @@ class SettingsStore:
         try:
             probe.write_text("ok", encoding="ascii")
         except OSError as exc:
-            raise PermissionError(
-                f"Portable 資料夾無法寫入：{self.path.parent}\n"
-                "請將整個程式資料夾移到文件、桌面或其他可寫入位置。"
-            ) from exc
+            raise LocalizedPermissionError("portable_permission", path=self.path.parent) from exc
         finally:
             probe.unlink(missing_ok=True)
 
@@ -100,7 +105,7 @@ class SettingsStore:
         try:
             raw = json.loads(self.path.read_text(encoding="utf-8"))
             if raw.get("schema_version") != SCHEMA_VERSION:
-                raise ValueError("不支援的設定檔版本。")
+                raise LocalizedValueError("settings_schema")
             presets = [
                 Preset(
                     id=str(item["id"]),
@@ -113,6 +118,7 @@ class SettingsStore:
                 environment=environment_from_dict(dict(raw.get("environment", {}))),
                 presets=presets,
                 last_preset_id=raw.get("last_preset_id"),
+                language=language_from_code(raw.get("language"), detect_system_language()),
             )
             return self.state
         except (OSError, ValueError, TypeError, KeyError, json.JSONDecodeError):
@@ -125,6 +131,7 @@ class SettingsStore:
         self.ensure_writable()
         payload = {
             "schema_version": SCHEMA_VERSION,
+            "language": self.state.language.value,
             "environment": environment_to_dict(self.state.environment),
             "last_preset_id": self.state.last_preset_id,
             "presets": [
@@ -138,6 +145,10 @@ class SettingsStore:
 
     def set_environment(self, environment: EnvironmentSettings) -> None:
         self.state.environment = environment
+        self.save()
+
+    def set_language(self, language: Language) -> None:
+        self.state.language = language
         self.save()
 
     def add_preset(self, name: str, general: GeneralSettings) -> Preset:
@@ -195,13 +206,13 @@ class SettingsStore:
         for index, preset in enumerate(self.state.presets):
             if preset.id == preset_id:
                 return index
-        raise KeyError("找不到指定的自訂選項。")
+        raise LocalizedValueError("preset_missing")
 
     @staticmethod
     def _validate_name(name: str) -> str:
         validated = name.strip()
         if not 1 <= len(validated) <= 40:
-            raise ValueError("自訂選項名稱必須為 1 至 40 個字元。")
+            raise LocalizedValueError("preset_name_length")
         return validated
 
     def _ensure_unique(self, name: str, excluding_id: str | None = None) -> None:
@@ -210,4 +221,4 @@ class SettingsStore:
             preset.id != excluding_id and preset.name.casefold() == normalized
             for preset in self.state.presets
         ):
-            raise ValueError("已有相同名稱的自訂選項。")
+            raise LocalizedValueError("preset_duplicate")

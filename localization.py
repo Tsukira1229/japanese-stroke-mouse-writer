@@ -1,0 +1,312 @@
+# -*- coding: utf-8 -*-
+"""Desktop UI localization and Windows language detection."""
+
+from __future__ import annotations
+
+import ctypes
+import locale
+import sys
+from enum import Enum
+
+
+class Language(str, Enum):
+    JAPANESE = "ja"
+    TRADITIONAL_CHINESE = "zh-Hant"
+    SIMPLIFIED_CHINESE = "zh-Hans"
+    ENGLISH = "en"
+
+
+LANGUAGE_OPTIONS = (
+    (Language.JAPANESE, "日本語"),
+    (Language.TRADITIONAL_CHINESE, "繁體中文"),
+    (Language.SIMPLIFIED_CHINESE, "简体中文"),
+    (Language.ENGLISH, "English"),
+)
+
+
+ZH_HANT = {
+    "app_title": "日文筆順滑鼠書寫工具",
+    "tab_content": "內容與預覽",
+    "tab_general": "一般設定",
+    "tab_environment": "環境設定",
+    "emergency_hint": "緊急停止：按 ESC 或將滑鼠移到螢幕角落",
+    "writing_text": "書寫文字",
+    "canvas_coordinates": "畫布座標",
+    "start_coordinates": "起始座標",
+    "end_coordinates": "末端座標",
+    "detect": "偵測{target}",
+    "update_preview": "更新預覽",
+    "start_writing": "開始書寫",
+    "actual_preview": "實際排版預覽",
+    "preview_hint": "淡色字格僅供定位；實際輸出為黑色筆順路徑。",
+    "preview_empty": "請確認文字、座標與排版設定",
+    "text_layout": "文字與排版",
+    "font_size_px": "字體大小（px）",
+    "char_gap_px": "字距（px）",
+    "line_gap_px": "行距（px）",
+    "orientation": "排列方向",
+    "flow": "流向",
+    "horizontal": "水平",
+    "vertical": "垂直",
+    "right": "向右",
+    "left": "向左",
+    "presets": "自訂選項",
+    "preset_add": "新增",
+    "preset_overwrite": "覆寫",
+    "preset_rename": "重新命名",
+    "preset_delete": "刪除",
+    "preset_hint": "自訂選項只保存字體大小、字距、行距、排列方向與流向。",
+    "writing_environment": "書寫環境",
+    "language": "語言",
+    "countdown_seconds": "開始倒數（秒）",
+    "curve_detail": "曲線精細度",
+    "point_delay_ms": "取樣點停頓（毫秒）",
+    "countdown_hint": "倒數：按下開始後保留的視窗切換時間。",
+    "curve_hint": "曲線精細度：範圍 0.1–20；數字越小越細緻，但書寫時間越長。",
+    "delay_hint": "取樣點停頓：範圍 1–1000 毫秒；若筆畫斷線可適度提高。",
+    "ready": "準備就緒",
+    "language_changed": "介面語言已切換",
+    "preview_updating": "正在更新排版預覽…",
+    "preview_updated": "預覽已更新",
+    "preview_summary": "{cells} 格 · {strokes} 筆 · {points} 點",
+    "settings_error": "設定錯誤",
+    "preview_error": "無法建立預覽",
+    "portable_write_error": "Portable 資料夾無法寫入",
+    "preset_select_first": "請先選擇自訂選項。",
+    "preset_title": "自訂選項",
+    "preset_add_title": "新增自訂選項",
+    "preset_name_prompt": "名稱（1–40 個字元）：",
+    "preset_overwrite_title": "覆寫自訂選項",
+    "preset_overwrite_prompt": "以目前設定覆寫「{name}」？",
+    "preset_rename_title": "重新命名",
+    "preset_new_name": "新名稱：",
+    "preset_delete_title": "刪除自訂選項",
+    "preset_delete_prompt": "確定刪除「{name}」？",
+    "preset_loaded": "已載入自訂選項：{name}",
+    "preset_added": "已新增自訂選項：{name}",
+    "preset_overwritten": "已覆寫自訂選項：{name}",
+    "preset_renamed": "已重新命名為：{name}",
+    "preset_deleted": "已刪除自訂選項：{name}",
+    "cannot_add": "無法新增",
+    "cannot_overwrite": "無法覆寫",
+    "cannot_rename": "無法重新命名",
+    "cannot_delete": "無法刪除",
+    "detecting": "{target}偵測進行中…",
+    "coordinate_detected": "已偵測{target}座標：X={x}，Y={y}",
+    "start_short": "起始",
+    "end_short": "末端",
+    "preparing_write": "準備開始書寫…",
+    "cannot_start": "無法開始書寫",
+    "writing_complete": "書寫完成",
+    "complete": "完成",
+    "complete_message": "文字已依預覽排版完成書寫。",
+    "cancelled_esc": "操作已由 ESC 取消",
+    "cancelled_failsafe": "滑鼠已移到螢幕角落，操作已停止",
+    "operation_failed": "操作未完成",
+    "operation_running": "操作進行中",
+    "stop_requested": "已送出停止要求，請等待操作結束。",
+    "number_required": "「{label}」必須是數字。",
+    "finite_required": "「{label}」必須是有限數字。",
+    "minimum": "「{label}」不可小於 {value}。",
+    "maximum": "「{label}」不可大於 {value}。",
+    "integer_required": "「{label}」必須是整數。",
+    "invalid_number_reverted": "「{label}」輸入無效，已恢復上一個有效值。",
+    "font_size": "字體大小",
+    "char_gap": "字距",
+    "line_gap": "行距",
+    "countdown": "開始倒數",
+    "point_delay": "取樣點停頓",
+    "start_x": "起始 X",
+    "start_y": "起始 Y",
+    "end_x": "末端 X",
+    "end_y": "末端 Y",
+    "layout_font_range": "字體大小必須介於 10 與 1000 px。",
+    "layout_gap_negative": "字距與行距不可為負數。",
+    "layout_end_pair": "末端 X 與 Y 座標必須同時設定。",
+    "layout_vertical_small": "起點與末端的垂直範圍小於一個字格。",
+    "layout_right_small": "向右排版時，末端 X 必須位於起點右側且至少容納一個字格。",
+    "layout_left_small": "向左排版時，起點與末端的水平範圍至少需要容納一個字格。",
+    "layout_text_empty": "請輸入至少一個可書寫的日文字元。",
+    "layout_wrap_overflow": "第 {index} 個字元換行後超出畫布範圍。",
+    "layout_primary_overflow": "第 {index} 個字元無法放入目前畫布寬度或高度。",
+    "layout_wrap_still_overflow": "第 {index} 個字元換行後仍無法放入畫布。",
+    "layout_character_overflow": "第 {index} 個字元超出畫布範圍。",
+    "unsupported_character": "第 {index} 個字元「{char}」不是支援的日文字元。",
+    "missing_character": "找不到第 {index} 個字元「{char}」的 KanjiVG 筆順資料。",
+    "escape_operation": "已按下 ESC，操作已停止。",
+    "escape_writing": "已按下 ESC，書寫已停止。",
+    "failsafe_stop": "滑鼠已移到安全停止角落，書寫已中止。",
+    "virtual_screen_error": "無法取得 Windows 虛擬螢幕尺寸。",
+    "send_input_error": "Windows SendInput 滑鼠事件傳送失敗（錯誤碼 {code}）。",
+    "screen_overflow": "筆跡座標 ({x:.0f}, {y:.0f}) 超出虛擬螢幕範圍 ({min_x}, {min_y})–({max_x}, {max_y})。",
+    "settings_schema": "不支援的設定檔版本。",
+    "preset_missing": "找不到指定的自訂選項。",
+    "preset_name_length": "自訂選項名稱必須為 1 至 40 個字元。",
+    "preset_duplicate": "已有相同名稱的自訂選項。",
+    "portable_permission": "Portable 資料夾無法寫入：{path}\n請將整個程式資料夾移到文件、桌面或其他可寫入位置。",
+}
+
+
+EN = {
+    "app_title": "Japanese Stroke Mouse Writer", "tab_content": "Content & Preview", "tab_general": "General", "tab_environment": "Environment",
+    "emergency_hint": "Emergency stop: press ESC or move the pointer to a screen corner", "writing_text": "Text to write", "canvas_coordinates": "Canvas coordinates",
+    "start_coordinates": "Start coordinates", "end_coordinates": "End coordinates", "detect": "Detect {target}", "update_preview": "Update preview", "start_writing": "Start writing",
+    "actual_preview": "Layout preview", "preview_hint": "Light cells show placement; black paths are the actual strokes.", "preview_empty": "Check the text, coordinates, and layout settings",
+    "text_layout": "Text and layout", "font_size_px": "Font size (px)", "char_gap_px": "Character gap (px)", "line_gap_px": "Line gap (px)", "orientation": "Orientation", "flow": "Flow",
+    "horizontal": "Horizontal", "vertical": "Vertical", "right": "Right", "left": "Left", "presets": "Presets", "preset_add": "Add", "preset_overwrite": "Overwrite",
+    "preset_rename": "Rename", "preset_delete": "Delete", "preset_hint": "Presets save font size, character gap, line gap, orientation, and flow only.",
+    "writing_environment": "Writing environment", "language": "Language", "countdown_seconds": "Start countdown (seconds)", "curve_detail": "Curve detail", "point_delay_ms": "Sample delay (ms)",
+    "countdown_hint": "Countdown: time to switch to the target window after starting.", "curve_hint": "Curve detail: 0.1–20; smaller values are smoother but take longer.", "delay_hint": "Sample delay: 1–1000 ms; increase it if strokes break.",
+    "ready": "Ready", "language_changed": "Interface language changed", "preview_updating": "Updating layout preview…", "preview_updated": "Preview updated", "preview_summary": "{cells} cells · {strokes} strokes · {points} points",
+    "settings_error": "Settings error", "preview_error": "Cannot create preview", "portable_write_error": "Portable folder is not writable", "preset_select_first": "Select a preset first.", "preset_title": "Presets",
+    "preset_add_title": "Add preset", "preset_name_prompt": "Name (1–40 characters):", "preset_overwrite_title": "Overwrite preset", "preset_overwrite_prompt": "Overwrite “{name}” with the current settings?",
+    "preset_rename_title": "Rename", "preset_new_name": "New name:", "preset_delete_title": "Delete preset", "preset_delete_prompt": "Delete “{name}”?", "preset_loaded": "Preset loaded: {name}",
+    "preset_added": "Preset added: {name}", "preset_overwritten": "Preset overwritten: {name}", "preset_renamed": "Renamed to: {name}", "preset_deleted": "Preset deleted: {name}",
+    "cannot_add": "Cannot add", "cannot_overwrite": "Cannot overwrite", "cannot_rename": "Cannot rename", "cannot_delete": "Cannot delete", "detecting": "Detecting {target}…",
+    "coordinate_detected": "Detected {target} coordinates: X={x}, Y={y}", "start_short": "start", "end_short": "end", "preparing_write": "Preparing to write…", "cannot_start": "Cannot start writing",
+    "writing_complete": "Writing complete", "complete": "Complete", "complete_message": "The text was written using the previewed layout.", "cancelled_esc": "Operation cancelled by ESC", "cancelled_failsafe": "Pointer moved to a screen corner; operation stopped", "operation_failed": "Operation failed",
+    "operation_running": "Operation in progress", "stop_requested": "A stop request was sent. Wait for the operation to finish.", "number_required": "“{label}” must be a number.", "finite_required": "“{label}” must be finite.",
+    "minimum": "“{label}” cannot be less than {value}.", "maximum": "“{label}” cannot be greater than {value}.", "integer_required": "“{label}” must be an integer.", "invalid_number_reverted": "Invalid {label}; the previous valid value was restored.",
+    "font_size": "Font size", "char_gap": "Character gap", "line_gap": "Line gap", "countdown": "Start countdown", "point_delay": "Sample delay", "start_x": "Start X", "start_y": "Start Y", "end_x": "End X", "end_y": "End Y",
+    "layout_font_range": "Font size must be between 10 and 1000 px.", "layout_gap_negative": "Character and line gaps cannot be negative.", "layout_end_pair": "End X and Y must be set together.",
+    "layout_vertical_small": "The vertical range is smaller than one character cell.", "layout_right_small": "For right flow, End X must be to the right and fit at least one cell.", "layout_left_small": "For left flow, the horizontal range must fit at least one cell.",
+    "layout_text_empty": "Enter at least one writable Japanese character.", "layout_wrap_overflow": "Character {index} exceeds the canvas after wrapping.", "layout_primary_overflow": "Character {index} cannot fit in the canvas width or height.",
+    "layout_wrap_still_overflow": "Character {index} still cannot fit after wrapping.", "layout_character_overflow": "Character {index} exceeds the canvas.", "unsupported_character": "Character {index}, “{char}”, is not supported Japanese text.",
+    "missing_character": "No KanjiVG stroke data was found for character {index}, “{char}”.", "escape_operation": "ESC was pressed. The operation stopped.", "escape_writing": "ESC was pressed. Writing stopped.", "failsafe_stop": "The pointer reached a failsafe screen corner. Writing stopped.", "virtual_screen_error": "Cannot read the Windows virtual screen dimensions.", "send_input_error": "Windows SendInput mouse event failed (error {code}).",
+    "screen_overflow": "Stroke coordinate ({x:.0f}, {y:.0f}) is outside the virtual screen ({min_x}, {min_y})–({max_x}, {max_y}).", "settings_schema": "Unsupported settings file version.",
+    "preset_missing": "The selected preset was not found.", "preset_name_length": "Preset names must contain 1–40 characters.", "preset_duplicate": "A preset with this name already exists.",
+    "portable_permission": "The Portable folder is not writable: {path}\nMove the entire program folder to Documents, Desktop, or another writable location.",
+}
+
+
+ZH_HANS = {**ZH_HANT,
+    "app_title": "日文笔顺鼠标书写工具", "tab_content": "内容与预览", "tab_general": "常规设置", "tab_environment": "环境设置", "emergency_hint": "紧急停止：按 ESC 或将鼠标移到屏幕角落",
+    "writing_text": "书写文字", "canvas_coordinates": "画布坐标", "start_coordinates": "起始坐标", "end_coordinates": "末端坐标", "detect": "检测{target}", "update_preview": "更新预览", "start_writing": "开始书写",
+    "actual_preview": "实际排版预览", "preview_hint": "浅色字格仅供定位；实际输出为黑色笔顺路径。", "preview_empty": "请确认文字、坐标与排版设置", "text_layout": "文字与排版",
+    "font_size_px": "字体大小（px）", "char_gap_px": "字距（px）", "line_gap_px": "行距（px）", "orientation": "排列方向", "flow": "流向", "horizontal": "水平", "vertical": "垂直", "right": "向右", "left": "向左",
+    "presets": "自定义选项", "preset_add": "新增", "preset_overwrite": "覆盖", "preset_rename": "重命名", "preset_delete": "删除", "preset_hint": "自定义选项只保存字体大小、字距、行距、排列方向与流向。",
+    "writing_environment": "书写环境", "language": "语言", "countdown_seconds": "开始倒计时（秒）", "curve_detail": "曲线精细度", "point_delay_ms": "采样点停顿（毫秒）",
+    "countdown_hint": "倒计时：按下开始后保留的窗口切换时间。", "curve_hint": "曲线精细度：范围 0.1–20；数值越小越细致，但书写时间越长。", "delay_hint": "采样点停顿：范围 1–1000 毫秒；若笔画断线可适度提高。",
+    "ready": "准备就绪", "language_changed": "界面语言已切换", "preview_updating": "正在更新排版预览…", "preview_updated": "预览已更新", "preview_summary": "{cells} 格 · {strokes} 笔 · {points} 点", "settings_error": "设置错误", "preview_error": "无法建立预览",
+    "portable_write_error": "Portable 文件夹无法写入", "preset_select_first": "请先选择自定义选项。", "start_short": "起始", "end_short": "末端", "preparing_write": "准备开始书写…", "cannot_start": "无法开始书写",
+    "writing_complete": "书写完成", "complete": "完成", "complete_message": "文字已按预览排版完成书写。", "cancelled_esc": "操作已由 ESC 取消", "cancelled_failsafe": "鼠标已移到屏幕角落，操作已停止", "operation_failed": "操作未完成", "operation_running": "操作进行中",
+    "stop_requested": "已发送停止请求，请等待操作结束。", "number_required": "“{label}”必须是数字。", "finite_required": "“{label}”必须是有限数字。", "minimum": "“{label}”不可小于 {value}。", "maximum": "“{label}”不可大于 {value}。",
+    "integer_required": "“{label}”必须是整数。", "invalid_number_reverted": "“{label}”输入无效，已恢复上一个有效值。", "font_size": "字体大小", "char_gap": "字距", "line_gap": "行距", "countdown": "开始倒计时", "point_delay": "采样点停顿",
+    "start_x": "起始 X", "start_y": "起始 Y", "end_x": "末端 X", "end_y": "末端 Y", "preset_title": "自定义选项", "preset_add_title": "新增自定义选项", "preset_name_prompt": "名称（1–40 个字符）：",
+    "preset_overwrite_title": "覆盖自定义选项", "preset_overwrite_prompt": "使用当前设置覆盖“{name}”？", "preset_rename_title": "重命名", "preset_new_name": "新名称：", "preset_delete_title": "删除自定义选项", "preset_delete_prompt": "确定删除“{name}”？",
+    "preset_loaded": "已加载自定义选项：{name}", "preset_added": "已新增自定义选项：{name}", "preset_overwritten": "已覆盖自定义选项：{name}", "preset_renamed": "已重命名为：{name}", "preset_deleted": "已删除自定义选项：{name}",
+    "cannot_add": "无法新增", "cannot_overwrite": "无法覆盖", "cannot_rename": "无法重命名", "cannot_delete": "无法删除", "detecting": "正在检测{target}…", "coordinate_detected": "已检测{target}坐标：X={x}，Y={y}",
+    "layout_font_range": "字体大小必须介于 10 与 1000 px。", "layout_gap_negative": "字距与行距不可为负数。", "layout_end_pair": "末端 X 与 Y 坐标必须同时设置。", "layout_vertical_small": "起点与末端的垂直范围小于一个字格。",
+    "layout_right_small": "向右排版时，末端 X 必须位于起点右侧且至少容纳一个字格。", "layout_left_small": "向左排版时，起点与末端的水平范围至少需要容纳一个字格。", "layout_text_empty": "请输入至少一个可书写的日文字符。",
+    "layout_wrap_overflow": "第 {index} 个字符换行后超出画布范围。", "layout_primary_overflow": "第 {index} 个字符无法放入当前画布宽度或高度。", "layout_wrap_still_overflow": "第 {index} 个字符换行后仍无法放入画布。", "layout_character_overflow": "第 {index} 个字符超出画布范围。",
+    "unsupported_character": "第 {index} 个字符“{char}”不是支持的日文字符。", "missing_character": "找不到第 {index} 个字符“{char}”的 KanjiVG 笔顺数据。", "escape_operation": "已按下 ESC，操作已停止。", "escape_writing": "已按下 ESC，书写已停止。", "failsafe_stop": "鼠标已移到安全停止角落，书写已中止。", "virtual_screen_error": "无法获取 Windows 虚拟屏幕尺寸。", "send_input_error": "Windows SendInput 鼠标事件发送失败（错误码 {code}）。",
+    "screen_overflow": "笔迹坐标 ({x:.0f}, {y:.0f}) 超出虚拟屏幕范围 ({min_x}, {min_y})–({max_x}, {max_y})。", "settings_schema": "不支持的设置文件版本。", "preset_missing": "找不到指定的自定义选项。", "preset_name_length": "自定义选项名称必须为 1 至 40 个字符。", "preset_duplicate": "已有相同名称的自定义选项。",
+    "portable_permission": "Portable 文件夹无法写入：{path}\n请将整个程序文件夹移动到文档、桌面或其他可写入位置。",
+}
+
+
+JA = {**EN,
+    "app_title": "日本語筆順マウスライター", "tab_content": "内容とプレビュー", "tab_general": "一般設定", "tab_environment": "環境設定", "emergency_hint": "緊急停止：ESC または画面の隅へマウスを移動",
+    "writing_text": "書く文字", "canvas_coordinates": "キャンバス座標", "start_coordinates": "開始座標", "end_coordinates": "終了座標", "detect": "{target}を検出", "update_preview": "プレビュー更新", "start_writing": "書き始める",
+    "actual_preview": "レイアウトプレビュー", "preview_hint": "薄い枠は配置位置、黒い線が実際の筆順です。", "preview_empty": "文字、座標、レイアウト設定を確認してください", "text_layout": "文字とレイアウト",
+    "font_size_px": "文字サイズ（px）", "char_gap_px": "文字間隔（px）", "line_gap_px": "行間隔（px）", "orientation": "配置方向", "flow": "進行方向", "horizontal": "横書き", "vertical": "縦書き", "right": "右へ", "left": "左へ",
+    "presets": "プリセット", "preset_add": "追加", "preset_overwrite": "上書き", "preset_rename": "名前変更", "preset_delete": "削除", "preset_hint": "プリセットには文字サイズ、文字間隔、行間隔、配置方向、進行方向のみ保存されます。",
+    "writing_environment": "書き込み環境", "language": "言語", "countdown_seconds": "開始カウントダウン（秒）", "curve_detail": "曲線精度", "point_delay_ms": "サンプル待機（ミリ秒）",
+    "countdown_hint": "カウントダウン：開始後に対象画面へ切り替える時間です。", "curve_hint": "曲線精度：0.1～20。小さいほど滑らかですが時間がかかります。", "delay_hint": "サンプル待機：1～1000 ミリ秒。線が途切れる場合は増やしてください。",
+    "ready": "準備完了", "language_changed": "表示言語を変更しました", "preview_updating": "プレビューを更新中…", "preview_updated": "プレビューを更新しました", "preview_summary": "{cells} マス・{strokes} 画・{points} 点",
+    "settings_error": "設定エラー", "preview_error": "プレビューを作成できません", "portable_write_error": "Portable フォルダーに書き込めません", "preset_select_first": "先にプリセットを選択してください。", "preset_title": "プリセット",
+    "preset_add_title": "プリセットを追加", "preset_name_prompt": "名前（1～40文字）：", "preset_overwrite_title": "プリセットを上書き", "preset_overwrite_prompt": "現在の設定で「{name}」を上書きしますか？", "preset_rename_title": "名前変更", "preset_new_name": "新しい名前：",
+    "preset_delete_title": "プリセットを削除", "preset_delete_prompt": "「{name}」を削除しますか？", "preset_loaded": "プリセットを読み込みました：{name}", "preset_added": "プリセットを追加しました：{name}",
+    "preset_overwritten": "プリセットを上書きしました：{name}", "preset_renamed": "名前を変更しました：{name}", "preset_deleted": "プリセットを削除しました：{name}", "cannot_add": "追加できません", "cannot_overwrite": "上書きできません",
+    "cannot_rename": "名前を変更できません", "cannot_delete": "削除できません", "detecting": "{target}を検出中…", "coordinate_detected": "{target}座標：X={x}、Y={y}", "start_short": "開始", "end_short": "終了",
+    "preparing_write": "書き込みを準備中…", "cannot_start": "書き込みを開始できません", "writing_complete": "書き込み完了", "complete": "完了", "complete_message": "プレビューのレイアウトで文字を書き込みました。", "cancelled_esc": "ESC で操作を中止しました", "cancelled_failsafe": "マウスが画面の隅に移動したため操作を停止しました",
+    "operation_failed": "操作に失敗しました", "operation_running": "操作中", "stop_requested": "停止要求を送りました。操作が終了するまでお待ちください。", "number_required": "「{label}」には数値を入力してください。", "finite_required": "「{label}」には有限の数値を入力してください。",
+    "minimum": "「{label}」は {value} 以上にしてください。", "maximum": "「{label}」は {value} 以下にしてください。", "integer_required": "「{label}」には整数を入力してください。", "invalid_number_reverted": "「{label}」が無効なため、直前の値に戻しました。",
+    "font_size": "文字サイズ", "char_gap": "文字間隔", "line_gap": "行間隔", "countdown": "開始カウントダウン", "point_delay": "サンプル待機", "start_x": "開始 X", "start_y": "開始 Y", "end_x": "終了 X", "end_y": "終了 Y",
+    "layout_font_range": "文字サイズは 10～1000 px にしてください。", "layout_gap_negative": "文字間隔と行間隔に負の値は使用できません。", "layout_end_pair": "終了 X と Y は同時に設定してください。", "layout_vertical_small": "縦方向の範囲が1文字分より小さいです。",
+    "layout_right_small": "右方向では終了 X を開始点より右に置き、1文字分以上確保してください。", "layout_left_small": "左方向では横幅を1文字分以上確保してください。", "layout_text_empty": "書き込み可能な日本語を1文字以上入力してください。",
+    "layout_wrap_overflow": "{index} 文字目は改行後にキャンバスを超えます。", "layout_primary_overflow": "{index} 文字目をキャンバスの幅または高さに配置できません。", "layout_wrap_still_overflow": "{index} 文字目は改行後も配置できません。", "layout_character_overflow": "{index} 文字目がキャンバスを超えます。",
+    "unsupported_character": "{index} 文字目の「{char}」は対応する日本語文字ではありません。", "missing_character": "{index} 文字目の「{char}」に対応する KanjiVG データがありません。", "escape_operation": "ESC が押されたため操作を停止しました。", "escape_writing": "ESC が押されたため書き込みを停止しました。", "failsafe_stop": "マウスが安全停止用の画面の隅に移動したため書き込みを停止しました。", "virtual_screen_error": "Windows の仮想画面サイズを取得できません。", "send_input_error": "Windows SendInput のマウスイベント送信に失敗しました（エラー {code}）。",
+    "settings_schema": "対応していない設定ファイルです。", "preset_missing": "指定したプリセットが見つかりません。", "preset_name_length": "プリセット名は1～40文字にしてください。", "preset_duplicate": "同じ名前のプリセットがあります。",
+    "screen_overflow": "筆跡座標 ({x:.0f}, {y:.0f}) は仮想画面の範囲外です ({min_x}, {min_y})–({max_x}, {max_y})。",
+    "portable_permission": "Portable フォルダーに書き込めません：{path}\nプログラムフォルダー全体を書き込み可能な場所へ移動してください。",
+}
+
+
+TRANSLATIONS = {
+    Language.JAPANESE: JA,
+    Language.TRADITIONAL_CHINESE: ZH_HANT,
+    Language.SIMPLIFIED_CHINESE: ZH_HANS,
+    Language.ENGLISH: EN,
+}
+
+
+def tr(key: str, language: Language, **values: object) -> str:
+    template = TRANSLATIONS[language].get(key, ZH_HANT.get(key, key))
+    return template.format(**values)
+
+
+def language_from_code(value: object, fallback: Language | None = None) -> Language:
+    try:
+        return Language(str(value))
+    except ValueError:
+        return fallback or detect_system_language()
+
+
+def language_from_locale(locale_name: str | None) -> Language:
+    normalized = (locale_name or "").replace("_", "-").lower()
+    if normalized.startswith("ja"):
+        return Language.JAPANESE
+    if normalized.startswith(("zh-tw", "zh-hk", "zh-mo", "zh-hant")):
+        return Language.TRADITIONAL_CHINESE
+    if normalized.startswith(("zh-cn", "zh-sg", "zh-hans")):
+        return Language.SIMPLIFIED_CHINESE
+    return Language.ENGLISH
+
+
+def _system_locale_name() -> str | None:
+    if sys.platform == "win32":
+        buffer = ctypes.create_unicode_buffer(85)
+        if ctypes.windll.kernel32.GetUserDefaultLocaleName(buffer, len(buffer)):
+            return buffer.value
+    current = locale.getlocale()[0]
+    return current
+
+
+def detect_system_language() -> Language:
+    return language_from_locale(_system_locale_name())
+
+
+class LocalizedValueError(ValueError):
+    def __init__(self, message_key: str, **values: object) -> None:
+        self.message_key = message_key
+        self.message_values = values
+        super().__init__(tr(message_key, Language.TRADITIONAL_CHINESE, **values))
+
+
+class LocalizedPermissionError(PermissionError):
+    def __init__(self, message_key: str, **values: object) -> None:
+        self.message_key = message_key
+        self.message_values = values
+        super().__init__(tr(message_key, Language.TRADITIONAL_CHINESE, **values))
+
+
+class LocalizedOSError(OSError):
+    def __init__(self, message_key: str, **values: object) -> None:
+        self.message_key = message_key
+        self.message_values = values
+        super().__init__(tr(message_key, Language.TRADITIONAL_CHINESE, **values))
+
+
+def exception_text(error: BaseException, language: Language) -> str:
+    key = getattr(error, "message_key", None)
+    values = getattr(error, "message_values", {})
+    return tr(key, language, **values) if key else str(error)
+
+
+def validate_translation_catalogs() -> None:
+    expected = set(ZH_HANT)
+    for language, catalog in TRANSLATIONS.items():
+        missing = expected - set(catalog)
+        if missing:
+            raise RuntimeError(f"{language.value} is missing translations: {sorted(missing)}")

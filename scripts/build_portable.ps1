@@ -4,7 +4,7 @@ param(
 
 $ErrorActionPreference = "Stop"
 $Root = (Resolve-Path (Join-Path $PSScriptRoot "..")).Path
-$PackageName = "JapaneseStrokeMouseWriter-v2.0.1-win-x64-portable"
+$PackageName = "JapaneseStrokeMouseWriter-v2.0.2-win-x64-portable"
 $Dist = Join-Path $Root "dist"
 $PackageDir = Join-Path $Dist $PackageName
 $Archive = Join-Path $Dist "$PackageName.zip"

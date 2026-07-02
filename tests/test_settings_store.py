@@ -4,7 +4,9 @@ import json
 import tempfile
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 
+from localization import Language
 from mouse_writer_pro import EnvironmentSettings, FlowDirection, GeneralSettings, Orientation
 from settings_store import SettingsStore
 
@@ -47,6 +49,21 @@ class SettingsStoreTests(unittest.TestCase):
         loaded = SettingsStore(self.path).load().environment
         self.assertEqual(loaded, expected)
         self.assertNotIn("move_duration", json.loads(self.path.read_text(encoding="utf-8"))["environment"])
+
+    def test_language_persists(self) -> None:
+        self.store.set_language(Language.JAPANESE)
+        loaded = SettingsStore(self.path).load()
+        self.assertIs(loaded.language, Language.JAPANESE)
+        self.assertEqual(json.loads(self.path.read_text(encoding="utf-8"))["language"], "ja")
+
+    def test_legacy_settings_use_system_language(self) -> None:
+        self.path.write_text(
+            json.dumps({"schema_version": 1, "environment": {}, "presets": []}),
+            encoding="utf-8",
+        )
+        with patch("localization._system_locale_name", return_value="zh-CN"):
+            loaded = SettingsStore(self.path).load()
+        self.assertIs(loaded.language, Language.SIMPLIFIED_CHINESE)
 
     def test_legacy_move_duration_is_ignored_and_removed_on_save(self) -> None:
         self.path.write_text(

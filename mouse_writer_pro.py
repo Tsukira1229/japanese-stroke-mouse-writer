@@ -14,10 +14,12 @@ from dataclasses import dataclass, field
 from enum import Enum
 from pathlib import Path
 
+from localization import Language, LocalizedOSError, LocalizedValueError, tr
+
 Point = tuple[float, float]
 PathList = list[list[Point]]
 
-APP_VERSION = "2.0.1"
+APP_VERSION = "2.0.2"
 SCRIPT_DIR = Path(__file__).resolve().parent
 BUNDLE_DIR = Path(getattr(sys, "_MEIPASS", SCRIPT_DIR))
 EXECUTABLE_DIR = Path(sys.executable).resolve().parent if getattr(sys, "frozen", False) else SCRIPT_DIR
@@ -111,7 +113,7 @@ class LayoutResult:
 BuildResult = LayoutResult
 
 
-class LayoutError(ValueError):
+class LayoutError(LocalizedValueError):
     pass
 
 
@@ -124,7 +126,10 @@ class UnsupportedCharacterError(LayoutError):
 
 
 class WritingCancelled(RuntimeError):
-    pass
+    def __init__(self, message_key: str) -> None:
+        self.message_key = message_key
+        self.message_values: dict[str, object] = {}
+        super().__init__(tr(message_key, Language.TRADITIONAL_CHINESE))
 
 
 def require_svg_path():
@@ -284,21 +289,21 @@ def transform_kanjivg(
 def _validate_layout_settings(settings: LayoutSettings) -> None:
     general = settings.general
     if not 10 <= general.font_size <= 1000:
-        raise LayoutError("字體大小必須介於 10 與 1000 px。")
+        raise LayoutError("layout_font_range")
     if general.char_gap < 0 or general.line_gap < 0:
-        raise LayoutError("字距與行距不可為負數。")
+        raise LayoutError("layout_gap_negative")
     if (settings.end_x is None) != (settings.end_y is None):
-        raise LayoutError("末端 X 與 Y 座標必須同時設定。")
+        raise LayoutError("layout_end_pair")
     if settings.end_x is None:
         return
 
     size = general.font_size
     if settings.end_y < settings.start_y + size:
-        raise LayoutError("起點與末端的垂直範圍小於一個字格。")
+        raise LayoutError("layout_vertical_small")
     if general.flow is FlowDirection.RIGHT and settings.end_x < settings.start_x + size:
-        raise LayoutError("向右排版時，末端 X 必須位於起點右側且至少容納一個字格。")
+        raise LayoutError("layout_right_small")
     if general.flow is FlowDirection.LEFT and settings.end_x > settings.start_x - size:
-        raise LayoutError("向左排版時，起點與末端的水平範圍至少需要容納一個字格。")
+        raise LayoutError("layout_left_small")
 
 
 def _token_span(char: str) -> int:
@@ -312,7 +317,7 @@ def build_layout(
     environment: EnvironmentSettings | None = None,
 ) -> LayoutResult:
     if not text or not any(not char.isspace() for char in text):
-        raise LayoutError("請輸入至少一個可書寫的日文字元。")
+        raise LayoutError("layout_text_empty")
     _validate_layout_settings(settings)
     environment = environment or EnvironmentSettings()
     general = settings.general
@@ -356,7 +361,7 @@ def build_layout(
         cells_on_line = 0
         (result.explicit_wraps if explicit else result.automatic_wraps).append(source_index)
         if not secondary_fits():
-            raise LayoutOverflowError(f"第 {source_index + 1} 個字元換行後超出畫布範圍。")
+            raise LayoutOverflowError("layout_wrap_overflow", index=source_index + 1)
 
     for source_index, char in enumerate(text):
         if char == "\r":
@@ -369,13 +374,13 @@ def build_layout(
         automatic_wrap = False
         if not primary_fits(span):
             if cells_on_line == 0:
-                raise LayoutOverflowError(f"第 {source_index + 1} 個字元無法放入目前畫布寬度或高度。")
+                raise LayoutOverflowError("layout_primary_overflow", index=source_index + 1)
             wrap(source_index, explicit=False)
             automatic_wrap = True
             if not primary_fits(span):
-                raise LayoutOverflowError(f"第 {source_index + 1} 個字元換行後仍無法放入畫布。")
+                raise LayoutOverflowError("layout_wrap_still_overflow", index=source_index + 1)
         if not secondary_fits():
-            raise LayoutOverflowError(f"第 {source_index + 1} 個字元超出畫布範圍。")
+            raise LayoutOverflowError("layout_character_overflow", index=source_index + 1)
 
         placement = GlyphPlacement(
             char=char,
@@ -390,10 +395,10 @@ def build_layout(
 
         if not char.isspace():
             if not is_japanese_writing_char(char):
-                raise UnsupportedCharacterError(f"第 {source_index + 1} 個字元「{char}」不是支援的日文字元。")
+                raise UnsupportedCharacterError("unsupported_character", index=source_index + 1, char=char)
             strokes = load_kanjivg_strokes(char, kanjivg_dir, environment.sample_spacing)
             if not strokes:
-                raise UnsupportedCharacterError(f"找不到第 {source_index + 1} 個字元「{char}」的 KanjiVG 筆順資料。")
+                raise UnsupportedCharacterError("missing_character", index=source_index + 1, char=char)
             result.paths.extend(
                 transform_kanjivg(
                     strokes,
@@ -512,7 +517,7 @@ class WindowsSendInputMouse:
         self.virtual_width = self.user32.GetSystemMetrics(78)
         self.virtual_height = self.user32.GetSystemMetrics(79)
         if self.virtual_width <= 1 or self.virtual_height <= 1:
-            raise OSError("無法取得 Windows 虛擬螢幕尺寸。")
+            raise LocalizedOSError("virtual_screen_error")
 
     @property
     def screen_bounds(self) -> tuple[int, int, int, int]:
@@ -535,7 +540,7 @@ class WindowsSendInputMouse:
             data=_InputUnion(mi=_MouseInput(x, y, 0, flags, 0, 0)),
         )
         if self.send_input(1, ctypes.byref(event), ctypes.sizeof(_Input)) != 1:
-            raise OSError(ctypes.get_last_error(), "Windows SendInput 滑鼠事件傳送失敗。")
+            raise LocalizedOSError("send_input_error", code=ctypes.get_last_error())
 
     def move_to(self, x: int, y: int) -> None:
         absolute_x, absolute_y = self.absolute_coordinates(x, y)
@@ -565,7 +570,7 @@ def interruptible_sleep(seconds: float, stop_requested: Callable[[], bool] | Non
     deadline = time.monotonic() + max(0.0, seconds)
     while True:
         if stop_requested and stop_requested():
-            raise WritingCancelled("已按下 ESC，操作已停止。")
+            raise WritingCancelled("escape_operation")
         remaining = deadline - time.monotonic()
         if remaining <= 0:
             return
@@ -586,8 +591,13 @@ def validate_screen_bounds(paths: PathList, allow_offscreen: bool) -> None:
         for x, y in path:
             if not (min_x <= x < max_x and min_y <= y < max_y):
                 raise LayoutError(
-                    f"筆跡座標 ({x:.0f}, {y:.0f}) 超出虛擬螢幕範圍 "
-                    f"({min_x}, {min_y})–({max_x - 1}, {max_y - 1})。"
+                    "screen_overflow",
+                    x=x,
+                    y=y,
+                    min_x=min_x,
+                    min_y=min_y,
+                    max_x=max_x - 1,
+                    max_y=max_y - 1,
                 )
 
 
@@ -617,9 +627,9 @@ def draw_with_mouse(
 
     def check_stop() -> None:
         if stop_requested and stop_requested():
-            raise WritingCancelled("已按下 ESC，書寫已停止。")
+            raise WritingCancelled("escape_writing")
         if pyautogui.position() in pyautogui.FAILSAFE_POINTS:
-            raise pyautogui.FailSafeException("滑鼠已移到安全停止角落，書寫已中止。")
+            raise WritingCancelled("failsafe_stop")
 
     def move_to_sample(x: float, y: float) -> None:
         check_stop()

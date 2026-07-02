@@ -6,6 +6,7 @@ from __future__ import annotations
 import argparse
 import math
 import queue
+import re
 import sys
 import threading
 import time
@@ -14,6 +15,14 @@ from collections.abc import Callable
 from pathlib import Path
 from tkinter import messagebox, simpledialog, ttk
 
+from localization import (
+    LANGUAGE_OPTIONS,
+    Language,
+    detect_system_language,
+    exception_text,
+    tr,
+    validate_translation_catalogs,
+)
 from mouse_writer_pro import (
     APP_VERSION,
     DEFAULT_KANJIVG_DIR,
@@ -32,8 +41,68 @@ from mouse_writer_pro import (
 )
 from settings_store import DEFAULT_SETTINGS_PATH, Preset, SettingsStore
 
-ORIENTATION_LABELS = {"水平": Orientation.HORIZONTAL, "垂直": Orientation.VERTICAL}
-FLOW_LABELS = {"向右": FlowDirection.RIGHT, "向左": FlowDirection.LEFT}
+
+NUMERIC_TRANSLATION = str.maketrans("０１２３４５６７８９。．，,", "0123456789....")
+
+
+class NumericSpinbox:
+    def __init__(
+        self,
+        app: "JapaneseWriterApp",
+        parent: ttk.Frame,
+        variable: tk.StringVar,
+        label_key: str,
+        minimum: float,
+        maximum: float,
+        increment: float,
+        integer: bool = False,
+    ) -> None:
+        self.app = app
+        self.variable = variable
+        self.label_key = label_key
+        self.minimum = minimum
+        self.maximum = maximum
+        self.integer = integer
+        self.last_valid = variable.get()
+        validate = (app.root.register(self._validate), "%P")
+        self.widget = ttk.Spinbox(
+            parent,
+            textvariable=variable,
+            from_=minimum,
+            to=maximum,
+            increment=increment,
+            validate="key",
+            validatecommand=validate,
+        )
+        self.widget.bind("<FocusOut>", self._commit, add="+")
+        self.widget.bind("<Return>", self._commit, add="+")
+
+    @staticmethod
+    def normalize(value: str) -> str:
+        return value.translate(NUMERIC_TRANSLATION).replace(" ", "")
+
+    def _validate(self, proposed: str) -> bool:
+        normalized = self.normalize(proposed)
+        if normalized != proposed:
+            self.app.root.after_idle(self.variable.set, normalized)
+            return False
+        return re.fullmatch(r"\d*(?:\.\d*)?", proposed) is not None
+
+    def _commit(self, _event: tk.Event[tk.Misc] | None = None) -> None:
+        try:
+            value = float(self.variable.get())
+            valid = math.isfinite(value) and self.minimum <= value <= self.maximum
+            valid = valid and (not self.integer or value.is_integer())
+        except ValueError:
+            valid = False
+        if valid:
+            self.last_valid = self.variable.get()
+            return
+        self.variable.set(self.last_valid)
+        self.app._set_status(
+            "invalid_number_reverted",
+            label=self.app.t(self.label_key),
+        )
 
 
 class JapaneseWriterApp:
@@ -49,12 +118,14 @@ class JapaneseWriterApp:
     def __init__(self, root: tk.Tk, settings_path: Path = DEFAULT_SETTINGS_PATH) -> None:
         self.root = root
         self.store = SettingsStore(settings_path)
+        self.language = detect_system_language()
         self.busy = False
         self.closing = False
         self.stop_event = threading.Event()
         self.current_layout: LayoutResult | None = None
         self.current_general: GeneralSettings | None = None
         self.coordinate_buttons: list[ttk.Button] = []
+        self.numeric_inputs: list[NumericSpinbox] = []
         self.preview_request = 0
         self.preview_after_id: str | None = None
         self.environment_after_id: str | None = None
@@ -81,6 +152,18 @@ class JapaneseWriterApp:
         self._bind_live_updates()
         self.ui_poll_after_id = self.root.after(40, self._drain_ui_events)
         self.initial_preview_after_id = self.root.after(200, self.refresh_preview)
+
+    def t(self, key: str, **values: object) -> str:
+        return tr(key, self.language, **values)
+
+    def _orientation_labels(self) -> dict[str, Orientation]:
+        return {self.t("horizontal"): Orientation.HORIZONTAL, self.t("vertical"): Orientation.VERTICAL}
+
+    def _flow_labels(self) -> dict[str, FlowDirection]:
+        return {self.t("right"): FlowDirection.RIGHT, self.t("left"): FlowDirection.LEFT}
+
+    def _set_status(self, key: str, **values: object) -> None:
+        self.status.set(self.t(key, **values))
 
     def _configure_styles(self) -> None:
         style = ttk.Style(self.root)
@@ -138,6 +221,7 @@ class JapaneseWriterApp:
         )
         style.map("Secondary.TButton", background=[("active", "#dce5e9")])
         style.configure("TEntry", padding=7, fieldbackground="#fbfcfd")
+        style.configure("TSpinbox", padding=7, fieldbackground="#fbfcfd")
         style.configure("TCombobox", padding=7, fieldbackground="#fbfcfd")
 
     def _create_variables(self) -> None:
@@ -150,21 +234,24 @@ class JapaneseWriterApp:
         self.font_size = tk.StringVar(value="150")
         self.char_gap = tk.StringVar(value="12")
         self.line_gap = tk.StringVar(value="24")
-        self.orientation = tk.StringVar(value="水平")
-        self.flow = tk.StringVar(value="向右")
+        self.orientation = tk.StringVar(value=self.t("horizontal"))
+        self.flow = tk.StringVar(value=self.t("right"))
         self.countdown = tk.StringVar(value="5")
         self.sample_spacing = tk.StringVar(value="2.0")
         self.point_delay_ms = tk.StringVar(value="8")
+        self.language_selection = tk.StringVar(value=dict(LANGUAGE_OPTIONS)[self.language])
         self.preset_selection = tk.StringVar(value="")
-        self.status = tk.StringVar(value="準備就緒")
+        self.status = tk.StringVar(value=self.t("ready"))
         self.summary = tk.StringVar(value="")
 
     def _build_layout(self) -> None:
-        outer = ttk.Frame(self.root, style="App.TFrame", padding=(22, 12, 22, 12))
-        outer.pack(fill="both", expand=True)
+        self.root.title(f"{self.t('app_title')} V{APP_VERSION}")
+        self.outer = ttk.Frame(self.root, style="App.TFrame", padding=(22, 12, 22, 12))
+        self.outer.pack(fill="both", expand=True)
+        outer = self.outer
         header = ttk.Frame(outer, style="App.TFrame")
         header.pack(fill="x", pady=(0, 10))
-        ttk.Label(header, text="日文筆順滑鼠書寫工具", style="Title.TLabel").pack(side="left")
+        ttk.Label(header, text=self.t("app_title"), style="Title.TLabel").pack(side="left")
         ttk.Label(
             header,
             text=f"V{APP_VERSION} Portable  ·  KanjiVG",
@@ -176,9 +263,9 @@ class JapaneseWriterApp:
         self.content_tab = ttk.Frame(self.notebook, style="Surface.TFrame", padding=16)
         self.general_tab = ttk.Frame(self.notebook, style="Surface.TFrame", padding=22)
         self.environment_tab = ttk.Frame(self.notebook, style="Surface.TFrame", padding=22)
-        self.notebook.add(self.content_tab, text="內容與預覽")
-        self.notebook.add(self.general_tab, text="一般設定")
-        self.notebook.add(self.environment_tab, text="環境設定")
+        self.notebook.add(self.content_tab, text=self.t("tab_content"))
+        self.notebook.add(self.general_tab, text=self.t("tab_general"))
+        self.notebook.add(self.environment_tab, text=self.t("tab_environment"))
         self._build_content_tab()
         self._build_general_tab()
         self._build_environment_tab()
@@ -196,7 +283,7 @@ class JapaneseWriterApp:
         ttk.Label(status_bar, textvariable=self.status, style="Subtitle.TLabel").pack(side="left")
         ttk.Label(
             status_bar,
-            text="緊急停止：按 ESC 或將滑鼠移到螢幕角落",
+            text=self.t("emergency_hint"),
             style="Subtitle.TLabel",
         ).pack(side="right")
 
@@ -210,7 +297,7 @@ class JapaneseWriterApp:
         left.grid(row=0, column=0, sticky="nsew")
         left.columnconfigure(0, weight=1)
         left.rowconfigure(1, weight=1)
-        ttk.Label(left, text="書寫文字", style="Section.TLabel").grid(row=0, column=0, sticky="w")
+        ttk.Label(left, text=self.t("writing_text"), style="Section.TLabel").grid(row=0, column=0, sticky="w")
         text_frame = tk.Frame(left, background=self.BORDER, padx=1, pady=1)
         text_frame.grid(row=1, column=0, sticky="nsew", pady=(8, 16))
         text_frame.rowconfigure(0, weight=1)
@@ -230,20 +317,16 @@ class JapaneseWriterApp:
         )
         self.text_input.insert("1.0", "こんにちは日本語")
         self.text_input.grid(row=0, column=0, sticky="nsew")
-        text_y = ttk.Scrollbar(text_frame, orient="vertical", command=self.text_input.yview)
-        text_x = ttk.Scrollbar(text_frame, orient="horizontal", command=self.text_input.xview)
-        text_y.grid(row=0, column=1, sticky="ns")
-        text_x.grid(row=1, column=0, sticky="ew")
-        self.text_input.configure(yscrollcommand=text_y.set, xscrollcommand=text_x.set)
+        self.text_input.bind("<KeyRelease>", lambda _event: self.schedule_preview())
 
-        ttk.Label(left, text="畫布座標", style="Section.TLabel").grid(row=2, column=0, sticky="w")
+        ttk.Label(left, text=self.t("canvas_coordinates"), style="Section.TLabel").grid(row=2, column=0, sticky="w")
         coordinate_grid = ttk.Frame(left, style="Surface.TFrame")
         coordinate_grid.grid(row=3, column=0, sticky="ew", pady=(8, 12))
         coordinate_grid.columnconfigure((0, 1), weight=1)
         self._coordinate_group(
             coordinate_grid,
             column=0,
-            title="起始座標",
+            title=self.t("start_coordinates"),
             x_variable=self.start_x,
             y_variable=self.start_y,
             command=lambda: self.detect_coordinate("start"),
@@ -251,7 +334,7 @@ class JapaneseWriterApp:
         self._coordinate_group(
             coordinate_grid,
             column=1,
-            title="末端座標",
+            title=self.t("end_coordinates"),
             x_variable=self.end_x,
             y_variable=self.end_y,
             command=lambda: self.detect_coordinate("end"),
@@ -262,14 +345,14 @@ class JapaneseWriterApp:
         actions.columnconfigure((0, 1), weight=1)
         self.preview_button = ttk.Button(
             actions,
-            text="更新預覽",
+            text=self.t("update_preview"),
             style="Secondary.TButton",
             command=lambda: self.refresh_preview(show_errors=True),
         )
         self.preview_button.grid(row=0, column=0, sticky="ew", padx=(0, 5))
         self.execute_button = ttk.Button(
             actions,
-            text="開始書寫",
+            text=self.t("start_writing"),
             style="Primary.TButton",
             command=self.start_writing,
         )
@@ -281,7 +364,7 @@ class JapaneseWriterApp:
         right.rowconfigure(1, weight=1)
         preview_header = ttk.Frame(right, style="Surface.TFrame")
         preview_header.grid(row=0, column=0, sticky="ew", pady=(0, 8))
-        ttk.Label(preview_header, text="實際排版預覽", style="Section.TLabel").pack(side="left")
+        ttk.Label(preview_header, text=self.t("actual_preview"), style="Section.TLabel").pack(side="left")
         ttk.Label(preview_header, textvariable=self.summary, style="Field.TLabel").pack(side="right")
         canvas_frame = tk.Frame(right, background=self.BORDER, padx=1, pady=1)
         canvas_frame.grid(row=1, column=0, sticky="nsew")
@@ -295,7 +378,7 @@ class JapaneseWriterApp:
         self.preview_canvas.bind("<Configure>", lambda _event: self._draw_current_layout())
         ttk.Label(
             right,
-            text="淡色字格僅供定位；實際輸出為黑色筆順路徑。",
+            text=self.t("preview_hint"),
             style="Field.TLabel",
         ).grid(row=2, column=0, sticky="w", pady=(8, 0))
 
@@ -316,7 +399,7 @@ class JapaneseWriterApp:
         entries.columnconfigure((0, 1), weight=1)
         ttk.Entry(entries, textvariable=x_variable, width=9).grid(row=0, column=0, sticky="ew", padx=(0, 3))
         ttk.Entry(entries, textvariable=y_variable, width=9).grid(row=0, column=1, sticky="ew", padx=(3, 0))
-        button = ttk.Button(frame, text=f"偵測{title}", style="Secondary.TButton", command=command)
+        button = ttk.Button(frame, text=self.t("detect", target=title), style="Secondary.TButton", command=command)
         button.pack(fill="x")
         self.coordinate_buttons.append(button)
 
@@ -327,17 +410,17 @@ class JapaneseWriterApp:
         settings = ttk.Frame(tab, style="Surface.TFrame", padding=(0, 0, 30, 0))
         settings.grid(row=0, column=0, sticky="nsew")
         settings.columnconfigure((0, 1), weight=1)
-        ttk.Label(settings, text="文字與排版", style="Section.TLabel").grid(row=0, column=0, columnspan=2, sticky="w", pady=(0, 12))
-        self._field(settings, 1, 0, "字體大小（px）", self.font_size)
-        self._field(settings, 1, 1, "字距（px）", self.char_gap)
-        self._field(settings, 3, 0, "行距（px）", self.line_gap)
-        self._combo_field(settings, 3, 1, "排列方向", self.orientation, list(ORIENTATION_LABELS))
-        self._combo_field(settings, 5, 0, "流向", self.flow, list(FLOW_LABELS))
+        ttk.Label(settings, text=self.t("text_layout"), style="Section.TLabel").grid(row=0, column=0, columnspan=2, sticky="w", pady=(0, 12))
+        self._field(settings, 1, 0, self.t("font_size_px"), self.font_size)
+        self._field(settings, 1, 1, self.t("char_gap_px"), self.char_gap)
+        self._field(settings, 3, 0, self.t("line_gap_px"), self.line_gap)
+        self._combo_field(settings, 3, 1, self.t("orientation"), self.orientation, list(self._orientation_labels()))
+        self._combo_field(settings, 5, 0, self.t("flow"), self.flow, list(self._flow_labels()))
 
         presets = ttk.Frame(tab, style="Surface.TFrame", padding=(30, 0, 0, 0))
         presets.grid(row=0, column=1, sticky="nsew")
         presets.columnconfigure(0, weight=1)
-        ttk.Label(presets, text="自訂選項", style="Section.TLabel").grid(row=0, column=0, sticky="w", pady=(0, 12))
+        ttk.Label(presets, text=self.t("presets"), style="Section.TLabel").grid(row=0, column=0, sticky="w", pady=(0, 12))
         self.preset_combo = ttk.Combobox(
             presets,
             textvariable=self.preset_selection,
@@ -350,10 +433,10 @@ class JapaneseWriterApp:
         preset_actions.grid(row=2, column=0, sticky="ew")
         preset_actions.columnconfigure((0, 1), weight=1)
         actions = (
-            ("新增", self.add_preset),
-            ("覆寫", self.overwrite_preset),
-            ("重新命名", self.rename_preset),
-            ("刪除", self.delete_preset),
+            (self.t("preset_add"), self.add_preset),
+            (self.t("preset_overwrite"), self.overwrite_preset),
+            (self.t("preset_rename"), self.rename_preset),
+            (self.t("preset_delete"), self.delete_preset),
         )
         for index, (label, command) in enumerate(actions):
             ttk.Button(preset_actions, text=label, style="Secondary.TButton", command=command).grid(
@@ -365,7 +448,7 @@ class JapaneseWriterApp:
             )
         ttk.Label(
             presets,
-            text="自訂選項只保存字體大小、字距、行距、排列方向與流向。",
+            text=self.t("preset_hint"),
             style="Field.TLabel",
             wraplength=390,
         ).grid(row=3, column=0, sticky="w", pady=(8, 0))
@@ -373,14 +456,23 @@ class JapaneseWriterApp:
     def _build_environment_tab(self) -> None:
         tab = self.environment_tab
         tab.columnconfigure((0, 1), weight=1)
-        ttk.Label(tab, text="書寫環境", style="Section.TLabel").grid(row=0, column=0, columnspan=2, sticky="w", pady=(0, 12))
-        self._field(tab, 1, 0, "開始倒數（秒）", self.countdown)
-        self._field(tab, 1, 1, "曲線精細度", self.sample_spacing)
-        self._field(tab, 3, 0, "取樣點停頓（毫秒）", self.point_delay_ms)
+        ttk.Label(tab, text=self.t("writing_environment"), style="Section.TLabel").grid(row=0, column=0, columnspan=2, sticky="w", pady=(0, 12))
+        self.language_combo = self._combo_field(
+            tab,
+            1,
+            0,
+            self.t("language"),
+            self.language_selection,
+            [label for _language, label in LANGUAGE_OPTIONS],
+        )
+        self.language_combo.bind("<<ComboboxSelected>>", self._language_selected)
+        self._numeric_field(tab, 1, 1, "countdown_seconds", "countdown", self.countdown, 0, 30, 1, integer=True)
+        self._numeric_field(tab, 3, 0, "curve_detail", "curve_detail", self.sample_spacing, 0.1, 20, 0.1)
+        self._numeric_field(tab, 3, 1, "point_delay_ms", "point_delay", self.point_delay_ms, 1, 1000, 1)
         descriptions = (
-            "倒數：按下開始後保留的視窗切換時間。",
-            "曲線精細度：範圍 0.1–20；數字越小越細緻，但書寫時間越長。",
-            "取樣點停頓：範圍 1–1000 毫秒；若筆畫斷線可適度提高。",
+            self.t("countdown_hint"),
+            self.t("curve_hint"),
+            self.t("delay_hint"),
         )
         for index, text in enumerate(descriptions):
             ttk.Label(tab, text=text, style="Field.TLabel").grid(
@@ -390,6 +482,35 @@ class JapaneseWriterApp:
                 sticky="w",
                 pady=(3, 0),
             )
+
+    def _numeric_field(
+        self,
+        parent: ttk.Frame,
+        row: int,
+        column: int,
+        label_key: str,
+        short_label_key: str,
+        variable: tk.StringVar,
+        minimum: float,
+        maximum: float,
+        increment: float,
+        integer: bool = False,
+    ) -> None:
+        container = ttk.Frame(parent, style="Surface.TFrame")
+        container.grid(row=row, column=column, sticky="ew", padx=(0 if column == 0 else 8, 8 if column == 0 else 0), pady=(0, 12))
+        ttk.Label(container, text=self.t(label_key), style="Field.TLabel").pack(anchor="w", pady=(0, 4))
+        control = NumericSpinbox(
+            self,
+            container,
+            variable,
+            short_label_key,
+            minimum,
+            maximum,
+            increment,
+            integer,
+        )
+        control.widget.pack(fill="x")
+        self.numeric_inputs.append(control)
 
     def _field(self, parent: ttk.Frame, row: int, column: int, label: str, variable: tk.StringVar) -> None:
         container = ttk.Frame(parent, style="Surface.TFrame")
@@ -405,14 +526,15 @@ class JapaneseWriterApp:
         label: str,
         variable: tk.StringVar,
         values: list[str],
-    ) -> None:
+    ) -> ttk.Combobox:
         container = ttk.Frame(parent, style="Surface.TFrame")
         container.grid(row=row, column=column, sticky="ew", padx=(0 if column == 0 else 8, 8 if column == 0 else 0), pady=(0, 12))
         ttk.Label(container, text=label, style="Field.TLabel").pack(anchor="w", pady=(0, 4))
-        ttk.Combobox(container, textvariable=variable, values=values, state="readonly").pack(fill="x")
+        combo = ttk.Combobox(container, textvariable=variable, values=values, state="readonly")
+        combo.pack(fill="x")
+        return combo
 
     def _bind_live_updates(self) -> None:
-        self.text_input.bind("<KeyRelease>", lambda _event: self.schedule_preview())
         preview_variables = (
             self.start_x,
             self.start_y,
@@ -434,16 +556,59 @@ class JapaneseWriterApp:
         try:
             state = self.store.load()
         except PermissionError as exc:
-            messagebox.showerror("Portable 資料夾無法寫入", str(exc), parent=self.root)
+            messagebox.showerror(self.t("portable_write_error"), exception_text(exc, self.language), parent=self.root)
             self.root.after(0, self.root.destroy)
             return
+        if state.language is not self.language:
+            orientation = self._orientation_labels()[self.orientation.get()]
+            flow = self._flow_labels()[self.flow.get()]
+            self.language = state.language
+            self.language_selection.set(dict(LANGUAGE_OPTIONS)[self.language])
+            self.orientation.set(next(label for label, value in self._orientation_labels().items() if value is orientation))
+            self.flow.set(next(label for label, value in self._flow_labels().items() if value is flow))
+            self._rebuild_layout()
         self._apply_environment(state.environment)
         self.refresh_preset_list()
         if state.last_preset_id:
             try:
                 self._apply_general(self.store.select_preset(state.last_preset_id).general)
-            except KeyError:
+            except (KeyError, ValueError):
                 self.store.state.last_preset_id = None
+
+    def _language_selected(self, _event: tk.Event[tk.Misc] | None = None) -> None:
+        selected = next(
+            (language for language, label in LANGUAGE_OPTIONS if label == self.language_selection.get()),
+            self.language,
+        )
+        if selected is self.language:
+            return
+        orientation = self._orientation_labels()[self.orientation.get()]
+        flow = self._flow_labels()[self.flow.get()]
+        self.language = selected
+        self.orientation.set(next(label for label, value in self._orientation_labels().items() if value is orientation))
+        self.flow.set(next(label for label, value in self._flow_labels().items() if value is flow))
+        try:
+            self.store.set_language(selected)
+        except PermissionError as exc:
+            messagebox.showerror(self.t("portable_write_error"), exception_text(exc, self.language), parent=self.root)
+        self._rebuild_layout()
+        self._set_status("language_changed")
+
+    def _rebuild_layout(self) -> None:
+        text = self.text_input.get("1.0", "end-1c") if hasattr(self, "text_input") else "こんにちは日本語"
+        selected_tab = self.notebook.index(self.notebook.select()) if hasattr(self, "notebook") else 0
+        if hasattr(self, "outer"):
+            self.outer.destroy()
+        self.coordinate_buttons = []
+        self.numeric_inputs = []
+        self._build_layout()
+        self.text_input.delete("1.0", "end")
+        self.text_input.insert("1.0", text)
+        self.refresh_preset_list()
+        self.notebook.select(min(selected_tab, self.notebook.index("end") - 1))
+        if self.current_layout:
+            self._update_summary(self.current_layout)
+            self._draw_current_layout()
 
     def _post_ui(self, callback: Callable[..., None], *args: object) -> None:
         self.ui_events.put((callback, args))
@@ -463,35 +628,35 @@ class JapaneseWriterApp:
         try:
             value = float(variable.get().strip())
         except ValueError as exc:
-            raise ValueError(f"「{label}」必須是數字。") from exc
+            raise ValueError(self.t("number_required", label=label)) from exc
         if not math.isfinite(value):
-            raise ValueError(f"「{label}」必須是有限數字。")
+            raise ValueError(self.t("finite_required", label=label))
         if minimum is not None and value < minimum:
-            raise ValueError(f"「{label}」不可小於 {minimum}。")
+            raise ValueError(self.t("minimum", label=label, value=minimum))
         if maximum is not None and value > maximum:
-            raise ValueError(f"「{label}」不可大於 {maximum}。")
+            raise ValueError(self.t("maximum", label=label, value=maximum))
         return value
 
     def _integer(self, variable: tk.StringVar, label: str, minimum: int, maximum: int) -> int:
         value = self._float(variable, label, minimum, maximum)
         if not value.is_integer():
-            raise ValueError(f"「{label}」必須是整數。")
+            raise ValueError(self.t("integer_required", label=label))
         return int(value)
 
     def read_general(self) -> GeneralSettings:
         return GeneralSettings(
-            font_size=self._float(self.font_size, "字體大小", 10, 1000),
-            char_gap=self._float(self.char_gap, "字距", 0, 1000),
-            line_gap=self._float(self.line_gap, "行距", 0, 1000),
-            orientation=ORIENTATION_LABELS[self.orientation.get()],
-            flow=FLOW_LABELS[self.flow.get()],
+            font_size=self._float(self.font_size, self.t("font_size"), 10, 1000),
+            char_gap=self._float(self.char_gap, self.t("char_gap"), 0, 1000),
+            line_gap=self._float(self.line_gap, self.t("line_gap"), 0, 1000),
+            orientation=self._orientation_labels()[self.orientation.get()],
+            flow=self._flow_labels()[self.flow.get()],
         )
 
     def read_environment(self) -> EnvironmentSettings:
         return EnvironmentSettings(
-            countdown=self._integer(self.countdown, "開始倒數", 0, 30),
-            sample_spacing=self._float(self.sample_spacing, "曲線精細度", 0.1, 20),
-            point_delay=self._float(self.point_delay_ms, "取樣點停頓", 1, 1000) / 1000,
+            countdown=self._integer(self.countdown, self.t("countdown"), 0, 30),
+            sample_spacing=self._float(self.sample_spacing, self.t("curve_detail"), 0.1, 20),
+            point_delay=self._float(self.point_delay_ms, self.t("point_delay"), 1, 1000) / 1000,
             move_duration=0.0,
             stroke_delay=0.03,
         )
@@ -501,10 +666,10 @@ class JapaneseWriterApp:
         general = self.read_general()
         environment = self.read_environment()
         layout = LayoutSettings(
-            start_x=self._float(self.start_x, "起始 X"),
-            start_y=self._float(self.start_y, "起始 Y"),
-            end_x=self._float(self.end_x, "末端 X"),
-            end_y=self._float(self.end_y, "末端 Y"),
+            start_x=self._float(self.start_x, self.t("start_x")),
+            start_y=self._float(self.start_y, self.t("start_y")),
+            end_x=self._float(self.end_x, self.t("end_x")),
+            end_y=self._float(self.end_y, self.t("end_y")),
             general=general,
         )
         return text, layout, environment
@@ -532,13 +697,13 @@ class JapaneseWriterApp:
         try:
             text, layout, environment = self.read_layout()
         except (ValueError, KeyError) as exc:
-            self.status.set(str(exc))
+            self.status.set(exception_text(exc, self.language))
             if show_errors:
-                messagebox.showerror("設定錯誤", str(exc), parent=self.root)
+                messagebox.showerror(self.t("settings_error"), exception_text(exc, self.language), parent=self.root)
             return
         self.preview_request += 1
         request_id = self.preview_request
-        self.status.set("正在更新排版預覽…")
+        self._set_status("preview_updating")
 
         def worker() -> None:
             try:
@@ -559,10 +724,20 @@ class JapaneseWriterApp:
             return
         self.current_layout = result
         self.current_general = general
-        stroke_count, point_count = path_stats(result.paths)
-        self.summary.set(f"{len(result.placements)} 格 · {stroke_count} 筆 · {point_count} 點")
-        self.status.set("預覽已更新")
+        self._update_summary(result)
+        self._set_status("preview_updated")
         self._draw_current_layout()
+
+    def _update_summary(self, result: LayoutResult) -> None:
+        stroke_count, point_count = path_stats(result.paths)
+        self.summary.set(
+            self.t(
+                "preview_summary",
+                cells=len(result.placements),
+                strokes=stroke_count,
+                points=point_count,
+            )
+        )
 
     def _preview_failed(self, request_id: int, error: BaseException, show_errors: bool) -> None:
         if request_id != self.preview_request:
@@ -570,9 +745,9 @@ class JapaneseWriterApp:
         self.current_layout = None
         self.current_general = None
         self.preview_canvas.delete("all")
-        self.status.set(str(error))
+        self.status.set(exception_text(error, self.language))
         if show_errors:
-            messagebox.showerror("無法建立預覽", str(error), parent=self.root)
+            messagebox.showerror(self.t("preview_error"), exception_text(error, self.language), parent=self.root)
 
     def _draw_current_layout(self) -> None:
         canvas = self.preview_canvas
@@ -583,7 +758,7 @@ class JapaneseWriterApp:
             canvas.create_text(
                 max(1, canvas.winfo_width()) / 2,
                 max(1, canvas.winfo_height()) / 2,
-                text="請確認文字、座標與排版設定",
+                text=self.t("preview_empty"),
                 fill=self.MUTED,
                 font=("Microsoft JhengHei UI", 11),
             )
@@ -638,7 +813,7 @@ class JapaneseWriterApp:
         try:
             self.store.set_environment(self.read_environment())
         except ValueError as exc:
-            self.status.set(str(exc))
+            self.status.set(exception_text(exc, self.language))
             return
         except PermissionError:
             return
@@ -652,8 +827,8 @@ class JapaneseWriterApp:
         self.font_size.set(str(general.font_size))
         self.char_gap.set(str(general.char_gap))
         self.line_gap.set(str(general.line_gap))
-        self.orientation.set(next(label for label, value in ORIENTATION_LABELS.items() if value is general.orientation))
-        self.flow.set(next(label for label, value in FLOW_LABELS.items() if value is general.flow))
+        self.orientation.set(next(label for label, value in self._orientation_labels().items() if value is general.orientation))
+        self.flow.set(next(label for label, value in self._flow_labels().items() if value is general.flow))
 
     def refresh_preset_list(self, selected_id: str | None = None) -> None:
         self.preset_name_to_id = {preset.name: preset.id for preset in self.store.state.presets}
@@ -667,61 +842,61 @@ class JapaneseWriterApp:
         name = self.preset_selection.get()
         preset_id = self.preset_name_to_id.get(name)
         if not preset_id:
-            raise ValueError("請先選擇自訂選項。")
+            raise ValueError(self.t("preset_select_first"))
         return self.store.select_preset(preset_id)
 
     def load_selected_preset(self) -> None:
         try:
             preset = self.selected_preset()
             self._apply_general(preset.general)
-            self.status.set(f"已載入自訂選項：{preset.name}")
+            self._set_status("preset_loaded", name=preset.name)
         except (ValueError, KeyError) as exc:
-            messagebox.showerror("自訂選項", str(exc), parent=self.root)
+            messagebox.showerror(self.t("preset_title"), exception_text(exc, self.language), parent=self.root)
 
     def add_preset(self) -> None:
-        name = simpledialog.askstring("新增自訂選項", "名稱（1–40 個字元）：", parent=self.root)
+        name = simpledialog.askstring(self.t("preset_add_title"), self.t("preset_name_prompt"), parent=self.root)
         if name is None:
             return
         try:
             preset = self.store.add_preset(name, self.read_general())
             self.refresh_preset_list(preset.id)
-            self.status.set(f"已新增自訂選項：{preset.name}")
+            self._set_status("preset_added", name=preset.name)
         except (ValueError, PermissionError) as exc:
-            messagebox.showerror("無法新增", str(exc), parent=self.root)
+            messagebox.showerror(self.t("cannot_add"), exception_text(exc, self.language), parent=self.root)
 
     def overwrite_preset(self) -> None:
         try:
             preset = self.selected_preset()
-            if not messagebox.askyesno("覆寫自訂選項", f"以目前設定覆寫「{preset.name}」？", parent=self.root):
+            if not messagebox.askyesno(self.t("preset_overwrite_title"), self.t("preset_overwrite_prompt", name=preset.name), parent=self.root):
                 return
             updated = self.store.overwrite_preset(preset.id, self.read_general())
             self.refresh_preset_list(updated.id)
-            self.status.set(f"已覆寫自訂選項：{updated.name}")
+            self._set_status("preset_overwritten", name=updated.name)
         except (ValueError, KeyError, PermissionError) as exc:
-            messagebox.showerror("無法覆寫", str(exc), parent=self.root)
+            messagebox.showerror(self.t("cannot_overwrite"), exception_text(exc, self.language), parent=self.root)
 
     def rename_preset(self) -> None:
         try:
             preset = self.selected_preset()
-            name = simpledialog.askstring("重新命名", "新名稱：", initialvalue=preset.name, parent=self.root)
+            name = simpledialog.askstring(self.t("preset_rename_title"), self.t("preset_new_name"), initialvalue=preset.name, parent=self.root)
             if name is None:
                 return
             updated = self.store.rename_preset(preset.id, name)
             self.refresh_preset_list(updated.id)
-            self.status.set(f"已重新命名為：{updated.name}")
+            self._set_status("preset_renamed", name=updated.name)
         except (ValueError, KeyError, PermissionError) as exc:
-            messagebox.showerror("無法重新命名", str(exc), parent=self.root)
+            messagebox.showerror(self.t("cannot_rename"), exception_text(exc, self.language), parent=self.root)
 
     def delete_preset(self) -> None:
         try:
             preset = self.selected_preset()
-            if not messagebox.askyesno("刪除自訂選項", f"確定刪除「{preset.name}」？", parent=self.root):
+            if not messagebox.askyesno(self.t("preset_delete_title"), self.t("preset_delete_prompt", name=preset.name), parent=self.root):
                 return
             self.store.delete_preset(preset.id)
             self.refresh_preset_list()
-            self.status.set(f"已刪除自訂選項：{preset.name}")
+            self._set_status("preset_deleted", name=preset.name)
         except (ValueError, KeyError, PermissionError) as exc:
-            messagebox.showerror("無法刪除", str(exc), parent=self.root)
+            messagebox.showerror(self.t("cannot_delete"), exception_text(exc, self.language), parent=self.root)
 
     def _show_detection_overlay(self, title: str) -> None:
         overlay = tk.Toplevel(self.root)
@@ -755,8 +930,9 @@ class JapaneseWriterApp:
     def detect_coordinate(self, target: str) -> None:
         if self.busy:
             return
-        title = "偵測起始座標" if target == "start" else "偵測末端座標"
-        self.set_busy(True, f"{title}進行中…")
+        target_label = self.t("start_coordinates") if target == "start" else self.t("end_coordinates")
+        title = self.t("detect", target=target_label)
+        self.set_busy(True, "detecting", target=target_label)
         self.stop_event.clear()
         self._show_detection_overlay(title)
         self.root.iconify()
@@ -782,15 +958,15 @@ class JapaneseWriterApp:
         if target == "start":
             self.start_x.set(str(x))
             self.start_y.set(str(y))
-            label = "起始"
+            label = self.t("start_short")
         else:
             self.end_x.set(str(x))
             self.end_y.set(str(y))
-            label = "末端"
+            label = self.t("end_short")
         self._close_detection_overlay()
         self.root.deiconify()
         self.root.lift()
-        self.set_busy(False, f"已偵測{label}座標：X={x}，Y={y}")
+        self.set_busy(False, "coordinate_detected", target=label, x=x, y=y)
         self.refresh_preview()
 
     def start_writing(self) -> None:
@@ -800,11 +976,11 @@ class JapaneseWriterApp:
             result, environment = self.build_result()
             self.store.set_environment(environment)
         except BaseException as exc:
-            messagebox.showerror("無法開始書寫", str(exc), parent=self.root)
+            messagebox.showerror(self.t("cannot_start"), exception_text(exc, self.language), parent=self.root)
             return
         self.current_layout = result
         self.current_general = self.read_general()
-        self.set_busy(True, "準備開始書寫…")
+        self.set_busy(True, "preparing_write")
         self.stop_event.clear()
         self.root.iconify()
 
@@ -831,33 +1007,35 @@ class JapaneseWriterApp:
     def _writing_complete(self) -> None:
         self.root.deiconify()
         self.root.lift()
-        self.set_busy(False, "書寫完成")
-        messagebox.showinfo("完成", "文字已依預覽排版完成書寫。", parent=self.root)
+        self.set_busy(False, "writing_complete")
+        messagebox.showinfo(self.t("complete"), self.t("complete_message"), parent=self.root)
 
     def _restore_after_operation(self, error: BaseException) -> None:
         self._close_detection_overlay()
         self.root.deiconify()
         self.root.lift()
         if isinstance(error, WritingCancelled):
-            self.set_busy(False, "操作已由 ESC 取消")
+            status_key = "cancelled_failsafe" if error.message_key == "failsafe_stop" else "cancelled_esc"
+            self.set_busy(False, status_key)
             return
-        self.set_busy(False, "操作未完成")
-        messagebox.showerror("操作未完成", str(error), parent=self.root)
+        self.set_busy(False, "operation_failed")
+        messagebox.showerror(self.t("operation_failed"), exception_text(error, self.language), parent=self.root)
 
-    def set_busy(self, busy: bool, status: str) -> None:
+    def set_busy(self, busy: bool, status_key: str, **values: object) -> None:
         self.busy = busy
         state = "disabled" if busy else "normal"
         self.preview_button.configure(state=state)
         self.execute_button.configure(state=state)
         for button in self.coordinate_buttons:
             button.configure(state=state)
-        self.status.set(status)
+        self.language_combo.configure(state="disabled" if busy else "readonly")
+        self._set_status(status_key, **values)
         self.status_mark.configure(foreground=self.ACCENT if busy else self.PRIMARY)
 
     def on_close(self) -> None:
         if self.busy:
             self.stop_event.set()
-            messagebox.showwarning("操作進行中", "已送出停止要求，請等待操作結束。", parent=self.root)
+            messagebox.showwarning(self.t("operation_running"), self.t("stop_requested"), parent=self.root)
             return
         self.save_environment()
         self.closing = True
@@ -883,6 +1061,7 @@ class JapaneseWriterApp:
 
 
 def run_self_test(settings_path: Path = DEFAULT_SETTINGS_PATH) -> int:
+    validate_translation_catalogs()
     sample = DEFAULT_KANJIVG_DIR / "065e5.svg"
     if not sample.exists():
         raise RuntimeError(f"找不到 KanjiVG 測試檔：{sample}")
