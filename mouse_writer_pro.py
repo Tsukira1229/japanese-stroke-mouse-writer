@@ -19,11 +19,14 @@ from localization import Language, LocalizedOSError, LocalizedValueError, tr
 Point = tuple[float, float]
 PathList = list[list[Point]]
 
-APP_VERSION = "2.0.2"
+APP_VERSION = "2.1.0"
 SCRIPT_DIR = Path(__file__).resolve().parent
 BUNDLE_DIR = Path(getattr(sys, "_MEIPASS", SCRIPT_DIR))
 EXECUTABLE_DIR = Path(sys.executable).resolve().parent if getattr(sys, "frozen", False) else SCRIPT_DIR
 DEFAULT_KANJIVG_DIR = BUNDLE_DIR / "data/kanjivg/20250816/main/kanji"
+DEFAULT_CUSTOM_STROKE_DIR = BUNDLE_DIR / "data/custom_strokes"
+SUPPORTED_SYMBOLS = frozenset(",.!?:;、。・ー，～@")
+STROKE_ALIASES = {"，": ","}
 
 
 def configure_console_encoding() -> None:
@@ -206,6 +209,18 @@ def kanjivg_file_for_char(char: str, kanjivg_dir: Path) -> Path:
     return kanjivg_dir / f"{ord(char):05x}.svg"
 
 
+def stroke_file_for_char(
+    char: str,
+    kanjivg_dir: Path,
+    custom_stroke_dir: Path = DEFAULT_CUSTOM_STROKE_DIR,
+) -> Path:
+    resolved = STROKE_ALIASES.get(char, char)
+    custom_path = custom_stroke_dir / f"{ord(resolved):05x}.svg"
+    if custom_path.exists():
+        return custom_path
+    return kanjivg_file_for_char(resolved, kanjivg_dir)
+
+
 def is_japanese_writing_char(char: str) -> bool:
     codepoint = ord(char)
     return (
@@ -223,6 +238,14 @@ def is_japanese_writing_char(char: str) -> bool:
         or 0x2B820 <= codepoint <= 0x2CEAF
         or 0x2CEB0 <= codepoint <= 0x2EBEF
         or 0x30000 <= codepoint <= 0x323AF
+    )
+
+
+def is_supported_writing_char(char: str) -> bool:
+    return (
+        is_japanese_writing_char(char)
+        or (char.isascii() and char.isalnum())
+        or char in SUPPORTED_SYMBOLS
     )
 
 
@@ -247,8 +270,13 @@ def sample_svg_path(path_data: str, sample_spacing: float) -> list[Point]:
     return points
 
 
-def load_kanjivg_strokes(char: str, kanjivg_dir: Path, sample_spacing: float) -> PathList | None:
-    svg_path = kanjivg_file_for_char(char, kanjivg_dir)
+def load_kanjivg_strokes(
+    char: str,
+    kanjivg_dir: Path,
+    sample_spacing: float,
+    custom_stroke_dir: Path = DEFAULT_CUSTOM_STROKE_DIR,
+) -> PathList | None:
+    svg_path = stroke_file_for_char(char, kanjivg_dir, custom_stroke_dir)
     if not svg_path.exists():
         return None
     root = ET.parse(svg_path).getroot()
@@ -394,7 +422,7 @@ def build_layout(
         result.placements.append(placement)
 
         if not char.isspace():
-            if not is_japanese_writing_char(char):
+            if not is_supported_writing_char(char):
                 raise UnsupportedCharacterError("unsupported_character", index=source_index + 1, char=char)
             strokes = load_kanjivg_strokes(char, kanjivg_dir, environment.sample_spacing)
             if not strokes:

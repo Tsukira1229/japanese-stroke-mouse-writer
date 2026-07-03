@@ -8,6 +8,7 @@ from unittest.mock import patch
 
 from mouse_writer_pro import (
     DEFAULT_KANJIVG_DIR,
+    SUPPORTED_SYMBOLS,
     EnvironmentSettings,
     FlowDirection,
     GeneralSettings,
@@ -19,6 +20,8 @@ from mouse_writer_pro import (
     build_layout,
     draw_with_mouse,
     interruptible_sleep,
+    is_supported_writing_char,
+    load_kanjivg_strokes,
 )
 
 
@@ -130,13 +133,60 @@ class LayoutTests(unittest.TestCase):
                 ),
             )
 
-    def test_non_japanese_text_is_rejected(self) -> None:
+    def test_unsupported_text_is_rejected(self) -> None:
         with self.assertRaises(UnsupportedCharacterError):
             build_layout(
-                "A",
+                "$",
                 DEFAULT_KANJIVG_DIR,
                 LayoutSettings(start_x=0, start_y=0, general=GeneralSettings(font_size=100)),
             )
+
+    def test_latin_numbers_and_symbols_have_stroke_paths(self) -> None:
+        characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789" + "".join(SUPPORTED_SYMBOLS)
+        self.assertTrue(all(is_supported_writing_char(char) for char in characters))
+        for char in characters:
+            with self.subTest(char=char):
+                strokes = load_kanjivg_strokes(char, DEFAULT_KANJIVG_DIR, 2.0)
+                self.assertTrue(strokes)
+
+    def test_custom_and_aliased_symbol_strokes(self) -> None:
+        ascii_comma = load_kanjivg_strokes(",", DEFAULT_KANJIVG_DIR, 2.0)
+        fullwidth_comma = load_kanjivg_strokes("，", DEFAULT_KANJIVG_DIR, 2.0)
+        self.assertEqual(fullwidth_comma, ascii_comma)
+        self.assertEqual(len(load_kanjivg_strokes("～", DEFAULT_KANJIVG_DIR, 2.0) or []), 1)
+        at_sign = load_kanjivg_strokes("@", DEFAULT_KANJIVG_DIR, 2.0) or []
+        self.assertEqual(len(at_sign), 3)
+        self.assertEqual(
+            [(round(stroke[0][0]), round(stroke[0][1])) for stroke in at_sign],
+            [(61, 43), (62, 43), (82, 76)],
+        )
+
+    def test_mixed_text_layout_in_all_directions(self) -> None:
+        text = "日本語 Abc 123，。、～@"
+        for orientation in Orientation:
+            for flow in FlowDirection:
+                with self.subTest(orientation=orientation, flow=flow):
+                    start_x = 1000 if flow is FlowDirection.LEFT else 0
+                    end_x = 0 if flow is FlowDirection.LEFT else 1000
+                    result = build_layout(
+                        text,
+                        DEFAULT_KANJIVG_DIR,
+                        LayoutSettings(
+                            start_x=start_x,
+                            start_y=0,
+                            end_x=end_x,
+                            end_y=1000,
+                            general=GeneralSettings(
+                                font_size=50,
+                                char_gap=5,
+                                line_gap=10,
+                                orientation=orientation,
+                                flow=flow,
+                            ),
+                        ),
+                    )
+                    self.assertEqual("".join(item.char for item in result.placements), text)
+                    self.assertEqual(result.kanjivg_chars, [char for char in text if not char.isspace()])
 
 
 class CancellationTests(unittest.TestCase):
@@ -185,6 +235,58 @@ class CancellationTests(unittest.TestCase):
                     stop_requested=stop_requested,
                 )
         self.assertIn(("down",), calls)
+        self.assertEqual(calls[-1], ("up",))
+
+    def test_layout_paths_are_sent_to_mouse_without_coordinate_changes(self) -> None:
+        result = build_layout(
+            "A1～@",
+            DEFAULT_KANJIVG_DIR,
+            LayoutSettings(
+                start_x=100,
+                start_y=100,
+                end_x=800,
+                end_y=400,
+                general=GeneralSettings(font_size=80, char_gap=5),
+            ),
+        )
+        calls: list[tuple[object, ...]] = []
+
+        class FakeMouse:
+            screen_bounds = (-1000, -1000, 3000, 3000)
+
+            def move_to(self, x: int, y: int) -> None:
+                calls.append(("move", x, y))
+
+            def left_down(self) -> None:
+                calls.append(("down",))
+
+            def left_up(self) -> None:
+                calls.append(("up",))
+
+        fake_pyautogui = SimpleNamespace(
+            FAILSAFE=False,
+            PAUSE=0,
+            FAILSAFE_POINTS=[],
+            position=lambda: (10, 10),
+            MINIMUM_DURATION=0.1,
+            FailSafeException=RuntimeError,
+        )
+        with patch.dict(sys.modules, {"pyautogui": fake_pyautogui}), patch(
+            "mouse_writer_pro.WindowsSendInputMouse", FakeMouse
+        ):
+            draw_with_mouse(
+                result.paths,
+                countdown=0,
+                move_duration=0,
+                point_delay=0,
+                stroke_delay=0,
+                allow_offscreen=False,
+                stop_requested=lambda: False,
+            )
+
+        actual_points = [(call[1], call[2]) for call in calls if call[0] == "move"]
+        expected_points = [(round(x), round(y)) for path in result.paths for x, y in path]
+        self.assertEqual(actual_points, expected_points)
         self.assertEqual(calls[-1], ("up",))
 
 

@@ -1,52 +1,40 @@
-# Japanese Stroke Mouse Writer V2.0.2 Portable
+# Japanese Stroke Mouse Writer V2.1.0 Portable
 
-Windows 10/11 x64 免安裝日文筆順書寫工具。程式使用 KanjiVG 筆順資料，透過 Windows SendInput 在小畫家或其他畫布中書寫平假名、片假名與漢字。
+繁體中文 | [English](README.en.md) | [日本語](README.ja.md)
 
-## 一般使用者
+Windows 10/11 x64 免安裝筆順書寫工具。程式透過 Windows SendInput，在小畫家或其他畫布中依中心線筆順書寫日文、英文、數字與常用符號。
 
-1. 下載 `JapaneseStrokeMouseWriter-v2.0.2-win-x64-portable.zip`。
+## 安裝方式
+
+1. 下載 `JapaneseStrokeMouseWriter-v2.1.0-win-x64-portable.zip`。
 2. 將 ZIP 完整解壓到可寫入的資料夾。
 3. 雙擊 `JapaneseStrokeMouseWriter.exe`。
 
-不需要安裝 Python、不需要管理員權限，也不會建立安裝或解除安裝項目。程式設定保存在同一資料夾的 `user_data/settings.json`。
+不需要安裝 Python、不需要管理員權限，也不會建立安裝或解除安裝項目。設定保存在程式旁的 `user_data/settings.json`。
+
+## 支援內容
+
+- 日文：平假名、片假名及 KanjiVG 收錄的漢字。
+- 英文：`A–Z`、`a–z`。
+- 數字：`0–9`。
+- 符號：`, . ! ? : ; 、。・ー ，～@`。
+- 一般空格、全形空格、Tab 與換行會完整保留。
+
+未列入支援範圍或缺少筆順資料的字元，會在移動滑鼠前停止並顯示錯誤。
 
 ## 主要功能
 
-- 平假名、片假名與漢字皆使用 KanjiVG 筆順中心線。
-- 水平／垂直排版，並可選擇向左／向右流向。
-- 偵測起始座標與末端座標，形成實際可書寫矩形。
-- 到達主方向邊界時自動換行，整體超出畫布時在書寫前停止。
-- 完整保留空格、全形空格、Tab 與明確換行。
-- 預覽與實際書寫共用相同排版資料。
-- 可保存多個一般排版自訂選項。
-- 桌面介面支援日文、繁體中文、簡體中文與英文，首次啟動依 Windows 語言選擇。
-- 環境設定使用純數字控制項，支援全形數字與常見小數符號自動轉換。
-- ESC 全域緊急停止，並保留滑鼠移到螢幕角落的 failsafe。
+- 水平／垂直排版，以及向左／向右流向。
+- 起始與末端座標偵測、自動換行及超界預防。
+- 預覽與實際書寫共用相同排版路徑。
+- 多個具名排版自訂選項。
+- 日文、繁體中文、簡體中文、英文桌面介面。
+- ESC 全域緊急停止與螢幕角落 failsafe。
 
-完整步驟請閱讀 [圖文使用教學](圖文使用教學.md)。
-
-## 開發與測試
-
-```powershell
-python -m pip install -r requirements.txt -r requirements-build.txt
-python -B -m unittest discover -s tests -v
-.\scripts\build_portable.ps1
-```
-
-建置結果位於：
-
-```text
-dist/JapaneseStrokeMouseWriter-v2.0.2-win-x64-portable.zip
-```
-
-執行封裝自測：
-
-```powershell
-JapaneseStrokeMouseWriter.exe --self-test
-```
+操作方式請閱讀 [完整步驟](complete-guide.md)。
 
 ## 資料來源
 
-筆順資料來自 [KanjiVG](https://kanjivg.tagaini.net/)（[GitHub](https://github.com/KanjiVG/kanjivg)），採 Creative Commons Attribution-ShareAlike 3.0 授權。詳見 [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)。
+日文、英文、數字及部分符號筆順來自 [KanjiVG](https://kanjivg.tagaini.net/)（[GitHub](https://github.com/KanjiVG/kanjivg)），採 Creative Commons Attribution-ShareAlike 3.0。`～` 與 `@` 使用本專案建立的中心線資料。詳見 [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)。
 
-V2.0.2 為未簽章版本，Windows SmartScreen 可能顯示未知發行者提示。
+V2.1.0 為未簽章版本，Windows SmartScreen 可能顯示未知發行者提示。
