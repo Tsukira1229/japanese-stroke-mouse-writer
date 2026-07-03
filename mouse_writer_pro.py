@@ -7,6 +7,7 @@ import argparse
 import ctypes
 import sys
 import time
+import unicodedata
 import xml.etree.ElementTree as ET
 from collections.abc import Callable, Iterable
 from ctypes import wintypes
@@ -20,22 +21,25 @@ Point = tuple[float, float]
 PathList = list[list[Point]]
 PathBounds = tuple[float, float, float, float]
 
-APP_VERSION = "2.1.3"
+APP_VERSION = "2.2.0"
 SCRIPT_DIR = Path(__file__).resolve().parent
 BUNDLE_DIR = Path(getattr(sys, "_MEIPASS", SCRIPT_DIR))
 EXECUTABLE_DIR = Path(sys.executable).resolve().parent if getattr(sys, "frozen", False) else SCRIPT_DIR
 DEFAULT_KANJIVG_DIR = BUNDLE_DIR / "data/kanjivg/20250816/main/kanji"
 DEFAULT_CUSTOM_STROKE_DIR = BUNDLE_DIR / "data/custom_strokes"
-SUPPORTED_SYMBOLS = frozenset(",，.．!！?？:：;；@＠~～、､。｡・･ーｰ")
+ASCII_ALNUM = frozenset(chr(codepoint) for codepoint in range(0x21, 0x7F) if chr(codepoint).isalnum())
+ASCII_PUNCTUATION = frozenset(chr(codepoint) for codepoint in range(0x21, 0x7F) if not chr(codepoint).isalnum())
+FULLWIDTH_ALNUM = frozenset(chr(ord(char) + 0xFEE0) for char in ASCII_ALNUM)
+FULLWIDTH_PUNCTUATION = frozenset(chr(ord(char) + 0xFEE0) for char in ASCII_PUNCTUATION)
+JAPANESE_PUNCTUATION = frozenset("、､。｡・･ーｰ")
+SUPPORTED_SYMBOLS = ASCII_PUNCTUATION | FULLWIDTH_PUNCTUATION | JAPANESE_PUNCTUATION
 SMALL_KANA = frozenset("ぁぃぅぇぉっゃゅょゎゕゖァィゥェォッャュョヮヵヶ")
 STROKE_ALIASES = {
-    "，": ",",
-    "．": ".",
-    "！": "!",
-    "？": "?",
-    "：": ":",
-    "；": ";",
-    "＠": "@",
+    **{
+        chr(ord(char) + 0xFEE0): char
+        for char in ASCII_ALNUM | ASCII_PUNCTUATION
+        if char != "~"
+    },
     "~": "～",
     "､": "、",
     "｡": "。",
@@ -43,7 +47,7 @@ STROKE_ALIASES = {
     "ｰ": "ー",
 }
 KANJIVG_VIEWBOX: PathBounds = (0.0, 0.0, 109.0, 109.0)
-NATIVE_VIEWBOX_CHARS = SUPPORTED_SYMBOLS | SMALL_KANA
+NATIVE_VIEWBOX_CHARS = SUPPORTED_SYMBOLS | SMALL_KANA | ASCII_ALNUM | FULLWIDTH_ALNUM
 
 
 def configure_console_encoding() -> None:
@@ -115,7 +119,8 @@ class GlyphPlacement:
     source_index: int
     x: float
     y: float
-    span: int = 1
+    span: float = 1.0
+    subcells: int = 1
     is_whitespace: bool = False
     automatic_wrap_before: bool = False
 
@@ -263,6 +268,7 @@ def is_supported_writing_char(char: str) -> bool:
     return (
         is_japanese_writing_char(char)
         or (char.isascii() and char.isalnum())
+        or char in FULLWIDTH_ALNUM
         or char in SUPPORTED_SYMBOLS
     )
 
@@ -346,16 +352,32 @@ def _validate_layout_settings(settings: LayoutSettings) -> None:
         return
 
     size = general.font_size
-    if settings.end_y < settings.start_y + size:
+    minimum_x = size / 2 if general.orientation is Orientation.HORIZONTAL else size
+    minimum_y = size if general.orientation is Orientation.HORIZONTAL else size / 2
+    if settings.end_y < settings.start_y + minimum_y:
         raise LayoutError("layout_vertical_small")
-    if general.flow is FlowDirection.RIGHT and settings.end_x < settings.start_x + size:
+    if general.flow is FlowDirection.RIGHT and settings.end_x < settings.start_x + minimum_x:
         raise LayoutError("layout_right_small")
-    if general.flow is FlowDirection.LEFT and settings.end_x > settings.start_x - size:
+    if general.flow is FlowDirection.LEFT and settings.end_x > settings.start_x - minimum_x:
         raise LayoutError("layout_left_small")
 
 
-def _token_span(char: str) -> int:
+def is_halfwidth_char(char: str) -> bool:
+    return unicodedata.east_asian_width(char) in {"Na", "H"}
+
+
+def _token_span(char: str) -> float:
+    if char == "\t":
+        return 2.0
+    return 0.5 if is_halfwidth_char(char) else 1.0
+
+
+def _token_subcells(char: str) -> int:
     return 4 if char == "\t" else 1
+
+
+def _token_extent(span: float, subcells: int, size: float, gap: float) -> float:
+    return span * size + max(0, subcells - 1) * gap
 
 
 def build_layout(
@@ -370,13 +392,16 @@ def build_layout(
     environment = environment or EnvironmentSettings()
     general = settings.general
     size = general.font_size
-    primary_step = size + general.char_gap
     secondary_step = size + general.line_gap
     bounded = settings.end_x is not None and settings.end_y is not None
     result = LayoutResult()
-    cursor_x = settings.start_x - size if general.flow is FlowDirection.LEFT else settings.start_x
+    cursor_x = (
+        settings.start_x - size
+        if general.orientation is Orientation.VERTICAL and general.flow is FlowDirection.LEFT
+        else settings.start_x
+    )
     cursor_y = settings.start_y
-    cells_on_line = 0
+    units_on_line = 0.0
 
     def secondary_fits() -> bool:
         if not bounded:
@@ -388,25 +413,25 @@ def build_layout(
             return cursor_x + size <= settings.end_x
         return cursor_x >= settings.end_x
 
-    def primary_fits(span: int) -> bool:
+    def primary_fits(extent: float) -> bool:
         if not bounded:
             return True
         assert settings.end_x is not None and settings.end_y is not None
         if general.orientation is Orientation.VERTICAL:
-            return cursor_y + (span - 1) * primary_step + size <= settings.end_y
+            return cursor_y + extent <= settings.end_y
         if general.flow is FlowDirection.RIGHT:
-            return cursor_x + (span - 1) * primary_step + size <= settings.end_x
-        return cursor_x - (span - 1) * primary_step >= settings.end_x
+            return cursor_x + extent <= settings.end_x
+        return cursor_x - extent >= settings.end_x
 
     def wrap(source_index: int, explicit: bool) -> None:
-        nonlocal cursor_x, cursor_y, cells_on_line
+        nonlocal cursor_x, cursor_y, units_on_line
         if general.orientation is Orientation.HORIZONTAL:
-            cursor_x = settings.start_x - size if general.flow is FlowDirection.LEFT else settings.start_x
+            cursor_x = settings.start_x
             cursor_y += secondary_step
         else:
             cursor_y = settings.start_y
             cursor_x += secondary_step if general.flow is FlowDirection.RIGHT else -secondary_step
-        cells_on_line = 0
+        units_on_line = 0.0
         (result.explicit_wraps if explicit else result.automatic_wraps).append(source_index)
         if not secondary_fits():
             raise LayoutOverflowError("layout_wrap_overflow", index=source_index + 1)
@@ -419,23 +444,32 @@ def build_layout(
             continue
 
         span = _token_span(char)
+        subcells = _token_subcells(char)
+        extent = _token_extent(span, subcells, size, general.char_gap)
         automatic_wrap = False
-        if not primary_fits(span):
-            if cells_on_line == 0:
+        if not primary_fits(extent):
+            if units_on_line == 0:
                 raise LayoutOverflowError("layout_primary_overflow", index=source_index + 1)
             wrap(source_index, explicit=False)
             automatic_wrap = True
-            if not primary_fits(span):
+            if not primary_fits(extent):
                 raise LayoutOverflowError("layout_wrap_still_overflow", index=source_index + 1)
         if not secondary_fits():
             raise LayoutOverflowError("layout_character_overflow", index=source_index + 1)
 
+        placement_x = (
+            cursor_x - extent
+            if general.orientation is Orientation.HORIZONTAL and general.flow is FlowDirection.LEFT
+            else cursor_x
+        )
+
         placement = GlyphPlacement(
             char=char,
             source_index=source_index,
-            x=cursor_x,
+            x=placement_x,
             y=cursor_y,
             span=span,
+            subcells=subcells,
             is_whitespace=char.isspace(),
             automatic_wrap_before=automatic_wrap,
         )
@@ -450,11 +484,11 @@ def build_layout(
             result.paths.extend(
                 transform_kanjivg(
                     strokes,
-                    cursor_x,
+                    placement_x,
                     cursor_y,
-                    size,
-                    size,
-                    settings.preserve_aspect,
+                    extent if general.orientation is Orientation.HORIZONTAL else size,
+                    size if general.orientation is Orientation.HORIZONTAL else extent,
+                    False if is_halfwidth_char(char) else settings.preserve_aspect,
                     settings.point_step,
                     KANJIVG_VIEWBOX if char in NATIVE_VIEWBOX_CHARS else None,
                 )
@@ -462,10 +496,10 @@ def build_layout(
             result.kanjivg_chars.append(char)
 
         if general.orientation is Orientation.HORIZONTAL:
-            cursor_x += span * primary_step if general.flow is FlowDirection.RIGHT else -span * primary_step
+            cursor_x += extent + general.char_gap if general.flow is FlowDirection.RIGHT else -(extent + general.char_gap)
         else:
-            cursor_y += span * primary_step
-        cells_on_line += span
+            cursor_y += extent + general.char_gap
+        units_on_line += span
 
     if bounded:
         assert settings.end_x is not None and settings.end_y is not None
@@ -473,9 +507,18 @@ def build_layout(
         max_x = max(settings.start_x, settings.end_x)
         result.canvas_bounds = (min_x, settings.start_y, max_x, settings.end_y)
     elif result.placements:
-        placement_min_x = min(p.x - ((p.span - 1) * primary_step if general.orientation is Orientation.HORIZONTAL and general.flow is FlowDirection.LEFT else 0) for p in result.placements)
-        placement_max_x = max(p.x + size + ((p.span - 1) * primary_step if general.orientation is Orientation.HORIZONTAL and general.flow is FlowDirection.RIGHT else 0) for p in result.placements)
-        placement_max_y = max(p.y + size + ((p.span - 1) * primary_step if general.orientation is Orientation.VERTICAL else 0) for p in result.placements)
+        def placement_extent(placement: GlyphPlacement) -> float:
+            return _token_extent(placement.span, placement.subcells, size, general.char_gap)
+
+        placement_min_x = min(p.x for p in result.placements)
+        placement_max_x = max(
+            p.x + (placement_extent(p) if general.orientation is Orientation.HORIZONTAL else size)
+            for p in result.placements
+        )
+        placement_max_y = max(
+            p.y + (size if general.orientation is Orientation.HORIZONTAL else placement_extent(p))
+            for p in result.placements
+        )
         result.canvas_bounds = (placement_min_x, settings.start_y, placement_max_x, placement_max_y)
     return result
 

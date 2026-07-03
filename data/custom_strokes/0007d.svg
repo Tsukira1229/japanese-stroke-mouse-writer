@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Project-authored centerline stroke data for U+007D RIGHT CURLY BRACKET. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 109 109">
+  <path id="custom:0007d-s1" d="M39,13 C57,13 60,23 60,37 C60,49 66,54 75,55 C66,56 60,61 60,73 C60,88 57,98 39,98" />
+</svg>

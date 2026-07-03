@@ -137,6 +137,27 @@ class JapaneseWriterUiTests(unittest.TestCase):
         self.assertIsNotNone(self.app.current_layout)
         self.assertIn("筆", self.app.summary.get())
 
+    def test_preview_draws_tab_as_four_half_cells(self) -> None:
+        self.app.text_input.delete("1.0", "end")
+        self.app.text_input.insert("1.0", "A\tＢ")
+        self.app.current_layout = None
+        self.app.refresh_preview()
+        deadline = time.time() + 15
+        while self.app.current_layout is None and time.time() < deadline:
+            self.root.update()
+            time.sleep(0.02)
+        self.root.update_idletasks()
+        self.app._draw_current_layout()
+        placements = self.app.current_layout.placements
+        self.assertEqual([item.span for item in placements], [0.5, 2.0, 1.0])
+        self.assertEqual(placements[1].subcells, 4)
+        rectangles = [
+            item
+            for item in self.app.preview_canvas.find_all()
+            if self.app.preview_canvas.type(item) == "rectangle"
+        ]
+        self.assertEqual(len(rectangles), 1 + 1 + 4 + 1)
+
     def test_coordinate_detection_can_overwrite_values(self) -> None:
         self.app._coordinate_detected("start", -200, 50)
         self.app._coordinate_detected("start", -100, 70)

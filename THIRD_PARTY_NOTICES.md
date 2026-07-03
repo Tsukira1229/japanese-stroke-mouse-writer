@@ -14,4 +14,10 @@ KanjiVG data remains subject to its original attribution and share-alike terms.
 
 ## Project-authored stroke data
 
-The centerline SVG paths for U+FF5E FULLWIDTH TILDE (`～`) and U+0040 COMMERCIAL AT (`@`) were created specifically for this project and are not third-party data. U+FF0C FULLWIDTH COMMA (`，`) resolves to the included KanjiVG comma path and remains subject to the KanjiVG terms above.
+The centerline SVG paths for U+FF5E FULLWIDTH TILDE (`～`), U+0040 COMMERCIAL AT (`@`), and the following 24 ASCII punctuation characters were created specifically for this project and are not third-party data:
+
+```text
+" # $ % & ' ( ) * + - / < = > [ \\ ] ^ _ ` { | }
+```
+
+Fullwidth aliases use the corresponding ASCII source path. Characters that resolve to included KanjiVG paths remain subject to the KanjiVG terms above.

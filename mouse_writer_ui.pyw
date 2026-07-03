@@ -25,7 +25,10 @@ from localization import (
 )
 from mouse_writer_pro import (
     APP_VERSION,
+    ASCII_ALNUM,
     DEFAULT_KANJIVG_DIR,
+    FULLWIDTH_ALNUM,
+    SUPPORTED_SYMBOLS,
     EnvironmentSettings,
     FlowDirection,
     GeneralSettings,
@@ -782,17 +785,20 @@ class JapaneseWriterApp:
         left, top = transform((min_x, min_y))
         right, bottom = transform((max_x, max_y))
         canvas.create_rectangle(left, top, right, bottom, outline="#97a6af", dash=(6, 4), width=1)
-        primary_step = general.font_size + general.char_gap
         for placement in result.placements:
-            for offset in range(placement.span):
+            subcell_span = placement.span / placement.subcells
+            subcell_extent = general.font_size * subcell_span
+            for offset in range(placement.subcells):
                 cell_x = placement.x
                 cell_y = placement.y
                 if general.orientation is Orientation.HORIZONTAL:
-                    cell_x += offset * primary_step if general.flow is FlowDirection.RIGHT else -offset * primary_step
+                    cell_x += offset * (subcell_extent + general.char_gap)
                 else:
-                    cell_y += offset * primary_step
+                    cell_y += offset * (subcell_extent + general.char_gap)
                 x1, y1 = transform((cell_x, cell_y))
-                x2, y2 = transform((cell_x + general.font_size, cell_y + general.font_size))
+                cell_width = subcell_extent if general.orientation is Orientation.HORIZONTAL else general.font_size
+                cell_height = general.font_size if general.orientation is Orientation.HORIZONTAL else subcell_extent
+                x2, y2 = transform((cell_x + cell_width, cell_y + cell_height))
                 canvas.create_rectangle(x1, y1, x2, y2, outline="#e1e7ea", dash=(2, 3))
         for index, path in enumerate(result.paths, start=1):
             coordinates: list[float] = []
@@ -1068,12 +1074,13 @@ def run_self_test(settings_path: Path = DEFAULT_SETTINGS_PATH) -> int:
     settings = LayoutSettings(
         start_x=10,
         start_y=10,
-        end_x=500,
-        end_y=1100,
-        general=GeneralSettings(font_size=100),
+        end_x=5000,
+        end_y=5000,
+        general=GeneralSettings(font_size=50),
     )
-    result = build_layout("あょっA0,，.．!！?？:：;；@＠~～、､。｡・･ーｰ", DEFAULT_KANJIVG_DIR, settings)
-    if len(result.kanjivg_chars) != 29 or not result.paths:
+    characters = "あょっ" + "".join(sorted(ASCII_ALNUM | FULLWIDTH_ALNUM | SUPPORTED_SYMBOLS))
+    result = build_layout(characters, DEFAULT_KANJIVG_DIR, settings)
+    if result.kanjivg_chars != list(characters) or not result.paths:
         raise RuntimeError("基本筆順排版測試失敗。")
     SettingsStore(settings_path).ensure_writable()
     print(f"Japanese Stroke Mouse Writer {APP_VERSION} self-test passed")

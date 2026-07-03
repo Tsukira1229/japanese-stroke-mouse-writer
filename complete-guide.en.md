@@ -1,4 +1,4 @@
-# Japanese Stroke Mouse Writer V2.1.3 Complete Guide
+# Japanese Stroke Mouse Writer V2.2.0 Complete Guide
 
 [繁體中文](complete-guide.md) | English | [日本語](complete-guide.ja.md)
 
@@ -8,9 +8,9 @@ Extract the entire Portable ZIP, then double-click `JapaneseStrokeMouseWriter.ex
 
 ## 2. Enter Content and Preview
 
-Enter Japanese, English letters, numbers, or supported symbols in Content & Preview. The editor preserves layout: normal and full-width spaces use one cell, Tab uses four cells, Enter starts a new row or column, and repeated line breaks are retained.
+Enter Japanese, English letters, numbers, or supported symbols in Content & Preview. The editor preserves layout: a normal space uses `0.5` cell, a fullwidth space uses `1` cell, and Tab displays four half-cells occupying `2` cells. Enter starts a new row or column, and repeated line breaks are retained.
 
-English supports `A–Z` and `a–z`, numbers support `0–9`, and supported symbols are `,， .． !！ ?？ :： ;； @＠ ~～ 、､ 。｡ ・･ ーｰ`. Halfwidth and fullwidth symbols each occupy one cell and share the same stroke path. Included contracted-sound kana, small tsu, and small vowels retain their correct reduced size. Other characters produce an error before writing. Light cells in the preview show placement; black lines are the actual stroke paths.
+English letters and numbers support both halfwidth and fullwidth forms of `A–Z`, `a–z`, and `0–9`. Symbols include all printable ASCII punctuation and fullwidth counterparts, including `#＃ (（ )） [［ ]］ @＠ ~～`, plus `、､ 。｡ ・･ ーｰ`. Unicode halfwidth/narrow characters occupy `0.5` cell, while fullwidth/wide characters occupy `1` cell; paired forms share stroke data. Included contracted-sound kana, small tsu, and small vowels retain their reduced size. Other characters produce an error before writing. Light cells show actual layout occupancy; black lines show stroke paths.
 
 ## 3. Detect the Canvas Bounds
 
@@ -53,4 +53,4 @@ After checking the preview, click Start writing. Every character, resource, and 
 - **Only straight lines appear**: select a pencil or brush instead of a line or shape tool.
 - **Canvas overflow**: enlarge the bounds, reduce font size, or reduce gaps.
 - **Folder is not writable**: move the whole program folder to Desktop, Documents, or another writable location.
-- **SmartScreen warning**: V2.1.3 is unsigned; download it from the official Release and verify SHA-256.
+- **SmartScreen warning**: V2.2.0 is unsigned; download it from the official Release and verify SHA-256.

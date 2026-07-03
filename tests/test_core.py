@@ -7,7 +7,12 @@ from types import SimpleNamespace
 from unittest.mock import patch
 
 from mouse_writer_pro import (
+    ASCII_ALNUM,
+    ASCII_PUNCTUATION,
     DEFAULT_KANJIVG_DIR,
+    FULLWIDTH_ALNUM,
+    FULLWIDTH_PUNCTUATION,
+    JAPANESE_PUNCTUATION,
     KANJIVG_VIEWBOX,
     SMALL_KANA,
     STROKE_ALIASES,
@@ -24,11 +29,21 @@ from mouse_writer_pro import (
     bounds,
     draw_with_mouse,
     interruptible_sleep,
+    is_halfwidth_char,
     is_supported_writing_char,
     load_kanjivg_strokes,
 )
 
-SYMBOL_PAIR_TEXT = ",，.．!！?？:：;；@＠~～、､。｡・･ーｰ"
+ASCII_ALNUM_TEXT = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
+FULLWIDTH_ALNUM_TEXT = "".join(chr(ord(char) + 0xFEE0) for char in ASCII_ALNUM_TEXT)
+ASCII_PUNCTUATION_TEXT = "".join(
+    chr(codepoint)
+    for codepoint in range(0x21, 0x7F)
+    if not chr(codepoint).isalnum()
+)
+FULLWIDTH_PUNCTUATION_TEXT = "".join(chr(ord(char) + 0xFEE0) for char in ASCII_PUNCTUATION_TEXT)
+JAPANESE_PUNCTUATION_TEXT = "、､。｡・･ーｰ"
+SYMBOL_PAIR_TEXT = ASCII_PUNCTUATION_TEXT + FULLWIDTH_PUNCTUATION_TEXT + JAPANESE_PUNCTUATION_TEXT
 
 
 class LayoutTests(unittest.TestCase):
@@ -75,15 +90,27 @@ class LayoutTests(unittest.TestCase):
         self.assertEqual([(p.x, p.y) for p in result.placements], [(200, 100), (200, 210), (80, 100)])
         self.assertTrue(all(60 <= x <= 300 for path in result.paths for x, _y in path))
 
-    def test_left_layout_requires_one_full_cell_width(self) -> None:
-        with self.assertRaisesRegex(ValueError, "至少需要容納一個字格"):
+    def test_left_layout_accepts_half_cell_but_rejects_smaller_range(self) -> None:
+        result = build_layout(
+            "A",
+            DEFAULT_KANJIVG_DIR,
+            LayoutSettings(
+                start_x=300,
+                start_y=100,
+                end_x=250,
+                end_y=300,
+                general=GeneralSettings(font_size=100, flow=FlowDirection.LEFT),
+            ),
+        )
+        self.assertEqual(result.placements[0].x, 250)
+        with self.assertRaises(ValueError):
             build_layout(
-                "あ",
+                "A",
                 DEFAULT_KANJIVG_DIR,
                 LayoutSettings(
                     start_x=300,
                     start_y=100,
-                    end_x=201,
+                    end_x=251,
                     end_y=300,
                     general=GeneralSettings(font_size=100, flow=FlowDirection.LEFT),
                 ),
@@ -122,7 +149,9 @@ class LayoutTests(unittest.TestCase):
             ),
         )
         self.assertEqual([p.char for p in result.placements], ["あ", " ", "い", "\t", "う"])
-        self.assertEqual(result.placements[3].span, 4)
+        self.assertEqual(result.placements[1].span, 0.5)
+        self.assertEqual(result.placements[3].span, 2.0)
+        self.assertEqual(result.placements[3].subcells, 4)
         self.assertEqual(result.explicit_wraps, [3])
 
     def test_secondary_overflow_stops_before_drawing(self) -> None:
@@ -142,15 +171,20 @@ class LayoutTests(unittest.TestCase):
     def test_unsupported_text_is_rejected(self) -> None:
         with self.assertRaises(UnsupportedCharacterError):
             build_layout(
-                "#",
+                "©",
                 DEFAULT_KANJIVG_DIR,
                 LayoutSettings(start_x=0, start_y=0, general=GeneralSettings(font_size=100)),
             )
 
     def test_latin_numbers_and_symbols_have_stroke_paths(self) -> None:
-        characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789" + "".join(SUPPORTED_SYMBOLS)
+        characters = ASCII_ALNUM_TEXT + FULLWIDTH_ALNUM_TEXT + SYMBOL_PAIR_TEXT
+        self.assertEqual(ASCII_ALNUM, frozenset(ASCII_ALNUM_TEXT))
+        self.assertEqual(FULLWIDTH_ALNUM, frozenset(FULLWIDTH_ALNUM_TEXT))
+        self.assertEqual(ASCII_PUNCTUATION, frozenset(ASCII_PUNCTUATION_TEXT))
+        self.assertEqual(FULLWIDTH_PUNCTUATION, frozenset(FULLWIDTH_PUNCTUATION_TEXT))
+        self.assertEqual(JAPANESE_PUNCTUATION, frozenset(JAPANESE_PUNCTUATION_TEXT))
         self.assertEqual(SUPPORTED_SYMBOLS, frozenset(SYMBOL_PAIR_TEXT))
-        self.assertEqual(len(SUPPORTED_SYMBOLS), 24)
+        self.assertEqual(len(SUPPORTED_SYMBOLS), 72)
         self.assertTrue(all(is_supported_writing_char(char) for char in characters))
         for char in characters:
             with self.subTest(char=char):
@@ -169,26 +203,31 @@ class LayoutTests(unittest.TestCase):
             [(61, 43), (62, 43), (82, 76)],
         )
 
-    def test_half_and_fullwidth_pairs_share_stroke_and_layout_paths(self) -> None:
-        self.assertEqual(len(STROKE_ALIASES), 12)
+    def test_project_authored_ascii_punctuation_resources(self) -> None:
+        expected_stroke_counts = {
+            '"': 2, "#": 4, "$": 2, "%": 3, "&": 1, "'": 1,
+            "(": 1, ")": 1, "*": 3, "+": 2, "-": 1, "/": 1,
+            "<": 1, "=": 2, ">": 1, "[": 1, "\\": 1, "]": 1,
+            "^": 1, "_": 1, "`": 1, "{": 1, "|": 1, "}": 1,
+        }
+        custom_dir = Path(__file__).resolve().parents[1] / "data" / "custom_strokes"
+        self.assertEqual(len(list(custom_dir.glob("*.svg"))), 26)
+        for char, stroke_count in expected_stroke_counts.items():
+            with self.subTest(char=char):
+                path = custom_dir / f"{ord(char):05x}.svg"
+                self.assertTrue(path.is_file())
+                strokes = load_kanjivg_strokes(char, DEFAULT_KANJIVG_DIR, 2.0) or []
+                self.assertEqual(len(strokes), stroke_count)
+
+    def test_half_and_fullwidth_pairs_share_source_strokes(self) -> None:
+        self.assertEqual(len(STROKE_ALIASES), 98)
         for alias, canonical in STROKE_ALIASES.items():
             with self.subTest(alias=alias, canonical=canonical):
                 alias_strokes = load_kanjivg_strokes(alias, DEFAULT_KANJIVG_DIR, 2.0)
                 canonical_strokes = load_kanjivg_strokes(canonical, DEFAULT_KANJIVG_DIR, 2.0)
                 self.assertEqual(alias_strokes, canonical_strokes)
-                alias_layout = build_layout(
-                    alias,
-                    DEFAULT_KANJIVG_DIR,
-                    LayoutSettings(start_x=100, start_y=100, general=GeneralSettings(font_size=109)),
-                )
-                canonical_layout = build_layout(
-                    canonical,
-                    DEFAULT_KANJIVG_DIR,
-                    LayoutSettings(start_x=100, start_y=100, general=GeneralSettings(font_size=109)),
-                )
-                self.assertEqual(alias_layout.paths, canonical_layout.paths)
 
-    def test_supported_symbols_preserve_native_109_viewbox_coordinates(self) -> None:
+    def test_native_viewbox_is_scaled_only_along_halfwidth_primary_axis(self) -> None:
         self.assertEqual(KANJIVG_VIEWBOX, (0.0, 0.0, 109.0, 109.0))
         for char in SUPPORTED_SYMBOLS:
             with self.subTest(char=char):
@@ -199,7 +238,7 @@ class LayoutTests(unittest.TestCase):
                     LayoutSettings(
                         start_x=0,
                         start_y=0,
-                        end_x=109,
+                        end_x=218,
                         end_y=109,
                         general=GeneralSettings(font_size=109),
                     ),
@@ -207,8 +246,26 @@ class LayoutTests(unittest.TestCase):
                 for actual, expected in zip(result.paths, source, strict=True):
                     self.assertEqual(len(actual), len(expected))
                     for actual_point, expected_point in zip(actual, expected, strict=True):
-                        self.assertAlmostEqual(actual_point[0], expected_point[0])
+                        expected_x = expected_point[0] * (0.5 if is_halfwidth_char(char) else 1.0)
+                        self.assertAlmostEqual(actual_point[0], expected_x)
                         self.assertAlmostEqual(actual_point[1], expected_point[1])
+
+                vertical = build_layout(
+                    char,
+                    DEFAULT_KANJIVG_DIR,
+                    LayoutSettings(
+                        start_x=0,
+                        start_y=0,
+                        end_x=109,
+                        end_y=218,
+                        general=GeneralSettings(font_size=109, orientation=Orientation.VERTICAL),
+                    ),
+                )
+                for actual, expected in zip(vertical.paths, source, strict=True):
+                    for actual_point, expected_point in zip(actual, expected, strict=True):
+                        self.assertAlmostEqual(actual_point[0], expected_point[0])
+                        expected_y = expected_point[1] * (0.5 if is_halfwidth_char(char) else 1.0)
+                        self.assertAlmostEqual(actual_point[1], expected_y)
 
     def test_compact_punctuation_stays_small_and_lower_in_cell(self) -> None:
         for char in ",，.．、､。｡":
@@ -232,9 +289,11 @@ class LayoutTests(unittest.TestCase):
                     LayoutSettings(start_x=0, start_y=0, general=GeneralSettings(font_size=109)),
                 )
                 min_x, min_y, max_x, max_y = bounds(result.paths)
-                self.assertAlmostEqual((min_x + max_x) / 2, 54.5)
+                expected_center_x = 27.25 if is_halfwidth_char(char) else 54.5
+                expected_width = 6.0 if is_halfwidth_char(char) else 12.0
+                self.assertAlmostEqual((min_x + max_x) / 2, expected_center_x)
                 self.assertAlmostEqual((min_y + max_y) / 2, 53.0)
-                self.assertAlmostEqual(max_x - min_x, 12.0)
+                self.assertAlmostEqual(max_x - min_x, expected_width)
                 self.assertAlmostEqual(max_y - min_y, 12.0)
 
     def test_all_symbol_pairs_wrap_in_all_directions(self) -> None:
@@ -250,7 +309,7 @@ class LayoutTests(unittest.TestCase):
                             start_x=start_x,
                             start_y=0,
                             end_x=end_x,
-                            end_y=400,
+                            end_y=2000,
                             general=GeneralSettings(
                                 font_size=50,
                                 char_gap=5,
@@ -264,17 +323,47 @@ class LayoutTests(unittest.TestCase):
                     self.assertEqual(result.kanjivg_chars, list(SYMBOL_PAIR_TEXT))
                     self.assertTrue(result.automatic_wraps)
 
-    def test_letters_numbers_and_japanese_keep_bounds_based_scaling(self) -> None:
-        for char in "A1あ":
-            with self.subTest(char=char):
-                result = build_layout(
-                    char,
-                    DEFAULT_KANJIVG_DIR,
-                    LayoutSettings(start_x=0, start_y=0, general=GeneralSettings(font_size=109)),
-                )
-                _min_x, min_y, _max_x, max_y = bounds(result.paths)
-                self.assertAlmostEqual(min_y, 0.0)
-                self.assertAlmostEqual(max_y, 109.0)
+    def test_halfwidth_and_fullwidth_alphanumeric_spans(self) -> None:
+        result = build_layout(
+            "AＢ1２",
+            DEFAULT_KANJIVG_DIR,
+            LayoutSettings(
+                start_x=0,
+                start_y=0,
+                end_x=400,
+                end_y=200,
+                general=GeneralSettings(font_size=100, char_gap=10),
+            ),
+        )
+        self.assertEqual([placement.span for placement in result.placements], [0.5, 1.0, 0.5, 1.0])
+        self.assertEqual([placement.x for placement in result.placements], [0, 60, 170, 230])
+
+        vertical = build_layout(
+            "AＢ1２",
+            DEFAULT_KANJIVG_DIR,
+            LayoutSettings(
+                start_x=0,
+                start_y=0,
+                end_x=200,
+                end_y=400,
+                general=GeneralSettings(font_size=100, char_gap=10, orientation=Orientation.VERTICAL),
+            ),
+        )
+        self.assertEqual([placement.y for placement in vertical.placements], [0, 60, 170, 230])
+
+    def test_left_flow_uses_each_character_actual_extent(self) -> None:
+        result = build_layout(
+            "AＢ1２",
+            DEFAULT_KANJIVG_DIR,
+            LayoutSettings(
+                start_x=400,
+                start_y=0,
+                end_x=0,
+                end_y=200,
+                general=GeneralSettings(font_size=100, char_gap=10, flow=FlowDirection.LEFT),
+            ),
+        )
+        self.assertEqual([placement.x for placement in result.placements], [350, 240, 180, 70])
 
     def test_supported_symbols_stay_inside_cells_in_all_directions(self) -> None:
         for char in SUPPORTED_SYMBOLS:
@@ -299,10 +388,12 @@ class LayoutTests(unittest.TestCase):
                             ),
                         )
                         placement = result.placements[0]
+                        cell_width = 109 * (placement.span if orientation is Orientation.HORIZONTAL else 1.0)
+                        cell_height = 109 * (placement.span if orientation is Orientation.VERTICAL else 1.0)
                         self.assertTrue(
                             all(
-                                placement.x <= x <= placement.x + 109
-                                and placement.y <= y <= placement.y + 109
+                                placement.x <= x <= placement.x + cell_width
+                                and placement.y <= y <= placement.y + cell_height
                                 for path in result.paths
                                 for x, y in path
                             )
@@ -467,8 +558,8 @@ class CancellationTests(unittest.TestCase):
             LayoutSettings(
                 start_x=100,
                 start_y=100,
-                end_x=800,
-                end_y=600,
+                end_x=2000,
+                end_y=2000,
                 general=GeneralSettings(font_size=80, char_gap=5),
             ),
         )
