@@ -1,4 +1,4 @@
-# Japanese Stroke Mouse Writer V2.1.0 Complete Guide
+# Japanese Stroke Mouse Writer V2.1.1 Complete Guide
 
 [繁體中文](complete-guide.md) | English | [日本語](complete-guide.ja.md)
 
@@ -53,4 +53,4 @@ After checking the preview, click Start writing. Every character, resource, and 
 - **Only straight lines appear**: select a pencil or brush instead of a line or shape tool.
 - **Canvas overflow**: enlarge the bounds, reduce font size, or reduce gaps.
 - **Folder is not writable**: move the whole program folder to Desktop, Documents, or another writable location.
-- **SmartScreen warning**: V2.1.0 is unsigned; download it from the official Release and verify SHA-256.
+- **SmartScreen warning**: V2.1.1 is unsigned; download it from the official Release and verify SHA-256.

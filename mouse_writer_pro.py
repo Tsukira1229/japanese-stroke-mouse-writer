@@ -18,8 +18,9 @@ from localization import Language, LocalizedOSError, LocalizedValueError, tr
 
 Point = tuple[float, float]
 PathList = list[list[Point]]
+PathBounds = tuple[float, float, float, float]
 
-APP_VERSION = "2.1.0"
+APP_VERSION = "2.1.1"
 SCRIPT_DIR = Path(__file__).resolve().parent
 BUNDLE_DIR = Path(getattr(sys, "_MEIPASS", SCRIPT_DIR))
 EXECUTABLE_DIR = Path(sys.executable).resolve().parent if getattr(sys, "frozen", False) else SCRIPT_DIR
@@ -27,6 +28,7 @@ DEFAULT_KANJIVG_DIR = BUNDLE_DIR / "data/kanjivg/20250816/main/kanji"
 DEFAULT_CUSTOM_STROKE_DIR = BUNDLE_DIR / "data/custom_strokes"
 SUPPORTED_SYMBOLS = frozenset(",.!?:;、。・ー，～@")
 STROKE_ALIASES = {"，": ","}
+KANJIVG_VIEWBOX: PathBounds = (0.0, 0.0, 109.0, 109.0)
 
 
 def configure_console_encoding() -> None:
@@ -172,8 +174,9 @@ def transform_paths(
     preserve_aspect: bool,
     flip_y: bool,
     point_step: int,
+    source_bounds: PathBounds | None = None,
 ) -> PathList:
-    min_x, min_y, max_x, max_y = bounds(paths)
+    min_x, min_y, max_x, max_y = source_bounds or bounds(paths)
     source_width = max_x - min_x
     source_height = max_y - min_y
     if preserve_aspect:
@@ -301,6 +304,7 @@ def transform_kanjivg(
     box_height: float,
     preserve_aspect: bool,
     point_step: int,
+    source_bounds: PathBounds | None = None,
 ) -> PathList:
     return transform_paths(
         strokes,
@@ -311,6 +315,7 @@ def transform_kanjivg(
         preserve_aspect,
         flip_y=False,
         point_step=point_step,
+        source_bounds=source_bounds,
     )
 
 
@@ -436,6 +441,7 @@ def build_layout(
                     size,
                     settings.preserve_aspect,
                     settings.point_step,
+                    KANJIVG_VIEWBOX if char in SUPPORTED_SYMBOLS else None,
                 )
             )
             result.kanjivg_chars.append(char)

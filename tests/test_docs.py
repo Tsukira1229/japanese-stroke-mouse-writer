@@ -49,6 +49,12 @@ class DocumentationTests(unittest.TestCase):
             self.assertIn("0–9", text)
             self.assertIn("，～@", text)
 
+    def test_all_documents_use_current_version(self) -> None:
+        for document in DOCS:
+            text = document.read_text(encoding="utf-8")
+            self.assertIn("V2.1.1", text)
+            self.assertNotIn("V2.1.0", text)
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -8,6 +8,7 @@ from unittest.mock import patch
 
 from mouse_writer_pro import (
     DEFAULT_KANJIVG_DIR,
+    KANJIVG_VIEWBOX,
     SUPPORTED_SYMBOLS,
     EnvironmentSettings,
     FlowDirection,
@@ -18,6 +19,7 @@ from mouse_writer_pro import (
     UnsupportedCharacterError,
     WritingCancelled,
     build_layout,
+    bounds,
     draw_with_mouse,
     interruptible_sleep,
     is_supported_writing_char,
@@ -160,6 +162,97 @@ class LayoutTests(unittest.TestCase):
             [(round(stroke[0][0]), round(stroke[0][1])) for stroke in at_sign],
             [(61, 43), (62, 43), (82, 76)],
         )
+
+    def test_supported_symbols_preserve_native_109_viewbox_coordinates(self) -> None:
+        self.assertEqual(KANJIVG_VIEWBOX, (0.0, 0.0, 109.0, 109.0))
+        for char in SUPPORTED_SYMBOLS:
+            with self.subTest(char=char):
+                source = load_kanjivg_strokes(char, DEFAULT_KANJIVG_DIR, 2.0) or []
+                result = build_layout(
+                    char,
+                    DEFAULT_KANJIVG_DIR,
+                    LayoutSettings(
+                        start_x=0,
+                        start_y=0,
+                        end_x=109,
+                        end_y=109,
+                        general=GeneralSettings(font_size=109),
+                    ),
+                )
+                for actual, expected in zip(result.paths, source, strict=True):
+                    self.assertEqual(len(actual), len(expected))
+                    for actual_point, expected_point in zip(actual, expected, strict=True):
+                        self.assertAlmostEqual(actual_point[0], expected_point[0])
+                        self.assertAlmostEqual(actual_point[1], expected_point[1])
+
+    def test_compact_punctuation_stays_small_and_lower_in_cell(self) -> None:
+        for char in ",.，、。":
+            with self.subTest(char=char):
+                result = build_layout(
+                    char,
+                    DEFAULT_KANJIVG_DIR,
+                    LayoutSettings(start_x=0, start_y=0, general=GeneralSettings(font_size=109)),
+                )
+                min_x, min_y, max_x, max_y = bounds(result.paths)
+                self.assertLessEqual(max_x - min_x, 24)
+                self.assertLessEqual(max_y - min_y, 24)
+                self.assertGreaterEqual(min_y, 72)
+
+    def test_middle_dot_stays_centered(self) -> None:
+        result = build_layout(
+            "・",
+            DEFAULT_KANJIVG_DIR,
+            LayoutSettings(start_x=0, start_y=0, general=GeneralSettings(font_size=109)),
+        )
+        min_x, min_y, max_x, max_y = bounds(result.paths)
+        self.assertAlmostEqual((min_x + max_x) / 2, 54.5)
+        self.assertAlmostEqual((min_y + max_y) / 2, 53.0)
+        self.assertAlmostEqual(max_x - min_x, 12.0)
+        self.assertAlmostEqual(max_y - min_y, 12.0)
+
+    def test_letters_numbers_and_japanese_keep_bounds_based_scaling(self) -> None:
+        for char in "A1あ":
+            with self.subTest(char=char):
+                result = build_layout(
+                    char,
+                    DEFAULT_KANJIVG_DIR,
+                    LayoutSettings(start_x=0, start_y=0, general=GeneralSettings(font_size=109)),
+                )
+                _min_x, min_y, _max_x, max_y = bounds(result.paths)
+                self.assertAlmostEqual(min_y, 0.0)
+                self.assertAlmostEqual(max_y, 109.0)
+
+    def test_supported_symbols_stay_inside_cells_in_all_directions(self) -> None:
+        for char in SUPPORTED_SYMBOLS:
+            for orientation in Orientation:
+                for flow in FlowDirection:
+                    with self.subTest(char=char, orientation=orientation, flow=flow):
+                        start_x = 300 if flow is FlowDirection.LEFT else 100
+                        end_x = 0 if flow is FlowDirection.LEFT else 400
+                        result = build_layout(
+                            char,
+                            DEFAULT_KANJIVG_DIR,
+                            LayoutSettings(
+                                start_x=start_x,
+                                start_y=100,
+                                end_x=end_x,
+                                end_y=400,
+                                general=GeneralSettings(
+                                    font_size=109,
+                                    orientation=orientation,
+                                    flow=flow,
+                                ),
+                            ),
+                        )
+                        placement = result.placements[0]
+                        self.assertTrue(
+                            all(
+                                placement.x <= x <= placement.x + 109
+                                and placement.y <= y <= placement.y + 109
+                                for path in result.paths
+                                for x, y in path
+                            )
+                        )
 
     def test_mixed_text_layout_in_all_directions(self) -> None:
         text = "日本語 Abc 123，。、～@"
