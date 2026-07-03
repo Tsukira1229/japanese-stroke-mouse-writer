@@ -10,6 +10,7 @@ from mouse_writer_pro import (
     DEFAULT_KANJIVG_DIR,
     KANJIVG_VIEWBOX,
     SMALL_KANA,
+    STROKE_ALIASES,
     SUPPORTED_SYMBOLS,
     EnvironmentSettings,
     FlowDirection,
@@ -26,6 +27,8 @@ from mouse_writer_pro import (
     is_supported_writing_char,
     load_kanjivg_strokes,
 )
+
+SYMBOL_PAIR_TEXT = ",，.．!！?？:：;；@＠~～、､。｡・･ーｰ"
 
 
 class LayoutTests(unittest.TestCase):
@@ -139,13 +142,15 @@ class LayoutTests(unittest.TestCase):
     def test_unsupported_text_is_rejected(self) -> None:
         with self.assertRaises(UnsupportedCharacterError):
             build_layout(
-                "$",
+                "#",
                 DEFAULT_KANJIVG_DIR,
                 LayoutSettings(start_x=0, start_y=0, general=GeneralSettings(font_size=100)),
             )
 
     def test_latin_numbers_and_symbols_have_stroke_paths(self) -> None:
         characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789" + "".join(SUPPORTED_SYMBOLS)
+        self.assertEqual(SUPPORTED_SYMBOLS, frozenset(SYMBOL_PAIR_TEXT))
+        self.assertEqual(len(SUPPORTED_SYMBOLS), 24)
         self.assertTrue(all(is_supported_writing_char(char) for char in characters))
         for char in characters:
             with self.subTest(char=char):
@@ -163,6 +168,25 @@ class LayoutTests(unittest.TestCase):
             [(round(stroke[0][0]), round(stroke[0][1])) for stroke in at_sign],
             [(61, 43), (62, 43), (82, 76)],
         )
+
+    def test_half_and_fullwidth_pairs_share_stroke_and_layout_paths(self) -> None:
+        self.assertEqual(len(STROKE_ALIASES), 12)
+        for alias, canonical in STROKE_ALIASES.items():
+            with self.subTest(alias=alias, canonical=canonical):
+                alias_strokes = load_kanjivg_strokes(alias, DEFAULT_KANJIVG_DIR, 2.0)
+                canonical_strokes = load_kanjivg_strokes(canonical, DEFAULT_KANJIVG_DIR, 2.0)
+                self.assertEqual(alias_strokes, canonical_strokes)
+                alias_layout = build_layout(
+                    alias,
+                    DEFAULT_KANJIVG_DIR,
+                    LayoutSettings(start_x=100, start_y=100, general=GeneralSettings(font_size=109)),
+                )
+                canonical_layout = build_layout(
+                    canonical,
+                    DEFAULT_KANJIVG_DIR,
+                    LayoutSettings(start_x=100, start_y=100, general=GeneralSettings(font_size=109)),
+                )
+                self.assertEqual(alias_layout.paths, canonical_layout.paths)
 
     def test_supported_symbols_preserve_native_109_viewbox_coordinates(self) -> None:
         self.assertEqual(KANJIVG_VIEWBOX, (0.0, 0.0, 109.0, 109.0))
@@ -187,7 +211,7 @@ class LayoutTests(unittest.TestCase):
                         self.assertAlmostEqual(actual_point[1], expected_point[1])
 
     def test_compact_punctuation_stays_small_and_lower_in_cell(self) -> None:
-        for char in ",.，、。":
+        for char in ",，.．、､。｡":
             with self.subTest(char=char):
                 result = build_layout(
                     char,
@@ -200,16 +224,45 @@ class LayoutTests(unittest.TestCase):
                 self.assertGreaterEqual(min_y, 72)
 
     def test_middle_dot_stays_centered(self) -> None:
-        result = build_layout(
-            "・",
-            DEFAULT_KANJIVG_DIR,
-            LayoutSettings(start_x=0, start_y=0, general=GeneralSettings(font_size=109)),
-        )
-        min_x, min_y, max_x, max_y = bounds(result.paths)
-        self.assertAlmostEqual((min_x + max_x) / 2, 54.5)
-        self.assertAlmostEqual((min_y + max_y) / 2, 53.0)
-        self.assertAlmostEqual(max_x - min_x, 12.0)
-        self.assertAlmostEqual(max_y - min_y, 12.0)
+        for char in "・･":
+            with self.subTest(char=char):
+                result = build_layout(
+                    char,
+                    DEFAULT_KANJIVG_DIR,
+                    LayoutSettings(start_x=0, start_y=0, general=GeneralSettings(font_size=109)),
+                )
+                min_x, min_y, max_x, max_y = bounds(result.paths)
+                self.assertAlmostEqual((min_x + max_x) / 2, 54.5)
+                self.assertAlmostEqual((min_y + max_y) / 2, 53.0)
+                self.assertAlmostEqual(max_x - min_x, 12.0)
+                self.assertAlmostEqual(max_y - min_y, 12.0)
+
+    def test_all_symbol_pairs_wrap_in_all_directions(self) -> None:
+        for orientation in Orientation:
+            for flow in FlowDirection:
+                with self.subTest(orientation=orientation, flow=flow):
+                    start_x = 400 if flow is FlowDirection.LEFT else 0
+                    end_x = 0 if flow is FlowDirection.LEFT else 400
+                    result = build_layout(
+                        SYMBOL_PAIR_TEXT,
+                        DEFAULT_KANJIVG_DIR,
+                        LayoutSettings(
+                            start_x=start_x,
+                            start_y=0,
+                            end_x=end_x,
+                            end_y=400,
+                            general=GeneralSettings(
+                                font_size=50,
+                                char_gap=5,
+                                line_gap=10,
+                                orientation=orientation,
+                                flow=flow,
+                            ),
+                        ),
+                    )
+                    self.assertEqual("".join(item.char for item in result.placements), SYMBOL_PAIR_TEXT)
+                    self.assertEqual(result.kanjivg_chars, list(SYMBOL_PAIR_TEXT))
+                    self.assertTrue(result.automatic_wraps)
 
     def test_letters_numbers_and_japanese_keep_bounds_based_scaling(self) -> None:
         for char in "A1あ":
@@ -409,13 +462,13 @@ class CancellationTests(unittest.TestCase):
 
     def test_layout_paths_are_sent_to_mouse_without_coordinate_changes(self) -> None:
         result = build_layout(
-            "A1ょっ～@",
+            "A1ょっ" + SYMBOL_PAIR_TEXT,
             DEFAULT_KANJIVG_DIR,
             LayoutSettings(
                 start_x=100,
                 start_y=100,
                 end_x=800,
-                end_y=400,
+                end_y=600,
                 general=GeneralSettings(font_size=80, char_gap=5),
             ),
         )

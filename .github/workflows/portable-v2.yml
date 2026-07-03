@@ -37,10 +37,10 @@ jobs:
       - name: Upload workflow artifact
         uses: actions/upload-artifact@v4
         with:
-          name: JapaneseStrokeMouseWriter-v2.1.2-win-x64-portable
+          name: JapaneseStrokeMouseWriter-v2.1.3-win-x64-portable
           path: |
-            dist/JapaneseStrokeMouseWriter-v2.1.2-win-x64-portable.zip
-            dist/JapaneseStrokeMouseWriter-v2.1.2-win-x64-portable.zip.sha256
+            dist/JapaneseStrokeMouseWriter-v2.1.3-win-x64-portable.zip
+            dist/JapaneseStrokeMouseWriter-v2.1.3-win-x64-portable.zip.sha256
 
       - name: Publish GitHub release
         if: startsWith(github.ref, 'refs/tags/v2.')
@@ -49,7 +49,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           gh release create "${{ github.ref_name }}" `
-            "dist/JapaneseStrokeMouseWriter-v2.1.2-win-x64-portable.zip" `
-            "dist/JapaneseStrokeMouseWriter-v2.1.2-win-x64-portable.zip.sha256" `
-            --title "Japanese Stroke Mouse Writer V2.1.2 Portable" `
-            --notes "Fixes small kana scaling so contracted-sound kana, small tsu, small vowels, and other included small hiragana and katakana retain their natural size within the character cell. This Windows x64 portable build is unsigned, so Windows SmartScreen may show a warning."
+            "dist/JapaneseStrokeMouseWriter-v2.1.3-win-x64-portable.zip" `
+            "dist/JapaneseStrokeMouseWriter-v2.1.3-win-x64-portable.zip.sha256" `
+            --title "Japanese Stroke Mouse Writer V2.1.3 Portable" `
+            --notes "Adds complete halfwidth and fullwidth input pairs for the existing Western and Japanese punctuation set while preserving one-cell layout and natural symbol positioning. This Windows x64 portable build is unsigned, so Windows SmartScreen may show a warning."

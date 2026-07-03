@@ -20,15 +20,28 @@ Point = tuple[float, float]
 PathList = list[list[Point]]
 PathBounds = tuple[float, float, float, float]
 
-APP_VERSION = "2.1.2"
+APP_VERSION = "2.1.3"
 SCRIPT_DIR = Path(__file__).resolve().parent
 BUNDLE_DIR = Path(getattr(sys, "_MEIPASS", SCRIPT_DIR))
 EXECUTABLE_DIR = Path(sys.executable).resolve().parent if getattr(sys, "frozen", False) else SCRIPT_DIR
 DEFAULT_KANJIVG_DIR = BUNDLE_DIR / "data/kanjivg/20250816/main/kanji"
 DEFAULT_CUSTOM_STROKE_DIR = BUNDLE_DIR / "data/custom_strokes"
-SUPPORTED_SYMBOLS = frozenset(",.!?:;、。・ー，～@")
+SUPPORTED_SYMBOLS = frozenset(",，.．!！?？:：;；@＠~～、､。｡・･ーｰ")
 SMALL_KANA = frozenset("ぁぃぅぇぉっゃゅょゎゕゖァィゥェォッャュョヮヵヶ")
-STROKE_ALIASES = {"，": ","}
+STROKE_ALIASES = {
+    "，": ",",
+    "．": ".",
+    "！": "!",
+    "？": "?",
+    "：": ":",
+    "；": ";",
+    "＠": "@",
+    "~": "～",
+    "､": "、",
+    "｡": "。",
+    "･": "・",
+    "ｰ": "ー",
+}
 KANJIVG_VIEWBOX: PathBounds = (0.0, 0.0, 109.0, 109.0)
 NATIVE_VIEWBOX_CHARS = SUPPORTED_SYMBOLS | SMALL_KANA
 

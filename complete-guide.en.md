@@ -1,4 +1,4 @@
-# Japanese Stroke Mouse Writer V2.1.2 Complete Guide
+# Japanese Stroke Mouse Writer V2.1.3 Complete Guide
 
 [繁體中文](complete-guide.md) | English | [日本語](complete-guide.ja.md)
 
@@ -10,7 +10,7 @@ Extract the entire Portable ZIP, then double-click `JapaneseStrokeMouseWriter.ex
 
 Enter Japanese, English letters, numbers, or supported symbols in Content & Preview. The editor preserves layout: normal and full-width spaces use one cell, Tab uses four cells, Enter starts a new row or column, and repeated line breaks are retained.
 
-English supports `A–Z` and `a–z`, numbers support `0–9`, and supported symbols are `, . ! ? : ; 、。・ー ，～@`. Included contracted-sound kana, small tsu, and small vowels retain their correct reduced size. Other characters produce an error before writing. Light cells in the preview show placement; black lines are the actual stroke paths.
+English supports `A–Z` and `a–z`, numbers support `0–9`, and supported symbols are `,， .． !！ ?？ :： ;； @＠ ~～ 、､ 。｡ ・･ ーｰ`. Halfwidth and fullwidth symbols each occupy one cell and share the same stroke path. Included contracted-sound kana, small tsu, and small vowels retain their correct reduced size. Other characters produce an error before writing. Light cells in the preview show placement; black lines are the actual stroke paths.
 
 ## 3. Detect the Canvas Bounds
 
@@ -53,4 +53,4 @@ After checking the preview, click Start writing. Every character, resource, and 
 - **Only straight lines appear**: select a pencil or brush instead of a line or shape tool.
 - **Canvas overflow**: enlarge the bounds, reduce font size, or reduce gaps.
 - **Folder is not writable**: move the whole program folder to Desktop, Documents, or another writable location.
-- **SmartScreen warning**: V2.1.2 is unsigned; download it from the official Release and verify SHA-256.
+- **SmartScreen warning**: V2.1.3 is unsigned; download it from the official Release and verify SHA-256.
