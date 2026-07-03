@@ -1072,8 +1072,8 @@ def run_self_test(settings_path: Path = DEFAULT_SETTINGS_PATH) -> int:
         end_y=500,
         general=GeneralSettings(font_size=100),
     )
-    result = build_layout("あA0，。、～@", DEFAULT_KANJIVG_DIR, settings)
-    if len(result.kanjivg_chars) != 8 or not result.paths:
+    result = build_layout("あょっA0，。、～@", DEFAULT_KANJIVG_DIR, settings)
+    if len(result.kanjivg_chars) != 10 or not result.paths:
         raise RuntimeError("基本筆順排版測試失敗。")
     SettingsStore(settings_path).ensure_writable()
     print(f"Japanese Stroke Mouse Writer {APP_VERSION} self-test passed")

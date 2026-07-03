@@ -9,6 +9,7 @@ from unittest.mock import patch
 from mouse_writer_pro import (
     DEFAULT_KANJIVG_DIR,
     KANJIVG_VIEWBOX,
+    SMALL_KANA,
     SUPPORTED_SYMBOLS,
     EnvironmentSettings,
     FlowDirection,
@@ -254,6 +255,82 @@ class LayoutTests(unittest.TestCase):
                             )
                         )
 
+    def test_small_kana_preserve_native_109_viewbox_coordinates(self) -> None:
+        self.assertEqual(len(SMALL_KANA), 24)
+        for char in SMALL_KANA:
+            with self.subTest(char=char):
+                source = load_kanjivg_strokes(char, DEFAULT_KANJIVG_DIR, 2.0) or []
+                self.assertTrue(source)
+                result = build_layout(
+                    char,
+                    DEFAULT_KANJIVG_DIR,
+                    LayoutSettings(
+                        start_x=0,
+                        start_y=0,
+                        end_x=109,
+                        end_y=109,
+                        general=GeneralSettings(font_size=109),
+                    ),
+                )
+                for actual, expected in zip(result.paths, source, strict=True):
+                    self.assertEqual(len(actual), len(expected))
+                    for actual_point, expected_point in zip(actual, expected, strict=True):
+                        self.assertAlmostEqual(actual_point[0], expected_point[0])
+                        self.assertAlmostEqual(actual_point[1], expected_point[1])
+
+    def test_small_kana_are_smaller_than_full_sized_forms(self) -> None:
+        pairs = (
+            ("ぁ", "あ"), ("ぃ", "い"), ("ぅ", "う"), ("ぇ", "え"), ("ぉ", "お"),
+            ("っ", "つ"), ("ゃ", "や"), ("ゅ", "ゆ"), ("ょ", "よ"), ("ゎ", "わ"),
+            ("ゕ", "か"), ("ゖ", "け"), ("ァ", "ア"), ("ィ", "イ"), ("ゥ", "ウ"),
+            ("ェ", "エ"), ("ォ", "オ"), ("ッ", "ツ"), ("ャ", "ヤ"), ("ュ", "ユ"),
+            ("ョ", "ヨ"), ("ヮ", "ワ"), ("ヵ", "カ"), ("ヶ", "ケ"),
+        )
+        for small, full in pairs:
+            with self.subTest(small=small, full=full):
+                small_result = build_layout(
+                    small,
+                    DEFAULT_KANJIVG_DIR,
+                    LayoutSettings(start_x=0, start_y=0, general=GeneralSettings(font_size=109)),
+                )
+                full_result = build_layout(
+                    full,
+                    DEFAULT_KANJIVG_DIR,
+                    LayoutSettings(start_x=0, start_y=0, general=GeneralSettings(font_size=109)),
+                )
+                small_bounds = bounds(small_result.paths)
+                full_bounds = bounds(full_result.paths)
+                small_extent = max(small_bounds[2] - small_bounds[0], small_bounds[3] - small_bounds[1])
+                full_extent = max(full_bounds[2] - full_bounds[0], full_bounds[3] - full_bounds[1])
+                self.assertLess(small_extent, full_extent)
+
+    def test_small_kana_words_layout_in_all_directions(self) -> None:
+        text = "ちょこ ましょう きゃっか キャット"
+        for orientation in Orientation:
+            for flow in FlowDirection:
+                with self.subTest(orientation=orientation, flow=flow):
+                    start_x = 1600 if flow is FlowDirection.LEFT else 0
+                    end_x = 0 if flow is FlowDirection.LEFT else 1600
+                    result = build_layout(
+                        text,
+                        DEFAULT_KANJIVG_DIR,
+                        LayoutSettings(
+                            start_x=start_x,
+                            start_y=0,
+                            end_x=end_x,
+                            end_y=1600,
+                            general=GeneralSettings(
+                                font_size=50,
+                                char_gap=5,
+                                line_gap=10,
+                                orientation=orientation,
+                                flow=flow,
+                            ),
+                        ),
+                    )
+                    self.assertEqual("".join(item.char for item in result.placements), text)
+                    self.assertTrue(all(char in result.kanjivg_chars for char in "ょゃっャッ"))
+
     def test_mixed_text_layout_in_all_directions(self) -> None:
         text = "日本語 Abc 123，。、～@"
         for orientation in Orientation:
@@ -332,7 +409,7 @@ class CancellationTests(unittest.TestCase):
 
     def test_layout_paths_are_sent_to_mouse_without_coordinate_changes(self) -> None:
         result = build_layout(
-            "A1～@",
+            "A1ょっ～@",
             DEFAULT_KANJIVG_DIR,
             LayoutSettings(
                 start_x=100,
