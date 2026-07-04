@@ -56,8 +56,8 @@ class DocumentationTests(unittest.TestCase):
     def test_all_documents_use_current_version(self) -> None:
         for document in DOCS:
             text = document.read_text(encoding="utf-8")
-            self.assertIn("V2.3.0", text)
-            self.assertNotIn("V2.2.0", text)
+            self.assertIn("V2.3.1", text)
+            self.assertNotIn("V2.3.0", text)
 
     def test_ui_guidance_matches_bottom_status_bar_and_help_tab(self) -> None:
         old_descriptions = ("標題下方固定", "below the title", "タイトル下")

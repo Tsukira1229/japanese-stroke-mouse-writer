@@ -1,4 +1,4 @@
-# Japanese Stroke Mouse Writer V2.3.0 完整步驟
+# Japanese Stroke Mouse Writer V2.3.1 完整步驟
 
 繁體中文 | [English](complete-guide.en.md) | [日本語](complete-guide.ja.md)
 
@@ -53,4 +53,4 @@
 - **只畫出直線**：確認目標工具是鉛筆或筆刷，不是直線或圖形工具。
 - **超出畫布**：增加範圍、縮小字體或降低字距／行距。
 - **資料夾無法寫入**：將整個程式資料夾移到桌面、文件或其他可寫入位置。
-- **SmartScreen 警告**：V2.3.0 未簽章，請從官方 Release 下載並核對 SHA-256。
+- **SmartScreen 警告**：V2.3.1 未簽章，請從官方 Release 下載並核對 SHA-256。

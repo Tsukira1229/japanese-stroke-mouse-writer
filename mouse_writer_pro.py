@@ -21,7 +21,7 @@ Point = tuple[float, float]
 PathList = list[list[Point]]
 PathBounds = tuple[float, float, float, float]
 
-APP_VERSION = "2.3.0"
+APP_VERSION = "2.3.1"
 SCRIPT_DIR = Path(__file__).resolve().parent
 BUNDLE_DIR = Path(getattr(sys, "_MEIPASS", SCRIPT_DIR))
 EXECUTABLE_DIR = Path(sys.executable).resolve().parent if getattr(sys, "frozen", False) else SCRIPT_DIR
