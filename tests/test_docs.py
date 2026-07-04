@@ -43,20 +43,21 @@ class DocumentationTests(unittest.TestCase):
         self.assertNotIn("一般使用者", (ROOT / "README.md").read_text(encoding="utf-8"))
 
     def test_all_languages_document_new_character_support(self) -> None:
-        symbol_pairs = ("#＃", "(（", ")）", "[［", "]］", "@＠", "~～", "、､", "。｡", "・･", "ーｰ")
+        symbol_pairs = ("#＃", "(（", ")）", "[［", "]］", "@＠", "~～", "、､", "。｡", "・･", "ーｰ", "「」", "【】", "｢｣")
         for document in DOCS:
             text = document.read_text(encoding="utf-8")
             self.assertIn("A–Z", text)
             self.assertIn("0–9", text)
             self.assertIn("0.5", text)
+            self.assertIn("ｶﾞ", text)
             for pair in symbol_pairs:
                 self.assertIn(pair, text)
 
     def test_all_documents_use_current_version(self) -> None:
         for document in DOCS:
             text = document.read_text(encoding="utf-8")
-            self.assertIn("V2.2.0", text)
-            self.assertNotIn("V2.1.3", text)
+            self.assertIn("V2.3.0", text)
+            self.assertNotIn("V2.2.0", text)
 
 
 if __name__ == "__main__":

@@ -1,16 +1,16 @@
-# Japanese Stroke Mouse Writer V2.2.0 Complete Guide
+# Japanese Stroke Mouse Writer V2.3.0 Complete Guide
 
 [繁體中文](complete-guide.md) | English | [日本語](complete-guide.ja.md)
 
 ## 1. Open the Program
 
-Extract the entire Portable ZIP, then double-click `JapaneseStrokeMouseWriter.exe`. Do not run it from the ZIP preview or place it in a protected system folder.
+Extract the entire Portable ZIP, then double-click `JapaneseStrokeMouseWriter.exe`. It starts maximized, with the ESC and screen-corner emergency-stop instructions permanently shown below the title. Do not run it from the ZIP preview or place it in a protected system folder.
 
 ## 2. Enter Content and Preview
 
 Enter Japanese, English letters, numbers, or supported symbols in Content & Preview. The editor preserves layout: a normal space uses `0.5` cell, a fullwidth space uses `1` cell, and Tab displays four half-cells occupying `2` cells. Enter starts a new row or column, and repeated line breaks are retained.
 
-English letters and numbers support both halfwidth and fullwidth forms of `A–Z`, `a–z`, and `0–9`. Symbols include all printable ASCII punctuation and fullwidth counterparts, including `#＃ (（ )） [［ ]］ @＠ ~～`, plus `、､ 。｡ ・･ ーｰ`. Unicode halfwidth/narrow characters occupy `0.5` cell, while fullwidth/wide characters occupy `1` cell; paired forms share stroke data. Included contracted-sound kana, small tsu, and small vowels retain their reduced size. Other characters produce an error before writing. Light cells show actual layout occupancy; black lines show stroke paths.
+English letters and numbers support both halfwidth and fullwidth forms of `A–Z`, `a–z`, and `0–9`. Halfwidth katakana occupies `0.5` cell, and voiced combinations such as `ｶﾞ` and `ﾊﾟ` become one half-cell glyph. Symbol pairs include `#＃ (（ )） [［ ]］ @＠ ~～ 、､ 。｡ ・･ ーｰ`, plus `「」『』【】〈〉《》〔〕｢｣`. Unicode halfwidth/narrow characters occupy `0.5` cell, while fullwidth/wide characters occupy `1` cell; paired forms share stroke data. Included contracted-sound kana, small tsu, and small vowels retain their reduced size. Other characters produce an error before writing. Light cells show actual layout occupancy; black lines show stroke paths.
 
 ## 3. Detect the Canvas Bounds
 
@@ -28,7 +28,7 @@ Press ESC during detection to cancel. Coordinates can also be entered manually a
 - Orientation: horizontal or vertical.
 - Flow: right or left.
 
-Horizontal text wraps downward at the side boundary. Vertical text creates a new left or right column at the bottom boundary.
+Horizontal text wraps downward at the side boundary. Vertical text creates a new left or right column at the bottom boundary. In vertical layout, letters, numbers, brackets, and long marks rotate clockwise, while `、。` move to the upper-right corner.
 
 ### Presets
 
@@ -53,4 +53,4 @@ After checking the preview, click Start writing. Every character, resource, and 
 - **Only straight lines appear**: select a pencil or brush instead of a line or shape tool.
 - **Canvas overflow**: enlarge the bounds, reduce font size, or reduce gaps.
 - **Folder is not writable**: move the whole program folder to Desktop, Documents, or another writable location.
-- **SmartScreen warning**: V2.2.0 is unsigned; download it from the official Release and verify SHA-256.
+- **SmartScreen warning**: V2.3.0 is unsigned; download it from the official Release and verify SHA-256.

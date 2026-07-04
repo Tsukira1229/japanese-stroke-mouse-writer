@@ -14,7 +14,7 @@ KanjiVG data remains subject to its original attribution and share-alike terms.
 
 ## Project-authored stroke data
 
-The centerline SVG paths for U+FF5E FULLWIDTH TILDE (`～`), U+0040 COMMERCIAL AT (`@`), and the following 24 ASCII punctuation characters were created specifically for this project and are not third-party data:
+The centerline SVG paths for U+FF5E FULLWIDTH TILDE (`～`), U+0040 COMMERCIAL AT (`@`), the Japanese brackets `「」『』【】〈〉《》〔〕`, and the following 24 ASCII punctuation characters were created specifically for this project and are not third-party data:
 
 ```text
 " # $ % & ' ( ) * + - / < = > [ \\ ] ^ _ ` { | }

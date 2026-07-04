@@ -21,7 +21,7 @@ Point = tuple[float, float]
 PathList = list[list[Point]]
 PathBounds = tuple[float, float, float, float]
 
-APP_VERSION = "2.2.0"
+APP_VERSION = "2.3.0"
 SCRIPT_DIR = Path(__file__).resolve().parent
 BUNDLE_DIR = Path(getattr(sys, "_MEIPASS", SCRIPT_DIR))
 EXECUTABLE_DIR = Path(sys.executable).resolve().parent if getattr(sys, "frozen", False) else SCRIPT_DIR
@@ -31,9 +31,16 @@ ASCII_ALNUM = frozenset(chr(codepoint) for codepoint in range(0x21, 0x7F) if chr
 ASCII_PUNCTUATION = frozenset(chr(codepoint) for codepoint in range(0x21, 0x7F) if not chr(codepoint).isalnum())
 FULLWIDTH_ALNUM = frozenset(chr(ord(char) + 0xFEE0) for char in ASCII_ALNUM)
 FULLWIDTH_PUNCTUATION = frozenset(chr(ord(char) + 0xFEE0) for char in ASCII_PUNCTUATION)
-JAPANESE_PUNCTUATION = frozenset("、､。｡・･ーｰ")
+JAPANESE_BRACKETS = frozenset("「」『』【】〈〉《》〔〕｢｣")
+JAPANESE_PUNCTUATION = frozenset("、､。｡・･ーｰ") | JAPANESE_BRACKETS
 SUPPORTED_SYMBOLS = ASCII_PUNCTUATION | FULLWIDTH_PUNCTUATION | JAPANESE_PUNCTUATION
 SMALL_KANA = frozenset("ぁぃぅぇぉっゃゅょゎゕゖァィゥェォッャュョヮヵヶ")
+HALFWIDTH_KATAKANA = frozenset(chr(codepoint) for codepoint in range(0xFF66, 0xFF9E))
+HALFWIDTH_VOICING_MARKS = frozenset("ﾞﾟ")
+HALFWIDTH_KATAKANA_ALIASES = {
+    char: unicodedata.normalize("NFKC", char)
+    for char in HALFWIDTH_KATAKANA
+}
 STROKE_ALIASES = {
     **{
         chr(ord(char) + 0xFEE0): char
@@ -45,9 +52,21 @@ STROKE_ALIASES = {
     "｡": "。",
     "･": "・",
     "ｰ": "ー",
+    "｢": "「",
+    "｣": "」",
+    "ﾞ": "゛",
+    "ﾟ": "゜",
+    **HALFWIDTH_KATAKANA_ALIASES,
 }
 KANJIVG_VIEWBOX: PathBounds = (0.0, 0.0, 109.0, 109.0)
 NATIVE_VIEWBOX_CHARS = SUPPORTED_SYMBOLS | SMALL_KANA | ASCII_ALNUM | FULLWIDTH_ALNUM
+VERTICAL_ROTATE_CHARS = (
+    ASCII_ALNUM
+    | FULLWIDTH_ALNUM
+    | JAPANESE_BRACKETS
+    | frozenset("()（）[]［］{}｛｝ーｰ-－_＿~～")
+)
+VERTICAL_CORNER_PUNCTUATION = frozenset("、､。｡")
 
 
 def configure_console_encoding() -> None:
@@ -114,13 +133,27 @@ class DrawSettings:
 
 
 @dataclass(frozen=True)
+class WritingToken:
+    text: str
+    resource_char: str
+    source_index: int
+    source_length: int = 1
+    span: float = 1.0
+    subcells: int = 1
+    is_whitespace: bool = False
+
+
+@dataclass(frozen=True)
 class GlyphPlacement:
     char: str
+    resource_char: str
     source_index: int
+    source_length: int
     x: float
     y: float
     span: float = 1.0
     subcells: int = 1
+    rotation_degrees: int = 0
     is_whitespace: bool = False
     automatic_wrap_before: bool = False
 
@@ -195,7 +228,10 @@ def transform_paths(
     flip_y: bool,
     point_step: int,
     source_bounds: PathBounds | None = None,
+    rotation_degrees: int = 0,
 ) -> PathList:
+    if rotation_degrees not in {0, 90, 180, 270}:
+        raise ValueError("rotation_degrees must be 0, 90, 180, or 270")
     min_x, min_y, max_x, max_y = source_bounds or bounds(paths)
     source_width = max_x - min_x
     source_height = max_y - min_y
@@ -217,6 +253,17 @@ def transform_paths(
             continue
         screen_path: list[Point] = []
         for x, y in decimate(path, point_step):
+            if rotation_degrees:
+                center_x = (min_x + max_x) / 2
+                center_y = (min_y + max_y) / 2
+                relative_x = x - center_x
+                relative_y = y - center_y
+                if rotation_degrees == 90:
+                    x, y = center_x - relative_y, center_y + relative_x
+                elif rotation_degrees == 180:
+                    x, y = center_x - relative_x, center_y - relative_y
+                else:
+                    x, y = center_x + relative_y, center_y - relative_x
             sx = origin_x + pad_x + (x - min_x) * scale_x
             sy = (
                 origin_y + box_height - (pad_y + (y - min_y) * scale_y)
@@ -326,6 +373,7 @@ def transform_kanjivg(
     preserve_aspect: bool,
     point_step: int,
     source_bounds: PathBounds | None = None,
+    rotation_degrees: int = 0,
 ) -> PathList:
     return transform_paths(
         strokes,
@@ -337,7 +385,16 @@ def transform_kanjivg(
         flip_y=False,
         point_step=point_step,
         source_bounds=source_bounds,
+        rotation_degrees=rotation_degrees,
     )
+
+
+def move_paths_to_opposite_corner(paths: PathList, source_bounds: PathBounds) -> PathList:
+    min_x, min_y, max_x, max_y = bounds(paths)
+    source_min_x, source_min_y, source_max_x, source_max_y = source_bounds
+    dx = source_min_x + source_max_x - min_x - max_x
+    dy = source_min_y + source_max_y - min_y - max_y
+    return [[(x + dx, y + dy) for x, y in path] for path in paths]
 
 
 def _validate_layout_settings(settings: LayoutSettings) -> None:
@@ -378,6 +435,61 @@ def _token_subcells(char: str) -> int:
 
 def _token_extent(span: float, subcells: int, size: float, gap: float) -> float:
     return span * size + max(0, subcells - 1) * gap
+
+
+def tokenize_writing_text(text: str) -> list[WritingToken]:
+    tokens: list[WritingToken] = []
+    source_index = 0
+    while source_index < len(text):
+        char = text[source_index]
+        if char == "\r":
+            source_index += 1
+            continue
+        if char == "\n":
+            tokens.append(WritingToken(char, char, source_index, is_whitespace=True))
+            source_index += 1
+            continue
+
+        if (
+            char in HALFWIDTH_KATAKANA
+            and source_index + 1 < len(text)
+            and text[source_index + 1] in HALFWIDTH_VOICING_MARKS
+        ):
+            pair = text[source_index : source_index + 2]
+            normalized = unicodedata.normalize("NFKC", pair)
+            if len(normalized) == 1:
+                tokens.append(
+                    WritingToken(
+                        text=pair,
+                        resource_char=normalized,
+                        source_index=source_index,
+                        source_length=2,
+                        span=0.5,
+                    )
+                )
+                source_index += 2
+                continue
+
+        span = _token_span(char)
+        subcells = _token_subcells(char)
+        tokens.append(
+            WritingToken(
+                text=char,
+                resource_char=STROKE_ALIASES.get(char, char),
+                source_index=source_index,
+                span=span,
+                subcells=subcells,
+                is_whitespace=char.isspace(),
+            )
+        )
+        source_index += 1
+    return tokens
+
+
+def vertical_rotation_for_token(token: WritingToken, orientation: Orientation) -> int:
+    if orientation is not Orientation.VERTICAL:
+        return 0
+    return 90 if token.text in VERTICAL_ROTATE_CHARS else 0
 
 
 def build_layout(
@@ -436,26 +548,24 @@ def build_layout(
         if not secondary_fits():
             raise LayoutOverflowError("layout_wrap_overflow", index=source_index + 1)
 
-    for source_index, char in enumerate(text):
-        if char == "\r":
-            continue
-        if char == "\n":
-            wrap(source_index, explicit=True)
+    for token in tokenize_writing_text(text):
+        if token.text == "\n":
+            wrap(token.source_index, explicit=True)
             continue
 
-        span = _token_span(char)
-        subcells = _token_subcells(char)
+        span = token.span
+        subcells = token.subcells
         extent = _token_extent(span, subcells, size, general.char_gap)
         automatic_wrap = False
         if not primary_fits(extent):
             if units_on_line == 0:
-                raise LayoutOverflowError("layout_primary_overflow", index=source_index + 1)
-            wrap(source_index, explicit=False)
+                raise LayoutOverflowError("layout_primary_overflow", index=token.source_index + 1)
+            wrap(token.source_index, explicit=False)
             automatic_wrap = True
             if not primary_fits(extent):
-                raise LayoutOverflowError("layout_wrap_still_overflow", index=source_index + 1)
+                raise LayoutOverflowError("layout_wrap_still_overflow", index=token.source_index + 1)
         if not secondary_fits():
-            raise LayoutOverflowError("layout_character_overflow", index=source_index + 1)
+            raise LayoutOverflowError("layout_character_overflow", index=token.source_index + 1)
 
         placement_x = (
             cursor_x - extent
@@ -463,24 +573,39 @@ def build_layout(
             else cursor_x
         )
 
+        rotation_degrees = vertical_rotation_for_token(token, general.orientation)
         placement = GlyphPlacement(
-            char=char,
-            source_index=source_index,
+            char=token.text,
+            resource_char=token.resource_char,
+            source_index=token.source_index,
+            source_length=token.source_length,
             x=placement_x,
             y=cursor_y,
             span=span,
             subcells=subcells,
-            is_whitespace=char.isspace(),
+            rotation_degrees=rotation_degrees,
+            is_whitespace=token.is_whitespace,
             automatic_wrap_before=automatic_wrap,
         )
         result.placements.append(placement)
 
-        if not char.isspace():
-            if not is_supported_writing_char(char):
-                raise UnsupportedCharacterError("unsupported_character", index=source_index + 1, char=char)
-            strokes = load_kanjivg_strokes(char, kanjivg_dir, environment.sample_spacing)
+        if not token.is_whitespace:
+            if not is_supported_writing_char(token.resource_char):
+                raise UnsupportedCharacterError(
+                    "unsupported_character",
+                    index=token.source_index + 1,
+                    char=token.text,
+                )
+            strokes = load_kanjivg_strokes(token.resource_char, kanjivg_dir, environment.sample_spacing)
             if not strokes:
-                raise UnsupportedCharacterError("missing_character", index=source_index + 1, char=char)
+                raise UnsupportedCharacterError(
+                    "missing_character",
+                    index=token.source_index + 1,
+                    char=token.text,
+                )
+            if general.orientation is Orientation.VERTICAL and token.text in VERTICAL_CORNER_PUNCTUATION:
+                strokes = move_paths_to_opposite_corner(strokes, KANJIVG_VIEWBOX)
+            use_native_viewbox = token.span == 0.5 or token.resource_char in NATIVE_VIEWBOX_CHARS
             result.paths.extend(
                 transform_kanjivg(
                     strokes,
@@ -488,12 +613,13 @@ def build_layout(
                     cursor_y,
                     extent if general.orientation is Orientation.HORIZONTAL else size,
                     size if general.orientation is Orientation.HORIZONTAL else extent,
-                    False if is_halfwidth_char(char) else settings.preserve_aspect,
+                    False if token.span == 0.5 else settings.preserve_aspect,
                     settings.point_step,
-                    KANJIVG_VIEWBOX if char in NATIVE_VIEWBOX_CHARS else None,
+                    KANJIVG_VIEWBOX if use_native_viewbox else None,
+                    rotation_degrees=rotation_degrees,
                 )
             )
-            result.kanjivg_chars.append(char)
+            result.kanjivg_chars.append(token.text)
 
         if general.orientation is Orientation.HORIZONTAL:
             cursor_x += extent + general.char_gap if general.flow is FlowDirection.RIGHT else -(extent + general.char_gap)

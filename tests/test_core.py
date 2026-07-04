@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import sys
+import unicodedata
 import unittest
 from pathlib import Path
 from types import SimpleNamespace
@@ -12,11 +13,16 @@ from mouse_writer_pro import (
     DEFAULT_KANJIVG_DIR,
     FULLWIDTH_ALNUM,
     FULLWIDTH_PUNCTUATION,
+    HALFWIDTH_KATAKANA,
+    HALFWIDTH_VOICING_MARKS,
+    JAPANESE_BRACKETS,
     JAPANESE_PUNCTUATION,
     KANJIVG_VIEWBOX,
     SMALL_KANA,
     STROKE_ALIASES,
     SUPPORTED_SYMBOLS,
+    VERTICAL_CORNER_PUNCTUATION,
+    VERTICAL_ROTATE_CHARS,
     EnvironmentSettings,
     FlowDirection,
     GeneralSettings,
@@ -32,6 +38,7 @@ from mouse_writer_pro import (
     is_halfwidth_char,
     is_supported_writing_char,
     load_kanjivg_strokes,
+    tokenize_writing_text,
 )
 
 ASCII_ALNUM_TEXT = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
@@ -42,7 +49,7 @@ ASCII_PUNCTUATION_TEXT = "".join(
     if not chr(codepoint).isalnum()
 )
 FULLWIDTH_PUNCTUATION_TEXT = "".join(chr(ord(char) + 0xFEE0) for char in ASCII_PUNCTUATION_TEXT)
-JAPANESE_PUNCTUATION_TEXT = "、､。｡・･ーｰ"
+JAPANESE_PUNCTUATION_TEXT = "、､。｡・･ーｰ「」『』【】〈〉《》〔〕｢｣"
 SYMBOL_PAIR_TEXT = ASCII_PUNCTUATION_TEXT + FULLWIDTH_PUNCTUATION_TEXT + JAPANESE_PUNCTUATION_TEXT
 
 
@@ -184,7 +191,7 @@ class LayoutTests(unittest.TestCase):
         self.assertEqual(FULLWIDTH_PUNCTUATION, frozenset(FULLWIDTH_PUNCTUATION_TEXT))
         self.assertEqual(JAPANESE_PUNCTUATION, frozenset(JAPANESE_PUNCTUATION_TEXT))
         self.assertEqual(SUPPORTED_SYMBOLS, frozenset(SYMBOL_PAIR_TEXT))
-        self.assertEqual(len(SUPPORTED_SYMBOLS), 72)
+        self.assertEqual(len(SUPPORTED_SYMBOLS), 86)
         self.assertTrue(all(is_supported_writing_char(char) for char in characters))
         for char in characters:
             with self.subTest(char=char):
@@ -211,7 +218,7 @@ class LayoutTests(unittest.TestCase):
             "^": 1, "_": 1, "`": 1, "{": 1, "|": 1, "}": 1,
         }
         custom_dir = Path(__file__).resolve().parents[1] / "data" / "custom_strokes"
-        self.assertEqual(len(list(custom_dir.glob("*.svg"))), 26)
+        self.assertEqual(len(list(custom_dir.glob("*.svg"))), 38)
         for char, stroke_count in expected_stroke_counts.items():
             with self.subTest(char=char):
                 path = custom_dir / f"{ord(char):05x}.svg"
@@ -219,15 +226,83 @@ class LayoutTests(unittest.TestCase):
                 strokes = load_kanjivg_strokes(char, DEFAULT_KANJIVG_DIR, 2.0) or []
                 self.assertEqual(len(strokes), stroke_count)
 
+    def test_project_authored_japanese_bracket_resources(self) -> None:
+        expected_stroke_counts = {
+            "「": 1, "」": 1, "『": 2, "』": 2,
+            "【": 1, "】": 1, "〈": 1, "〉": 1,
+            "《": 2, "》": 2, "〔": 1, "〕": 1,
+        }
+        custom_dir = Path(__file__).resolve().parents[1] / "data" / "custom_strokes"
+        for char, stroke_count in expected_stroke_counts.items():
+            with self.subTest(char=char):
+                self.assertTrue((custom_dir / f"{ord(char):05x}.svg").is_file())
+                strokes = load_kanjivg_strokes(char, DEFAULT_KANJIVG_DIR, 2.0) or []
+                self.assertEqual(len(strokes), stroke_count)
+        self.assertEqual(
+            load_kanjivg_strokes("｢", DEFAULT_KANJIVG_DIR, 2.0),
+            load_kanjivg_strokes("「", DEFAULT_KANJIVG_DIR, 2.0),
+        )
+        self.assertEqual(
+            load_kanjivg_strokes("｣", DEFAULT_KANJIVG_DIR, 2.0),
+            load_kanjivg_strokes("」", DEFAULT_KANJIVG_DIR, 2.0),
+        )
+
+    def test_all_halfwidth_katakana_resolve_to_strokes(self) -> None:
+        self.assertEqual(len(HALFWIDTH_KATAKANA), 56)
+        self.assertEqual(HALFWIDTH_VOICING_MARKS, frozenset("ﾞﾟ"))
+        for char in HALFWIDTH_KATAKANA | HALFWIDTH_VOICING_MARKS:
+            with self.subTest(char=char):
+                self.assertTrue(is_supported_writing_char(char))
+                self.assertTrue(load_kanjivg_strokes(char, DEFAULT_KANJIVG_DIR, 2.0))
+
+    def test_halfwidth_voiced_pairs_are_single_half_cell_tokens(self) -> None:
+        tokens = tokenize_writing_text("ｶﾞ ﾊﾟ ｳﾞ ﾜﾞ ｦﾞ")
+        written = [token for token in tokens if not token.is_whitespace]
+        self.assertEqual([token.text for token in written], ["ｶﾞ", "ﾊﾟ", "ｳﾞ", "ﾜﾞ", "ｦﾞ"])
+        self.assertTrue(all(token.source_length == 2 for token in written))
+        self.assertTrue(all(token.span == 0.5 for token in written))
+        self.assertEqual([token.resource_char for token in written], ["ガ", "パ", "ヴ", "ヷ", "ヺ"])
+
+        result = build_layout(
+            "ｶﾞﾊﾟ",
+            DEFAULT_KANJIVG_DIR,
+            LayoutSettings(start_x=0, start_y=0, general=GeneralSettings(font_size=100, char_gap=10)),
+        )
+        self.assertEqual([item.char for item in result.placements], ["ｶﾞ", "ﾊﾟ"])
+        self.assertEqual([item.source_index for item in result.placements], [0, 2])
+        self.assertEqual([item.x for item in result.placements], [0, 60])
+
+        valid_pairs = []
+        for base in HALFWIDTH_KATAKANA:
+            for mark in HALFWIDTH_VOICING_MARKS:
+                pair = base + mark
+                if len(unicodedata.normalize("NFKC", pair)) == 1:
+                    valid_pairs.append(pair)
+        self.assertEqual(len(valid_pairs), 28)
+        for pair in valid_pairs:
+            with self.subTest(pair=pair):
+                token = tokenize_writing_text(pair)[0]
+                self.assertEqual(token.text, pair)
+                self.assertEqual(token.source_length, 2)
+                self.assertEqual(token.span, 0.5)
+                self.assertTrue(load_kanjivg_strokes(token.resource_char, DEFAULT_KANJIVG_DIR, 2.0))
+
+    def test_invalid_halfwidth_voicing_pair_stays_separate(self) -> None:
+        tokens = tokenize_writing_text("ｱﾞ")
+        self.assertEqual([token.text for token in tokens], ["ｱ", "ﾞ"])
+        self.assertEqual([token.resource_char for token in tokens], ["ア", "゛"])
+        self.assertEqual([token.source_index for token in tokens], [0, 1])
+        self.assertEqual([token.span for token in tokens], [0.5, 0.5])
+
     def test_half_and_fullwidth_pairs_share_source_strokes(self) -> None:
-        self.assertEqual(len(STROKE_ALIASES), 98)
+        self.assertEqual(len(STROKE_ALIASES), 157)
         for alias, canonical in STROKE_ALIASES.items():
             with self.subTest(alias=alias, canonical=canonical):
                 alias_strokes = load_kanjivg_strokes(alias, DEFAULT_KANJIVG_DIR, 2.0)
                 canonical_strokes = load_kanjivg_strokes(canonical, DEFAULT_KANJIVG_DIR, 2.0)
                 self.assertEqual(alias_strokes, canonical_strokes)
 
-    def test_native_viewbox_is_scaled_only_along_halfwidth_primary_axis(self) -> None:
+    def test_horizontal_symbols_preserve_native_viewbox_coordinates(self) -> None:
         self.assertEqual(KANJIVG_VIEWBOX, (0.0, 0.0, 109.0, 109.0))
         for char in SUPPORTED_SYMBOLS:
             with self.subTest(char=char):
@@ -250,6 +325,12 @@ class LayoutTests(unittest.TestCase):
                         self.assertAlmostEqual(actual_point[0], expected_x)
                         self.assertAlmostEqual(actual_point[1], expected_point[1])
 
+    def test_vertical_rotation_matches_clockwise_source_transform(self) -> None:
+        characters = "AＡ1１()（）[]［］{}｛｝ーｰ-－_＿~～" + "".join(JAPANESE_BRACKETS)
+        self.assertTrue(set(characters) <= VERTICAL_ROTATE_CHARS)
+        for char in characters:
+            with self.subTest(char=char):
+                source = load_kanjivg_strokes(char, DEFAULT_KANJIVG_DIR, 2.0) or []
                 vertical = build_layout(
                     char,
                     DEFAULT_KANJIVG_DIR,
@@ -263,9 +344,46 @@ class LayoutTests(unittest.TestCase):
                 )
                 for actual, expected in zip(vertical.paths, source, strict=True):
                     for actual_point, expected_point in zip(actual, expected, strict=True):
-                        self.assertAlmostEqual(actual_point[0], expected_point[0])
-                        expected_y = expected_point[1] * (0.5 if is_halfwidth_char(char) else 1.0)
+                        expected_x = 109.0 - expected_point[1]
+                        expected_y = expected_point[0] * (0.5 if is_halfwidth_char(char) else 1.0)
+                        self.assertAlmostEqual(actual_point[0], expected_x)
                         self.assertAlmostEqual(actual_point[1], expected_y)
+                self.assertEqual(vertical.placements[0].rotation_degrees, 90)
+
+    def test_vertical_japanese_punctuation_moves_to_upper_right(self) -> None:
+        self.assertEqual(VERTICAL_CORNER_PUNCTUATION, frozenset("、､。｡"))
+        for char in VERTICAL_CORNER_PUNCTUATION:
+            with self.subTest(char=char):
+                horizontal = build_layout(
+                    char,
+                    DEFAULT_KANJIVG_DIR,
+                    LayoutSettings(start_x=0, start_y=0, general=GeneralSettings(font_size=109)),
+                )
+                vertical = build_layout(
+                    char,
+                    DEFAULT_KANJIVG_DIR,
+                    LayoutSettings(
+                        start_x=0,
+                        start_y=0,
+                        general=GeneralSettings(font_size=109, orientation=Orientation.VERTICAL),
+                    ),
+                )
+                horizontal_bounds = bounds(horizontal.paths)
+                vertical_bounds = bounds(vertical.paths)
+                self.assertGreater(vertical_bounds[0], horizontal_bounds[0])
+                self.assertLess(vertical_bounds[1], horizontal_bounds[1])
+                horizontal_width = horizontal_bounds[2] - horizontal_bounds[0]
+                horizontal_height = horizontal_bounds[3] - horizontal_bounds[1]
+                self.assertAlmostEqual(
+                    vertical_bounds[2] - vertical_bounds[0],
+                    horizontal_width * (2 if is_halfwidth_char(char) else 1),
+                    delta=0.01,
+                )
+                self.assertAlmostEqual(
+                    vertical_bounds[3] - vertical_bounds[1],
+                    horizontal_height * (0.5 if is_halfwidth_char(char) else 1),
+                    delta=0.01,
+                )
 
     def test_compact_punctuation_stays_small_and_lower_in_cell(self) -> None:
         for char in ",，.．、､。｡":

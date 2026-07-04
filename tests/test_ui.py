@@ -44,6 +44,36 @@ class JapaneseWriterUiTests(unittest.TestCase):
             any(isinstance(child, ttk.Scrollbar) for child in self.app.text_input.master.winfo_children())
         )
 
+    def test_emergency_hint_is_in_persistent_header_banner(self) -> None:
+        self.assertIs(self.app.safety_bar.master, self.app.outer)
+        self.assertNotEqual(self.app.safety_bar.master, self.app.notebook)
+        self.assertIn("ESC", self.app.emergency_label.cget("text"))
+        self.assertEqual(self.app.emergency_label.cget("font").split()[-1], "bold")
+
+    def test_fallback_window_keeps_emergency_hint_visible(self) -> None:
+        self.root.deiconify()
+        self.root.state("normal")
+        self.root.geometry("1000x700")
+        self.root.update()
+        self.assertTrue(self.app.emergency_label.winfo_ismapped())
+        bottom = self.app.emergency_label.winfo_rooty() + self.app.emergency_label.winfo_height()
+        self.assertLessEqual(bottom, self.root.winfo_rooty() + self.root.winfo_height())
+
+    def test_startup_and_operation_restore_zoomed_state(self) -> None:
+        with patch.object(self.root, "state") as state:
+            self.app._maximize_window()
+            state.assert_called_once_with("zoomed")
+        self.app.window_state_before_operation = "zoomed"
+        with (
+            patch.object(self.root, "deiconify") as deiconify,
+            patch.object(self.root, "state") as state,
+            patch.object(self.root, "lift") as lift,
+        ):
+            self.app._restore_main_window()
+            deiconify.assert_called_once_with()
+            state.assert_called_once_with("zoomed")
+            lift.assert_called_once_with()
+
     def test_environment_fields_are_numeric_spinboxes(self) -> None:
         self.assertEqual(len(self.app.numeric_inputs), 3)
         self.assertTrue(all(control.widget.winfo_class() == "TSpinbox" for control in self.app.numeric_inputs))

@@ -28,6 +28,8 @@ from mouse_writer_pro import (
     ASCII_ALNUM,
     DEFAULT_KANJIVG_DIR,
     FULLWIDTH_ALNUM,
+    HALFWIDTH_KATAKANA,
+    HALFWIDTH_VOICING_MARKS,
     SUPPORTED_SYMBOLS,
     EnvironmentSettings,
     FlowDirection,
@@ -136,6 +138,8 @@ class JapaneseWriterApp:
         self.initial_preview_after_id: str | None = None
         self.countdown_overlay: tk.Toplevel | None = None
         self.countdown_label: ttk.Label | None = None
+        self.window_state_before_operation = "zoomed"
+        self.maximize_after_id: str | None = None
         self.ui_events: queue.Queue[
             tuple[Callable[..., None], tuple[object, ...]]
         ] = queue.Queue()
@@ -155,9 +159,33 @@ class JapaneseWriterApp:
         self._bind_live_updates()
         self.ui_poll_after_id = self.root.after(40, self._drain_ui_events)
         self.initial_preview_after_id = self.root.after(200, self.refresh_preview)
+        self.maximize_after_id = self.root.after_idle(self._maximize_window)
 
     def t(self, key: str, **values: object) -> str:
         return tr(key, self.language, **values)
+
+    def _maximize_window(self) -> None:
+        self.maximize_after_id = None
+        try:
+            self.root.state("zoomed")
+        except tk.TclError:
+            self.root.geometry("1200x820")
+
+    def _minimize_for_operation(self) -> None:
+        try:
+            self.window_state_before_operation = self.root.state()
+        except tk.TclError:
+            self.window_state_before_operation = "normal"
+        self.root.iconify()
+
+    def _restore_main_window(self) -> None:
+        self.root.deiconify()
+        if self.window_state_before_operation == "zoomed":
+            try:
+                self.root.state("zoomed")
+            except tk.TclError:
+                pass
+        self.root.lift()
 
     def _orientation_labels(self) -> dict[str, Orientation]:
         return {self.t("horizontal"): Orientation.HORIZONTAL, self.t("vertical"): Orientation.VERTICAL}
@@ -261,6 +289,26 @@ class JapaneseWriterApp:
             style="Subtitle.TLabel",
         ).pack(side="left", padx=(14, 0), pady=(8, 0))
 
+        self.safety_bar = tk.Frame(
+            outer,
+            background="#fff3e8",
+            highlightbackground="#d96c27",
+            highlightthickness=1,
+            padx=12,
+            pady=7,
+        )
+        self.safety_bar.pack(fill="x", pady=(0, 10))
+        self.emergency_label = tk.Label(
+            self.safety_bar,
+            text=self.t("emergency_hint"),
+            background="#fff3e8",
+            foreground="#8a2f12",
+            font=("Microsoft JhengHei UI", 10, "bold"),
+            anchor="w",
+            justify="left",
+        )
+        self.emergency_label.pack(fill="x")
+
         self.notebook = ttk.Notebook(outer)
         self.notebook.pack(fill="both", expand=True)
         self.content_tab = ttk.Frame(self.notebook, style="Surface.TFrame", padding=16)
@@ -284,11 +332,6 @@ class JapaneseWriterApp:
         )
         self.status_mark.pack(side="left", padx=(0, 7))
         ttk.Label(status_bar, textvariable=self.status, style="Subtitle.TLabel").pack(side="left")
-        ttk.Label(
-            status_bar,
-            text=self.t("emergency_hint"),
-            style="Subtitle.TLabel",
-        ).pack(side="right")
 
     def _build_content_tab(self) -> None:
         tab = self.content_tab
@@ -941,7 +984,7 @@ class JapaneseWriterApp:
         self.set_busy(True, "detecting", target=target_label)
         self.stop_event.clear()
         self._show_detection_overlay(title)
-        self.root.iconify()
+        self._minimize_for_operation()
 
         def should_stop() -> bool:
             return self.stop_event.is_set() or escape_pressed()
@@ -970,8 +1013,7 @@ class JapaneseWriterApp:
             self.end_y.set(str(y))
             label = self.t("end_short")
         self._close_detection_overlay()
-        self.root.deiconify()
-        self.root.lift()
+        self._restore_main_window()
         self.set_busy(False, "coordinate_detected", target=label, x=x, y=y)
         self.refresh_preview()
 
@@ -988,7 +1030,7 @@ class JapaneseWriterApp:
         self.current_general = self.read_general()
         self.set_busy(True, "preparing_write")
         self.stop_event.clear()
-        self.root.iconify()
+        self._minimize_for_operation()
 
         def should_stop() -> bool:
             return self.stop_event.is_set() or escape_pressed()
@@ -1011,15 +1053,13 @@ class JapaneseWriterApp:
         threading.Thread(target=worker, daemon=True).start()
 
     def _writing_complete(self) -> None:
-        self.root.deiconify()
-        self.root.lift()
+        self._restore_main_window()
         self.set_busy(False, "writing_complete")
         messagebox.showinfo(self.t("complete"), self.t("complete_message"), parent=self.root)
 
     def _restore_after_operation(self, error: BaseException) -> None:
         self._close_detection_overlay()
-        self.root.deiconify()
-        self.root.lift()
+        self._restore_main_window()
         if isinstance(error, WritingCancelled):
             status_key = "cancelled_failsafe" if error.message_key == "failsafe_stop" else "cancelled_esc"
             self.set_busy(False, status_key)
@@ -1054,6 +1094,7 @@ class JapaneseWriterApp:
             self.initial_preview_after_id,
             self.preview_after_id,
             self.environment_after_id,
+            self.maximize_after_id,
         ):
             if after_id:
                 try:
@@ -1064,6 +1105,7 @@ class JapaneseWriterApp:
         self.initial_preview_after_id = None
         self.preview_after_id = None
         self.environment_after_id = None
+        self.maximize_after_id = None
 
 
 def run_self_test(settings_path: Path = DEFAULT_SETTINGS_PATH) -> int:
@@ -1078,10 +1120,25 @@ def run_self_test(settings_path: Path = DEFAULT_SETTINGS_PATH) -> int:
         end_y=5000,
         general=GeneralSettings(font_size=50),
     )
-    characters = "あょっ" + "".join(sorted(ASCII_ALNUM | FULLWIDTH_ALNUM | SUPPORTED_SYMBOLS))
+    characters = "あょっ" + "".join(
+        sorted(ASCII_ALNUM | FULLWIDTH_ALNUM | SUPPORTED_SYMBOLS | HALFWIDTH_KATAKANA | HALFWIDTH_VOICING_MARKS)
+    )
     result = build_layout(characters, DEFAULT_KANJIVG_DIR, settings)
     if result.kanjivg_chars != list(characters) or not result.paths:
         raise RuntimeError("基本筆順排版測試失敗。")
+    vertical = build_layout(
+        "ABCＡＢＣ123１２３ｶﾞｯﾂ「日本語」【標題】",
+        DEFAULT_KANJIVG_DIR,
+        LayoutSettings(
+            start_x=10,
+            start_y=10,
+            end_x=2000,
+            end_y=5000,
+            general=GeneralSettings(font_size=50, orientation=Orientation.VERTICAL),
+        ),
+    )
+    if not any(item.rotation_degrees == 90 for item in vertical.placements):
+        raise RuntimeError("直排旋轉測試失敗。")
     SettingsStore(settings_path).ensure_writable()
     print(f"Japanese Stroke Mouse Writer {APP_VERSION} self-test passed")
     return 0
