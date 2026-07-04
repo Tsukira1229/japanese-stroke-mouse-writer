@@ -856,13 +856,14 @@ class JapaneseWriterApp:
         for placement in result.placements:
             subcell_span = placement.span / placement.subcells
             subcell_extent = general.font_size * subcell_span
+            subcell_gap = general.char_gap * 0.5 if placement.subcells > 1 else 0.0
             for offset in range(placement.subcells):
                 cell_x = placement.x
                 cell_y = placement.y
                 if general.orientation is Orientation.HORIZONTAL:
-                    cell_x += offset * (subcell_extent + general.char_gap)
+                    cell_x += offset * (subcell_extent + subcell_gap)
                 else:
-                    cell_y += offset * (subcell_extent + general.char_gap)
+                    cell_y += offset * (subcell_extent + subcell_gap)
                 x1, y1 = transform((cell_x, cell_y))
                 cell_width = subcell_extent if general.orientation is Orientation.HORIZONTAL else general.font_size
                 cell_height = general.font_size if general.orientation is Orientation.HORIZONTAL else subcell_extent

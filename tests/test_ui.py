@@ -186,6 +186,7 @@ class JapaneseWriterUiTests(unittest.TestCase):
         placements = self.app.current_layout.placements
         self.assertEqual([item.span for item in placements], [0.5, 2.0, 1.0])
         self.assertEqual(placements[1].subcells, 4)
+        self.assertEqual([item.x for item in placements], [100, 181, 511])
         rectangles = [
             item
             for item in self.app.preview_canvas.find_all()

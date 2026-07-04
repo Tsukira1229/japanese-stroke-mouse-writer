@@ -21,7 +21,7 @@ Point = tuple[float, float]
 PathList = list[list[Point]]
 PathBounds = tuple[float, float, float, float]
 
-APP_VERSION = "2.3.1"
+APP_VERSION = "2.3.2"
 SCRIPT_DIR = Path(__file__).resolve().parent
 BUNDLE_DIR = Path(getattr(sys, "_MEIPASS", SCRIPT_DIR))
 EXECUTABLE_DIR = Path(sys.executable).resolve().parent if getattr(sys, "frozen", False) else SCRIPT_DIR
@@ -434,7 +434,17 @@ def _token_subcells(char: str) -> int:
 
 
 def _token_extent(span: float, subcells: int, size: float, gap: float) -> float:
-    return span * size + max(0, subcells - 1) * gap
+    return span * size + max(0, subcells - 1) * gap * 0.5
+
+
+def _uses_halfwidth_spacing(token: WritingToken) -> bool:
+    return token.span == 0.5 or token.subcells > 1
+
+
+def _gap_between_tokens(previous: WritingToken, current: WritingToken, gap: float) -> float:
+    if _uses_halfwidth_spacing(previous) and _uses_halfwidth_spacing(current):
+        return gap * 0.5
+    return gap
 
 
 def tokenize_writing_text(text: str) -> list[WritingToken]:
@@ -514,6 +524,7 @@ def build_layout(
     )
     cursor_y = settings.start_y
     units_on_line = 0.0
+    previous_token: WritingToken | None = None
 
     def secondary_fits() -> bool:
         if not bounded:
@@ -536,7 +547,7 @@ def build_layout(
         return cursor_x - extent >= settings.end_x
 
     def wrap(source_index: int, explicit: bool) -> None:
-        nonlocal cursor_x, cursor_y, units_on_line
+        nonlocal cursor_x, cursor_y, units_on_line, previous_token
         if general.orientation is Orientation.HORIZONTAL:
             cursor_x = settings.start_x
             cursor_y += secondary_step
@@ -544,6 +555,7 @@ def build_layout(
             cursor_y = settings.start_y
             cursor_x += secondary_step if general.flow is FlowDirection.RIGHT else -secondary_step
         units_on_line = 0.0
+        previous_token = None
         (result.explicit_wraps if explicit else result.automatic_wraps).append(source_index)
         if not secondary_fits():
             raise LayoutOverflowError("layout_wrap_overflow", index=source_index + 1)
@@ -556,22 +568,35 @@ def build_layout(
         span = token.span
         subcells = token.subcells
         extent = _token_extent(span, subcells, size, general.char_gap)
+        gap_before = (
+            _gap_between_tokens(previous_token, token, general.char_gap)
+            if previous_token is not None
+            else 0.0
+        )
+        required_extent = gap_before + extent
         automatic_wrap = False
-        if not primary_fits(extent):
+        if not primary_fits(required_extent):
             if units_on_line == 0:
                 raise LayoutOverflowError("layout_primary_overflow", index=token.source_index + 1)
             wrap(token.source_index, explicit=False)
             automatic_wrap = True
-            if not primary_fits(extent):
+            gap_before = 0.0
+            required_extent = extent
+            if not primary_fits(required_extent):
                 raise LayoutOverflowError("layout_wrap_still_overflow", index=token.source_index + 1)
         if not secondary_fits():
             raise LayoutOverflowError("layout_character_overflow", index=token.source_index + 1)
 
-        placement_x = (
-            cursor_x - extent
-            if general.orientation is Orientation.HORIZONTAL and general.flow is FlowDirection.LEFT
-            else cursor_x
-        )
+        if general.orientation is Orientation.HORIZONTAL:
+            placement_x = (
+                cursor_x - gap_before - extent
+                if general.flow is FlowDirection.LEFT
+                else cursor_x + gap_before
+            )
+            placement_y = cursor_y
+        else:
+            placement_x = cursor_x
+            placement_y = cursor_y + gap_before
 
         rotation_degrees = vertical_rotation_for_token(token, general.orientation)
         placement = GlyphPlacement(
@@ -580,7 +605,7 @@ def build_layout(
             source_index=token.source_index,
             source_length=token.source_length,
             x=placement_x,
-            y=cursor_y,
+            y=placement_y,
             span=span,
             subcells=subcells,
             rotation_degrees=rotation_degrees,
@@ -610,7 +635,7 @@ def build_layout(
                 transform_kanjivg(
                     strokes,
                     placement_x,
-                    cursor_y,
+                    placement_y,
                     extent if general.orientation is Orientation.HORIZONTAL else size,
                     size if general.orientation is Orientation.HORIZONTAL else extent,
                     False if token.span == 0.5 else settings.preserve_aspect,
@@ -622,10 +647,11 @@ def build_layout(
             result.kanjivg_chars.append(token.text)
 
         if general.orientation is Orientation.HORIZONTAL:
-            cursor_x += extent + general.char_gap if general.flow is FlowDirection.RIGHT else -(extent + general.char_gap)
+            cursor_x += required_extent if general.flow is FlowDirection.RIGHT else -required_extent
         else:
-            cursor_y += extent + general.char_gap
+            cursor_y += required_extent
         units_on_line += span
+        previous_token = token
 
     if bounded:
         assert settings.end_x is not None and settings.end_y is not None

@@ -42,7 +42,7 @@ ZH_HANT = {
 按下偵測按鈕後，主視窗會最小化。請在 3 秒內將滑鼠移到指定位置，倒數結束後程式會自動填入 X、Y。偵測期間按 ESC 可取消並保留原座標。也可直接輸入座標，多螢幕環境可使用負數。
 
 3. 調整排版
-「一般設定」可調整字體大小、字距、行距、水平或垂直排列，以及向右或向左流向。文字到達主方向邊界時會自動換行或換欄；副方向空間不足時會在移動滑鼠前停止並顯示錯誤。垂直排列會自動旋轉英數字、括號與長音符號。
+「一般設定」可調整字體大小、字距、行距、水平或垂直排列，以及向右或向左流向。半形字元彼此相鄰時使用一半字距；只要任一側為全形字元就使用完整字距。空格與 Tab 亦遵循此規則。文字到達主方向邊界時會自動換行或換欄；副方向空間不足時會在移動滑鼠前停止並顯示錯誤。垂直排列會自動旋轉英數字、括號與長音符號。
 
 4. 調整書寫環境
 「環境設定」可切換語言，並調整開始倒數、曲線精細度與取樣點停頓。曲線精細度越小越平滑但耗時越長；若筆畫斷線，可增加取樣點停頓。
@@ -183,7 +183,7 @@ The two coordinates form the writable rectangle and use absolute screen position
 After clicking a detection button, the main window is minimized. Move the pointer to the requested position within 3 seconds; the X and Y values are filled when the countdown ends. Press ESC to cancel detection and keep the old values. Coordinates may also be entered manually, including negative values on multi-monitor desktops.
 
 3. Adjust the layout
-General settings control font size, character gap, line gap, horizontal or vertical orientation, and right or left flow. Text wraps at the main-axis boundary. If the secondary axis has no room, writing stops before the pointer moves and an error is shown. Vertical layout automatically rotates letters, numbers, brackets, and long marks.
+General settings control font size, character gap, line gap, horizontal or vertical orientation, and right or left flow. Adjacent halfwidth characters use half the configured gap; a pair containing any fullwidth character uses the full gap. Spaces and Tab follow the same rule. Text wraps at the main-axis boundary. If the secondary axis has no room, writing stops before the pointer moves and an error is shown. Vertical layout automatically rotates letters, numbers, brackets, and long marks.
 
 4. Adjust the writing environment
 Environment settings control language, start countdown, curve detail, and sample delay. Smaller curve-detail values are smoother but take longer. Increase sample delay if strokes break.
@@ -235,7 +235,7 @@ ZH_HANS = {**ZH_HANT,
 按下检测按钮后，主窗口会最小化。请在 3 秒内将鼠标移到指定位置，倒计时结束后程序会自动填入 X、Y。检测期间按 ESC 可取消并保留原坐标。也可直接输入坐标，多屏幕环境可使用负数。
 
 3. 调整排版
-“常规设置”可调整字体大小、字距、行距、水平或垂直排列，以及向右或向左流向。文字到达主方向边界时会自动换行或换列；副方向空间不足时会在移动鼠标前停止并显示错误。垂直排列会自动旋转英文字母、数字、括号和长音符号。
+“常规设置”可调整字体大小、字距、行距、水平或垂直排列，以及向右或向左流向。半形字符彼此相邻时使用一半字距；只要任一侧为全形字符就使用完整字距。空格与 Tab 也遵循此规则。文字到达主方向边界时会自动换行或换列；副方向空间不足时会在移动鼠标前停止并显示错误。垂直排列会自动旋转英文字母、数字、括号和长音符号。
 
 4. 调整书写环境
 “环境设置”可切换语言，并调整开始倒计时、曲线精细度与采样点停顿。曲线精细度越小越平滑但耗时越长；若笔画断线，可增加采样点停顿。
@@ -282,7 +282,7 @@ JA = {**EN,
 検出ボタンを押すとメイン画面が最小化します。3秒以内に指定位置へマウスを移動すると、カウント終了時に X、Y が入力されます。検出中に ESC を押すと元の座標を残して中止できます。座標は直接入力でき、マルチモニターの負の値にも対応します。
 
 3. レイアウトを調整する
-「一般設定」では文字サイズ、文字間隔、行間隔、横書きまたは縦書き、右方向または左方向を設定します。主方向の境界に達すると自動で改行または改列します。副方向の空間が不足する場合は、マウスを動かす前に停止してエラーを表示します。縦書きでは英数字、括弧、長音記号を自動回転します。
+「一般設定」では文字サイズ、文字間隔、行間隔、横書きまたは縦書き、右方向または左方向を設定します。半角文字同士は半分の文字間隔を使用し、どちらかが全角文字なら完全な文字間隔を使用します。スペースと Tab にも同じ規則を適用します。主方向の境界に達すると自動で改行または改列します。副方向の空間が不足する場合は、マウスを動かす前に停止してエラーを表示します。縦書きでは英数字、括弧、長音記号を自動回転します。
 
 4. 書き込み環境を調整する
 「環境設定」では言語、開始カウントダウン、曲線精度、サンプル待機を設定します。曲線精度は小さいほど滑らかですが時間がかかります。線が途切れる場合はサンプル待機を増やしてください。

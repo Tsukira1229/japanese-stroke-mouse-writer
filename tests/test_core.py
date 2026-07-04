@@ -270,7 +270,7 @@ class LayoutTests(unittest.TestCase):
         )
         self.assertEqual([item.char for item in result.placements], ["ｶﾞ", "ﾊﾟ"])
         self.assertEqual([item.source_index for item in result.placements], [0, 2])
-        self.assertEqual([item.x for item in result.placements], [0, 60])
+        self.assertEqual([item.x for item in result.placements], [0, 55])
 
         valid_pairs = []
         for base in HALFWIDTH_KATAKANA:
@@ -468,6 +468,112 @@ class LayoutTests(unittest.TestCase):
             ),
         )
         self.assertEqual([placement.y for placement in vertical.placements], [0, 60, 170, 230])
+
+    def test_character_gap_uses_adjacent_character_widths_in_all_directions(self) -> None:
+        right_cases = {
+            "AB": [0, 55],
+            "ＡＢ": [0, 110],
+            "AＢ": [0, 60],
+            "ＡB": [0, 110],
+        }
+        left_cases = {
+            "AB": [250, 195],
+            "ＡＢ": [200, 90],
+            "AＢ": [250, 140],
+            "ＡB": [200, 140],
+        }
+        for text, expected in right_cases.items():
+            for orientation in Orientation:
+                for flow in FlowDirection:
+                    with self.subTest(text=text, orientation=orientation, flow=flow):
+                        start_x = 300 if flow is FlowDirection.LEFT else 0
+                        end_x = 0 if flow is FlowDirection.LEFT else 400
+                        result = build_layout(
+                            text,
+                            DEFAULT_KANJIVG_DIR,
+                            LayoutSettings(
+                                start_x=start_x,
+                                start_y=0,
+                                end_x=end_x,
+                                end_y=400,
+                                general=GeneralSettings(
+                                    font_size=100,
+                                    char_gap=10,
+                                    orientation=orientation,
+                                    flow=flow,
+                                ),
+                            ),
+                        )
+                        positions = [
+                            placement.x if orientation is Orientation.HORIZONTAL else placement.y
+                            for placement in result.placements
+                        ]
+                        self.assertEqual(
+                            positions,
+                            left_cases[text]
+                            if orientation is Orientation.HORIZONTAL and flow is FlowDirection.LEFT
+                            else expected,
+                        )
+
+    def test_spaces_and_tab_follow_adaptive_gap_rules(self) -> None:
+        half_space = build_layout(
+            "A A",
+            DEFAULT_KANJIVG_DIR,
+            LayoutSettings(start_x=0, start_y=0, general=GeneralSettings(font_size=100, char_gap=10)),
+        )
+        full_space = build_layout(
+            "A　A",
+            DEFAULT_KANJIVG_DIR,
+            LayoutSettings(start_x=0, start_y=0, general=GeneralSettings(font_size=100, char_gap=10)),
+        )
+        tab = build_layout(
+            "A\tA",
+            DEFAULT_KANJIVG_DIR,
+            LayoutSettings(start_x=0, start_y=0, general=GeneralSettings(font_size=100, char_gap=10)),
+        )
+        self.assertEqual([placement.x for placement in half_space.placements], [0, 55, 110])
+        self.assertEqual([placement.x for placement in full_space.placements], [0, 60, 170])
+        self.assertEqual([placement.x for placement in tab.placements], [0, 55, 275])
+        self.assertEqual(tab.canvas_bounds, (0, 0, 325, 100))
+
+    def test_adaptive_gap_wraps_without_leading_spacing(self) -> None:
+        exact = build_layout(
+            "AB",
+            DEFAULT_KANJIVG_DIR,
+            LayoutSettings(
+                start_x=0,
+                start_y=0,
+                end_x=105,
+                end_y=300,
+                general=GeneralSettings(font_size=100, char_gap=10),
+            ),
+        )
+        wrapped = build_layout(
+            "AB",
+            DEFAULT_KANJIVG_DIR,
+            LayoutSettings(
+                start_x=0,
+                start_y=0,
+                end_x=104,
+                end_y=300,
+                general=GeneralSettings(font_size=100, char_gap=10),
+            ),
+        )
+        explicit = build_layout(
+            "A\nB",
+            DEFAULT_KANJIVG_DIR,
+            LayoutSettings(
+                start_x=0,
+                start_y=0,
+                end_x=105,
+                end_y=300,
+                general=GeneralSettings(font_size=100, char_gap=10),
+            ),
+        )
+        self.assertFalse(exact.automatic_wraps)
+        self.assertEqual([(item.x, item.y) for item in wrapped.placements], [(0, 0), (0, 124)])
+        self.assertEqual(wrapped.automatic_wraps, [1])
+        self.assertEqual([(item.x, item.y) for item in explicit.placements], [(0, 0), (0, 124)])
 
     def test_left_flow_uses_each_character_actual_extent(self) -> None:
         result = build_layout(

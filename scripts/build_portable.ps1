@@ -4,7 +4,7 @@ param(
 
 $ErrorActionPreference = "Stop"
 $Root = (Resolve-Path (Join-Path $PSScriptRoot "..")).Path
-$PackageName = "JapaneseStrokeMouseWriter-v2.3.1-win-x64-portable"
+$PackageName = "JapaneseStrokeMouseWriter-v2.3.2-win-x64-portable"
 $Dist = Join-Path $Root "dist"
 $PackageDir = Join-Path $Dist $PackageName
 $Archive = Join-Path $Dist "$PackageName.zip"
@@ -19,6 +19,7 @@ try {
 
     Get-ChildItem -LiteralPath $Root -Filter "*.md" -File |
         Copy-Item -Destination $PackageDir -Force
+    Copy-Item -LiteralPath (Join-Path $Root "LICENSE") -Destination $PackageDir -Force
     New-Item -ItemType Directory -Path (Join-Path $PackageDir "user_data") -Force | Out-Null
 
     $Executable = Join-Path $PackageDir "JapaneseStrokeMouseWriter.exe"

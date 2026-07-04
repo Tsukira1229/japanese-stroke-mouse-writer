@@ -14,11 +14,19 @@ DOCS = (
     ROOT / "complete-guide.en.md",
     ROOT / "complete-guide.ja.md",
 )
+POLICY_DOCS = (
+    ROOT / "LICENSE",
+    ROOT / "CODE_SIGNING_POLICY.md",
+    ROOT / "PRIVACY.md",
+    ROOT / "SECURITY.md",
+    ROOT / "THIRD_PARTY_NOTICES.md",
+)
 
 
 class DocumentationTests(unittest.TestCase):
     def test_trilingual_documents_exist_and_old_guide_is_removed(self) -> None:
         self.assertTrue(all(path.exists() for path in DOCS))
+        self.assertTrue(all(path.exists() for path in POLICY_DOCS))
         self.assertFalse((ROOT / "圖文使用教學.md").exists())
 
     def test_markdown_document_links_resolve(self) -> None:
@@ -56,8 +64,19 @@ class DocumentationTests(unittest.TestCase):
     def test_all_documents_use_current_version(self) -> None:
         for document in DOCS:
             text = document.read_text(encoding="utf-8")
-            self.assertIn("V2.3.1", text)
-            self.assertNotIn("V2.3.0", text)
+            self.assertIn("V2.3.2", text)
+            self.assertNotIn("V2.3.1", text)
+
+    def test_license_privacy_and_code_signing_policy_are_public(self) -> None:
+        license_text = (ROOT / "LICENSE").read_text(encoding="utf-8")
+        policy = (ROOT / "CODE_SIGNING_POLICY.md").read_text(encoding="utf-8")
+        privacy = (ROOT / "PRIVACY.md").read_text(encoding="utf-8")
+        self.assertIn("MIT License", license_text)
+        self.assertIn("Copyright (c) 2026 Tsukira1229", license_text)
+        self.assertIn("Code signing policy", policy)
+        self.assertIn("Free code signing provided by", policy)
+        self.assertIn("Tsukira1229", policy)
+        self.assertIn("will not transfer any information", privacy)
 
     def test_ui_guidance_matches_bottom_status_bar_and_help_tab(self) -> None:
         old_descriptions = ("標題下方固定", "below the title", "タイトル下")

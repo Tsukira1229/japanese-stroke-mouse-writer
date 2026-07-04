@@ -1,4 +1,4 @@
-# Japanese Stroke Mouse Writer V2.3.1 Complete Guide
+# Japanese Stroke Mouse Writer V2.3.2 Complete Guide
 
 [繁體中文](complete-guide.md) | English | [日本語](complete-guide.ja.md)
 
@@ -28,7 +28,7 @@ Press ESC during detection to cancel. Coordinates can also be entered manually a
 - Orientation: horizontal or vertical.
 - Flow: right or left.
 
-Horizontal text wraps downward at the side boundary. Vertical text creates a new left or right column at the bottom boundary. In vertical layout, letters, numbers, brackets, and long marks rotate clockwise, while `、。` move to the upper-right corner.
+Adjacent halfwidth characters use half the configured character gap. Fullwidth pairs and mixed halfwidth/fullwidth pairs use the full gap. Normal spaces, fullwidth spaces, and Tab follow the same rule. Horizontal text wraps downward at the side boundary. Vertical text creates a new left or right column at the bottom boundary. In vertical layout, letters, numbers, brackets, and long marks rotate clockwise, while `、。` move to the upper-right corner.
 
 ### Presets
 
@@ -53,4 +53,4 @@ After checking the preview, click Start writing. Every character, resource, and 
 - **Only straight lines appear**: select a pencil or brush instead of a line or shape tool.
 - **Canvas overflow**: enlarge the bounds, reduce font size, or reduce gaps.
 - **Folder is not writable**: move the whole program folder to Desktop, Documents, or another writable location.
-- **SmartScreen warning**: V2.3.1 is unsigned; download it from the official Release and verify SHA-256.
+- **SmartScreen warning**: V2.3.2 is unsigned; download it from the official Release and verify SHA-256.
