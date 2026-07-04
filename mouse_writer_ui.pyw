@@ -289,49 +289,38 @@ class JapaneseWriterApp:
             style="Subtitle.TLabel",
         ).pack(side="left", padx=(14, 0), pady=(8, 0))
 
-        self.safety_bar = tk.Frame(
-            outer,
-            background="#fff3e8",
-            highlightbackground="#d96c27",
-            highlightthickness=1,
-            padx=12,
-            pady=7,
-        )
-        self.safety_bar.pack(fill="x", pady=(0, 10))
-        self.emergency_label = tk.Label(
-            self.safety_bar,
-            text=self.t("emergency_hint"),
-            background="#fff3e8",
-            foreground="#8a2f12",
-            font=("Microsoft JhengHei UI", 10, "bold"),
-            anchor="w",
-            justify="left",
-        )
-        self.emergency_label.pack(fill="x")
-
         self.notebook = ttk.Notebook(outer)
         self.notebook.pack(fill="both", expand=True)
         self.content_tab = ttk.Frame(self.notebook, style="Surface.TFrame", padding=16)
         self.general_tab = ttk.Frame(self.notebook, style="Surface.TFrame", padding=22)
         self.environment_tab = ttk.Frame(self.notebook, style="Surface.TFrame", padding=22)
+        self.help_tab = ttk.Frame(self.notebook, style="Surface.TFrame", padding=22)
         self.notebook.add(self.content_tab, text=self.t("tab_content"))
         self.notebook.add(self.general_tab, text=self.t("tab_general"))
         self.notebook.add(self.environment_tab, text=self.t("tab_environment"))
+        self.notebook.add(self.help_tab, text=self.t("tab_help"))
         self._build_content_tab()
         self._build_general_tab()
         self._build_environment_tab()
+        self._build_help_tab()
 
-        status_bar = ttk.Frame(outer, style="App.TFrame")
-        status_bar.pack(fill="x", pady=(10, 0))
+        self.status_bar = ttk.Frame(outer, style="App.TFrame")
+        self.status_bar.pack(fill="x", pady=(10, 0))
         self.status_mark = tk.Label(
-            status_bar,
+            self.status_bar,
             text="●",
             background=self.BACKGROUND,
             foreground=self.PRIMARY,
             font=("Microsoft JhengHei UI", 9),
         )
         self.status_mark.pack(side="left", padx=(0, 7))
-        ttk.Label(status_bar, textvariable=self.status, style="Subtitle.TLabel").pack(side="left")
+        ttk.Label(self.status_bar, textvariable=self.status, style="Subtitle.TLabel").pack(side="left")
+        self.emergency_label = ttk.Label(
+            self.status_bar,
+            text=self.t("emergency_hint"),
+            style="Subtitle.TLabel",
+        )
+        self.emergency_label.pack(side="right")
 
     def _build_content_tab(self) -> None:
         tab = self.content_tab
@@ -528,6 +517,42 @@ class JapaneseWriterApp:
                 sticky="w",
                 pady=(3, 0),
             )
+
+    def _build_help_tab(self) -> None:
+        tab = self.help_tab
+        tab.columnconfigure(0, weight=1)
+        tab.rowconfigure(1, weight=1)
+        ttk.Label(tab, text=self.t("help_title"), style="Section.TLabel").grid(
+            row=0,
+            column=0,
+            sticky="w",
+            pady=(0, 12),
+        )
+
+        text_frame = tk.Frame(tab, background=self.BORDER, padx=1, pady=1)
+        text_frame.grid(row=1, column=0, sticky="nsew")
+        text_frame.columnconfigure(0, weight=1)
+        text_frame.rowconfigure(0, weight=1)
+        self.help_text = tk.Text(
+            text_frame,
+            wrap="word",
+            relief="flat",
+            borderwidth=0,
+            font=("Microsoft JhengHei UI", 11),
+            foreground=self.TEXT,
+            background="#fbfcfd",
+            padx=18,
+            pady=14,
+            spacing1=2,
+            spacing3=5,
+            cursor="arrow",
+        )
+        help_scrollbar = ttk.Scrollbar(text_frame, orient="vertical", command=self.help_text.yview)
+        self.help_text.configure(yscrollcommand=help_scrollbar.set)
+        self.help_text.grid(row=0, column=0, sticky="nsew")
+        help_scrollbar.grid(row=0, column=1, sticky="ns")
+        self.help_text.insert("1.0", self.t("help_content"))
+        self.help_text.configure(state="disabled")
 
     def _numeric_field(
         self,

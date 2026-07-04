@@ -29,7 +29,29 @@ ZH_HANT = {
     "tab_content": "內容與預覽",
     "tab_general": "一般設定",
     "tab_environment": "環境設定",
+    "tab_help": "使用說明",
     "emergency_hint": "緊急停止：按 ESC 或將滑鼠移到螢幕角落",
+    "help_title": "程式功能與操作方式",
+    "help_content": """1. 輸入內容與確認預覽
+在「內容與預覽」輸入要書寫的文字。空格、Tab、換行及自動換行都會反映在實際結果中。淡色字格表示占用範圍，黑色線條才是實際筆順。
+
+2. 設定起始座標與末端座標
+兩個座標共同形成允許書寫的矩形範圍，座標是整個螢幕的絕對位置。
+• 向右書寫：起始座標選矩形左上角，末端座標選右下角。
+• 向左書寫：起始座標選矩形右上角，末端座標選左下角。
+按下偵測按鈕後，主視窗會最小化。請在 3 秒內將滑鼠移到指定位置，倒數結束後程式會自動填入 X、Y。偵測期間按 ESC 可取消並保留原座標。也可直接輸入座標，多螢幕環境可使用負數。
+
+3. 調整排版
+「一般設定」可調整字體大小、字距、行距、水平或垂直排列，以及向右或向左流向。文字到達主方向邊界時會自動換行或換欄；副方向空間不足時會在移動滑鼠前停止並顯示錯誤。垂直排列會自動旋轉英數字、括號與長音符號。
+
+4. 調整書寫環境
+「環境設定」可切換語言，並調整開始倒數、曲線精細度與取樣點停頓。曲線精細度越小越平滑但耗時越長；若筆畫斷線，可增加取樣點停頓。
+
+5. 開始書寫
+先按「更新預覽」確認內容完全位於矩形內，再按「開始書寫」。開始倒數期間請切換到目標畫布，並保持畫筆或鉛筆工具已選取。
+
+6. 緊急停止
+座標偵測、開始倒數或書寫期間都可按 ESC 停止。書寫時也可將滑鼠快速移到任一螢幕角落觸發安全停止。程式在停止或發生錯誤時會自動放開滑鼠左鍵。""",
     "writing_text": "書寫文字",
     "canvas_coordinates": "畫布座標",
     "start_coordinates": "起始座標",
@@ -148,8 +170,29 @@ ZH_HANT = {
 
 
 EN = {
-    "app_title": "Japanese Stroke Mouse Writer", "tab_content": "Content & Preview", "tab_general": "General", "tab_environment": "Environment",
+    "app_title": "Japanese Stroke Mouse Writer", "tab_content": "Content & Preview", "tab_general": "General", "tab_environment": "Environment", "tab_help": "Help",
     "emergency_hint": "Emergency stop: press ESC or move the pointer to a screen corner", "writing_text": "Text to write", "canvas_coordinates": "Canvas coordinates",
+    "help_title": "Features and operation guide",
+    "help_content": """1. Enter content and check the preview
+Enter the text in Content & Preview. Spaces, tabs, explicit line breaks, and automatic wrapping are preserved in the result. Light cells show occupied space; black lines are the actual stroke paths.
+
+2. Set the start and end coordinates
+The two coordinates form the writable rectangle and use absolute screen positions.
+• Right flow: choose the rectangle's top-left corner as Start and bottom-right corner as End.
+• Left flow: choose the rectangle's top-right corner as Start and bottom-left corner as End.
+After clicking a detection button, the main window is minimized. Move the pointer to the requested position within 3 seconds; the X and Y values are filled when the countdown ends. Press ESC to cancel detection and keep the old values. Coordinates may also be entered manually, including negative values on multi-monitor desktops.
+
+3. Adjust the layout
+General settings control font size, character gap, line gap, horizontal or vertical orientation, and right or left flow. Text wraps at the main-axis boundary. If the secondary axis has no room, writing stops before the pointer moves and an error is shown. Vertical layout automatically rotates letters, numbers, brackets, and long marks.
+
+4. Adjust the writing environment
+Environment settings control language, start countdown, curve detail, and sample delay. Smaller curve-detail values are smoother but take longer. Increase sample delay if strokes break.
+
+5. Start writing
+Click Update preview first and confirm that all content is inside the rectangle. Then click Start writing, switch to the target canvas during the countdown, and keep its pen or pencil tool selected.
+
+6. Emergency stop
+Press ESC during coordinate detection, the start countdown, or writing. During writing, moving the pointer quickly to any screen corner also triggers the failsafe. The program releases the left mouse button automatically after a stop or error.""",
     "start_coordinates": "Start coordinates", "end_coordinates": "End coordinates", "detect": "Detect {target}", "update_preview": "Update preview", "start_writing": "Start writing",
     "actual_preview": "Layout preview", "preview_hint": "Light cells show placement; black paths are the actual strokes.", "preview_empty": "Check the text, coordinates, and layout settings",
     "text_layout": "Text and layout", "font_size_px": "Font size (px)", "char_gap_px": "Character gap (px)", "line_gap_px": "Line gap (px)", "orientation": "Orientation", "flow": "Flow",
@@ -180,7 +223,28 @@ EN = {
 
 
 ZH_HANS = {**ZH_HANT,
-    "app_title": "日文笔顺鼠标书写工具", "tab_content": "内容与预览", "tab_general": "常规设置", "tab_environment": "环境设置", "emergency_hint": "紧急停止：按 ESC 或将鼠标移到屏幕角落",
+    "app_title": "日文笔顺鼠标书写工具", "tab_content": "内容与预览", "tab_general": "常规设置", "tab_environment": "环境设置", "tab_help": "使用说明", "emergency_hint": "紧急停止：按 ESC 或将鼠标移到屏幕角落",
+    "help_title": "程序功能与操作方式",
+    "help_content": """1. 输入内容并确认预览
+在“内容与预览”中输入要书写的文字。空格、Tab、换行和自动换行都会反映在实际结果中。浅色字格表示占用范围，黑色线条才是实际笔顺。
+
+2. 设置起始坐标与末端坐标
+两个坐标共同形成允许书写的矩形范围，坐标是整个屏幕的绝对位置。
+• 向右书写：起始坐标选择矩形左上角，末端坐标选择右下角。
+• 向左书写：起始坐标选择矩形右上角，末端坐标选择左下角。
+按下检测按钮后，主窗口会最小化。请在 3 秒内将鼠标移到指定位置，倒计时结束后程序会自动填入 X、Y。检测期间按 ESC 可取消并保留原坐标。也可直接输入坐标，多屏幕环境可使用负数。
+
+3. 调整排版
+“常规设置”可调整字体大小、字距、行距、水平或垂直排列，以及向右或向左流向。文字到达主方向边界时会自动换行或换列；副方向空间不足时会在移动鼠标前停止并显示错误。垂直排列会自动旋转英文字母、数字、括号和长音符号。
+
+4. 调整书写环境
+“环境设置”可切换语言，并调整开始倒计时、曲线精细度与采样点停顿。曲线精细度越小越平滑但耗时越长；若笔画断线，可增加采样点停顿。
+
+5. 开始书写
+先按“更新预览”确认内容完全位于矩形内，再按“开始书写”。开始倒计时期间请切换到目标画布，并保持画笔或铅笔工具已选中。
+
+6. 紧急停止
+坐标检测、开始倒计时或书写期间都可按 ESC 停止。书写时也可将鼠标快速移到任一屏幕角落触发安全停止。程序在停止或发生错误时会自动释放鼠标左键。""",
     "writing_text": "书写文字", "canvas_coordinates": "画布坐标", "start_coordinates": "起始坐标", "end_coordinates": "末端坐标", "detect": "检测{target}", "update_preview": "更新预览", "start_writing": "开始书写",
     "actual_preview": "实际排版预览", "preview_hint": "浅色字格仅供定位；实际输出为黑色笔顺路径。", "preview_empty": "请确认文字、坐标与排版设置", "text_layout": "文字与排版",
     "font_size_px": "字体大小（px）", "char_gap_px": "字距（px）", "line_gap_px": "行距（px）", "orientation": "排列方向", "flow": "流向", "horizontal": "水平", "vertical": "垂直", "right": "向右", "left": "向左",
@@ -206,7 +270,28 @@ ZH_HANS = {**ZH_HANT,
 
 
 JA = {**EN,
-    "app_title": "日本語筆順マウスライター", "tab_content": "内容とプレビュー", "tab_general": "一般設定", "tab_environment": "環境設定", "emergency_hint": "緊急停止：ESC または画面の隅へマウスを移動",
+    "app_title": "日本語筆順マウスライター", "tab_content": "内容とプレビュー", "tab_general": "一般設定", "tab_environment": "環境設定", "tab_help": "使用説明", "emergency_hint": "緊急停止：ESC または画面の隅へマウスを移動",
+    "help_title": "機能と操作方法",
+    "help_content": """1. 内容を入力してプレビューを確認する
+「内容とプレビュー」に書き込む文字を入力します。スペース、Tab、改行、自動折り返しは実際の結果にも反映されます。薄いマスは占有範囲、黒い線は実際の筆順です。
+
+2. 開始座標と終了座標を設定する
+2つの座標で書き込み可能な長方形を指定します。座標は画面全体の絶対位置です。
+• 右方向：開始座標に長方形の左上、終了座標に右下を指定します。
+• 左方向：開始座標に長方形の右上、終了座標に左下を指定します。
+検出ボタンを押すとメイン画面が最小化します。3秒以内に指定位置へマウスを移動すると、カウント終了時に X、Y が入力されます。検出中に ESC を押すと元の座標を残して中止できます。座標は直接入力でき、マルチモニターの負の値にも対応します。
+
+3. レイアウトを調整する
+「一般設定」では文字サイズ、文字間隔、行間隔、横書きまたは縦書き、右方向または左方向を設定します。主方向の境界に達すると自動で改行または改列します。副方向の空間が不足する場合は、マウスを動かす前に停止してエラーを表示します。縦書きでは英数字、括弧、長音記号を自動回転します。
+
+4. 書き込み環境を調整する
+「環境設定」では言語、開始カウントダウン、曲線精度、サンプル待機を設定します。曲線精度は小さいほど滑らかですが時間がかかります。線が途切れる場合はサンプル待機を増やしてください。
+
+5. 書き込みを開始する
+先に「プレビュー更新」を押し、内容が長方形内に収まっていることを確認してから「書き始める」を押します。カウントダウン中に対象キャンバスへ切り替え、ペンまたは鉛筆ツールを選択した状態にします。
+
+6. 緊急停止
+座標検出、開始カウントダウン、書き込み中は ESC で停止できます。書き込み中にマウスを画面のいずれかの隅へ素早く移動しても安全停止します。停止またはエラー時にはマウス左ボタンを自動で解放します。""",
     "writing_text": "書く文字", "canvas_coordinates": "キャンバス座標", "start_coordinates": "開始座標", "end_coordinates": "終了座標", "detect": "{target}を検出", "update_preview": "プレビュー更新", "start_writing": "書き始める",
     "actual_preview": "レイアウトプレビュー", "preview_hint": "薄い枠は配置位置、黒い線が実際の筆順です。", "preview_empty": "文字、座標、レイアウト設定を確認してください", "text_layout": "文字とレイアウト",
     "font_size_px": "文字サイズ（px）", "char_gap_px": "文字間隔（px）", "line_gap_px": "行間隔（px）", "orientation": "配置方向", "flow": "進行方向", "horizontal": "横書き", "vertical": "縦書き", "right": "右へ", "left": "左へ",

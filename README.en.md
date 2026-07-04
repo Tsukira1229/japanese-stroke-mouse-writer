@@ -34,7 +34,7 @@ Unsupported characters or characters without stroke data are rejected before the
 - Multiple named layout presets.
 - Japanese, Traditional Chinese, Simplified Chinese, and English desktop UI.
 - Global ESC emergency stop and screen-corner failsafe.
-- Maximized startup with a persistent emergency-stop banner below the title.
+- Maximized startup, an emergency-stop hint in the bottom status bar, and an in-app Help tab.
 
 See the [complete guide](complete-guide.en.md) for operating instructions.
 

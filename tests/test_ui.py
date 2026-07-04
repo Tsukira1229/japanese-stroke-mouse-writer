@@ -37,27 +37,30 @@ class JapaneseWriterUiTests(unittest.TestCase):
         self.root.destroy()
         self.temp.cleanup()
 
-    def test_three_configuration_areas_exist(self) -> None:
-        self.assertEqual(self.app.notebook.index("end"), 3)
+    def test_four_application_areas_exist(self) -> None:
+        self.assertEqual(self.app.notebook.index("end"), 4)
         self.assertEqual(self.app.text_input.cget("wrap"), "none")
         self.assertFalse(
             any(isinstance(child, ttk.Scrollbar) for child in self.app.text_input.master.winfo_children())
         )
 
-    def test_emergency_hint_is_in_persistent_header_banner(self) -> None:
-        self.assertIs(self.app.safety_bar.master, self.app.outer)
-        self.assertNotEqual(self.app.safety_bar.master, self.app.notebook)
+    def test_emergency_hint_uses_previous_status_bar_style(self) -> None:
+        self.assertIs(self.app.emergency_label.master, self.app.status_bar)
+        self.assertEqual(self.app.emergency_label.pack_info()["side"], "right")
         self.assertIn("ESC", self.app.emergency_label.cget("text"))
-        self.assertEqual(self.app.emergency_label.cget("font").split()[-1], "bold")
+        self.assertEqual(self.app.emergency_label.cget("style"), "Subtitle.TLabel")
 
-    def test_fallback_window_keeps_emergency_hint_visible(self) -> None:
-        self.root.deiconify()
-        self.root.state("normal")
-        self.root.geometry("1000x700")
-        self.root.update()
-        self.assertTrue(self.app.emergency_label.winfo_ismapped())
-        bottom = self.app.emergency_label.winfo_rooty() + self.app.emergency_label.winfo_height()
-        self.assertLessEqual(bottom, self.root.winfo_rooty() + self.root.winfo_height())
+    def test_help_tab_contains_operation_only_guidance(self) -> None:
+        self.assertEqual(self.app.notebook.tab(3, "text"), "使用說明")
+        self.assertEqual(self.app.help_text.cget("state"), "disabled")
+        help_text = self.app.help_text.get("1.0", "end-1c")
+        self.assertIn("起始座標", help_text)
+        self.assertIn("末端座標", help_text)
+        self.assertIn("左上角", help_text)
+        self.assertIn("右上角", help_text)
+        self.assertIn("ESC", help_text)
+        self.assertNotIn("安裝", help_text)
+        self.assertNotIn("SmartScreen", help_text)
 
     def test_startup_and_operation_restore_zoomed_state(self) -> None:
         with patch.object(self.root, "state") as state:
@@ -102,6 +105,8 @@ class JapaneseWriterUiTests(unittest.TestCase):
         self.assertEqual(self.app.text_input.get("1.0", "end-1c"), content)
         self.assertEqual(self.app.start_x.get(), "432")
         self.assertEqual(self.app.notebook.tab(0, "text"), "Content & Preview")
+        self.assertEqual(self.app.notebook.tab(3, "text"), "Help")
+        self.assertIn("start and end coordinates", self.app.help_text.get("1.0", "end-1c"))
         self.assertEqual(self.app.orientation.get(), "Horizontal")
         self.assertIn("language", self.app.status.get().lower())
         self.assertEqual(

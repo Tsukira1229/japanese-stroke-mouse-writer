@@ -4,7 +4,7 @@
 
 ## 1. Open the Program
 
-Extract the entire Portable ZIP, then double-click `JapaneseStrokeMouseWriter.exe`. It starts maximized, with the ESC and screen-corner emergency-stop instructions permanently shown below the title. Do not run it from the ZIP preview or place it in a protected system folder.
+Extract the entire Portable ZIP, then double-click `JapaneseStrokeMouseWriter.exe`. It starts maximized, with the emergency-stop hint in the bottom status bar. The in-app Help tab also contains the operating instructions. Do not run it from the ZIP preview or place it in a protected system folder.
 
 ## 2. Enter Content and Preview
 

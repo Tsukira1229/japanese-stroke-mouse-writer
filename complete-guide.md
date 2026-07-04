@@ -4,7 +4,7 @@
 
 ## 1. 開啟程式
 
-完整解壓 Portable ZIP 後，雙擊 `JapaneseStrokeMouseWriter.exe`。程式會以最大化視窗啟動，標題下方固定顯示 ESC 與螢幕角落緊急停止提示。不要直接在 ZIP 預覽中執行，也不要放在不可寫入的系統資料夾。
+完整解壓 Portable ZIP 後，雙擊 `JapaneseStrokeMouseWriter.exe`。程式會以最大化視窗啟動，緊急停止提示顯示於視窗底部狀態列；程式內的「使用說明」頁籤也包含完整操作方式。不要直接在 ZIP 預覽中執行，也不要放在不可寫入的系統資料夾。
 
 ## 2. 輸入內容與預覽
 
