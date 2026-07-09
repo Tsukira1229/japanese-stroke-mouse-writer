@@ -30,7 +30,6 @@ from mouse_writer_pro import (
     FULLWIDTH_ALNUM,
     HALFWIDTH_KATAKANA,
     HALFWIDTH_VOICING_MARKS,
-    KAOMOJI_PRESETS,
     SUPPORTED_SYMBOLS,
     EnvironmentSettings,
     FlowDirection,
@@ -273,7 +272,6 @@ class JapaneseWriterApp:
         self.point_delay_ms = tk.StringVar(value="8")
         self.language_selection = tk.StringVar(value=dict(LANGUAGE_OPTIONS)[self.language])
         self.preset_selection = tk.StringVar(value="")
-        self.kaomoji_category = tk.StringVar(value="")
         self.status = tk.StringVar(value=self.t("ready"))
         self.summary = tk.StringVar(value="")
 
@@ -356,11 +354,9 @@ class JapaneseWriterApp:
         self.text_input.grid(row=0, column=0, sticky="nsew")
         self.text_input.bind("<KeyRelease>", lambda _event: self.schedule_preview())
 
-        self._build_kaomoji_picker(left)
-
-        ttk.Label(left, text=self.t("canvas_coordinates"), style="Section.TLabel").grid(row=3, column=0, sticky="w")
+        ttk.Label(left, text=self.t("canvas_coordinates"), style="Section.TLabel").grid(row=2, column=0, sticky="w")
         coordinate_grid = ttk.Frame(left, style="Surface.TFrame")
-        coordinate_grid.grid(row=4, column=0, sticky="ew", pady=(8, 12))
+        coordinate_grid.grid(row=3, column=0, sticky="ew", pady=(8, 12))
         coordinate_grid.columnconfigure((0, 1), weight=1)
         self._coordinate_group(
             coordinate_grid,
@@ -380,7 +376,7 @@ class JapaneseWriterApp:
         )
 
         actions = ttk.Frame(left, style="Surface.TFrame")
-        actions.grid(row=5, column=0, sticky="ew")
+        actions.grid(row=4, column=0, sticky="ew")
         actions.columnconfigure((0, 1), weight=1)
         self.preview_button = ttk.Button(
             actions,
@@ -420,79 +416,6 @@ class JapaneseWriterApp:
             text=self.t("preview_hint"),
             style="Field.TLabel",
         ).grid(row=2, column=0, sticky="w", pady=(8, 0))
-
-    def _kaomoji_category_labels(self) -> dict[str, str]:
-        return {key: self.t(f"kaomoji_{key}") for key in KAOMOJI_PRESETS}
-
-    def _build_kaomoji_picker(self, parent: ttk.Frame) -> None:
-        picker = ttk.Frame(parent, style="Surface.TFrame")
-        picker.grid(row=2, column=0, sticky="ew", pady=(0, 16))
-        picker.columnconfigure(1, weight=1)
-        ttk.Label(picker, text=self.t("kaomoji_picker"), style="Section.TLabel").grid(
-            row=0,
-            column=0,
-            columnspan=3,
-            sticky="w",
-            pady=(0, 8),
-        )
-        labels = self._kaomoji_category_labels()
-        first_label = next(iter(labels.values()))
-        self.kaomoji_category.set(first_label)
-        self.kaomoji_category_combo = ttk.Combobox(
-            picker,
-            textvariable=self.kaomoji_category,
-            values=list(labels.values()),
-            state="readonly",
-            width=16,
-        )
-        self.kaomoji_category_combo.grid(row=1, column=0, sticky="ew", padx=(0, 8))
-        self.kaomoji_category_combo.bind("<<ComboboxSelected>>", lambda _event: self._refresh_kaomoji_list())
-        self.kaomoji_list = tk.Listbox(
-            picker,
-            height=4,
-            exportselection=False,
-            relief="flat",
-            borderwidth=1,
-            font=("Yu Gothic UI", 12),
-            foreground=self.TEXT,
-            background="#fbfcfd",
-            selectbackground="#dce5e9",
-        )
-        self.kaomoji_list.grid(row=1, column=1, sticky="ew")
-        self.kaomoji_list.bind("<Double-Button-1>", lambda _event: self.insert_selected_kaomoji())
-        ttk.Button(
-            picker,
-            text=self.t("kaomoji_insert"),
-            style="Secondary.TButton",
-            command=self.insert_selected_kaomoji,
-        ).grid(row=1, column=2, sticky="ew", padx=(8, 0))
-        ttk.Label(
-            picker,
-            text=self.t("kaomoji_hint"),
-            style="Field.TLabel",
-            wraplength=390,
-        ).grid(row=2, column=0, columnspan=3, sticky="w", pady=(6, 0))
-        self._refresh_kaomoji_list()
-
-    def _refresh_kaomoji_list(self) -> None:
-        labels = self._kaomoji_category_labels()
-        selected_label = self.kaomoji_category.get()
-        selected_key = next((key for key, label in labels.items() if label == selected_label), next(iter(KAOMOJI_PRESETS)))
-        self.kaomoji_list.delete(0, "end")
-        for kaomoji in KAOMOJI_PRESETS[selected_key]:
-            self.kaomoji_list.insert("end", kaomoji)
-        if KAOMOJI_PRESETS[selected_key]:
-            self.kaomoji_list.selection_set(0)
-
-    def insert_selected_kaomoji(self) -> None:
-        selection = self.kaomoji_list.curselection()
-        if not selection:
-            return
-        value = self.kaomoji_list.get(selection[0])
-        self.text_input.insert("insert", value)
-        self.text_input.focus_set()
-        self.schedule_preview()
-        self._set_status("kaomoji_inserted", value=value)
 
     def _coordinate_group(
         self,
@@ -1242,13 +1165,13 @@ def run_self_test(settings_path: Path = DEFAULT_SETTINGS_PATH) -> int:
     )
     if not any(item.rotation_degrees == 90 for item in vertical.placements):
         raise RuntimeError("直排旋轉測試失敗。")
-    kaomoji = build_layout(
-        "(^O^) m(_ _)m ¯\\_(ツ)_/¯",
+    emoticon = build_layout(
+        "(^O^) (≧▽≦) m(_ _)m (/ω＼) ¯\\_(ツ)_/¯ (╯°□°)╯︵ ┻━┻",
         DEFAULT_KANJIVG_DIR,
         settings,
     )
-    if not any(item.is_kaomoji for item in kaomoji.placements) or not kaomoji.paths:
-        raise RuntimeError("顏文字輪廓排版測試失敗。")
+    if not emoticon.paths:
+        raise RuntimeError("顏文字符號中心線排版測試失敗。")
     SettingsStore(settings_path).ensure_writable()
     print(f"Japanese Stroke Mouse Writer {APP_VERSION} self-test passed")
     return 0

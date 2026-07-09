@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Project-authored centerline stroke data for U+0648. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 109 109">
+  <path id="custom:00648-s1" d="M38,37 C58,24 82,35 80,58 C78,82 50,91 31,74" />
+</svg>

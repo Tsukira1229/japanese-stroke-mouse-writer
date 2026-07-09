@@ -34,7 +34,7 @@ ZH_HANT = {
     "help_title": "程式功能與操作方式",
     "help_content": """1. 輸入內容與確認預覽
 在「內容與預覽」輸入要書寫的文字。空格、Tab、換行及自動換行都會反映在實際結果中。淡色字格表示占用範圍，黑色線條才是實際筆順。
-支援日文、英數、半形片假名、常用符號與精選顏文字。顏文字會以字型輪廓描繪，預覽黑線與實際書寫路徑一致；顏文字會作為整段處理，不會在中間自動換行。彩色 emoji、keycap 與 ZWJ 組合序列不支援。
+支援日文、英數、半形片假名、常用符號，以及可用來拼湊顏文字的中心線符號。使用者可自行輸入或貼上顏文字；程式會逐字元書寫，不再提供內建顏文字分類。彩色 emoji、keycap 與 ZWJ 組合序列不支援。
 
 2. 設定起始座標與末端座標
 兩個座標共同形成允許書寫的矩形範圍，座標是整個螢幕的絕對位置。
@@ -54,23 +54,6 @@ ZH_HANT = {
 6. 緊急停止
 座標偵測、開始倒數或書寫期間都可按 ESC 停止。書寫時也可將滑鼠快速移到任一螢幕角落觸發安全停止。程式在停止或發生錯誤時會自動放開滑鼠左鍵。""",
     "writing_text": "書寫文字",
-    "kaomoji_picker": "顏文字",
-    "kaomoji_insert": "插入",
-    "kaomoji_hint": "顏文字會以輪廓描繪，適合需要形狀精準的文字臉。",
-    "kaomoji_inserted": "已插入顏文字：{value}",
-    "kaomoji_happy": "笑／開心",
-    "kaomoji_cute": "可愛",
-    "kaomoji_greeting": "挨拶／道歉",
-    "kaomoji_shy": "害羞",
-    "kaomoji_love": "愛心",
-    "kaomoji_sad": "悲傷／哭",
-    "kaomoji_angry": "怒",
-    "kaomoji_surprised": "驚訝",
-    "kaomoji_sweat": "焦慮／汗",
-    "kaomoji_sleepy": "睡眠／疲勞",
-    "kaomoji_shrug": "困惑／聳肩",
-    "kaomoji_action": "動作／手勢",
-    "kaomoji_animal": "動物／角色",
     "canvas_coordinates": "畫布座標",
     "start_coordinates": "起始座標",
     "end_coordinates": "末端座標",
@@ -193,7 +176,7 @@ EN = {
     "help_title": "Features and operation guide",
     "help_content": """1. Enter content and check the preview
 Enter the text in Content & Preview. Spaces, tabs, explicit line breaks, and automatic wrapping are preserved in the result. Light cells show occupied space; black lines are the actual stroke paths.
-Japanese, letters, numbers, halfwidth katakana, common symbols, and curated kaomoji are supported. Kaomoji are drawn from font outlines so the black preview paths match the writing output; each kaomoji is kept as one run and never auto-wrapped in the middle. Color emoji, keycap sequences, and ZWJ sequences are not supported.
+Japanese, letters, numbers, halfwidth katakana, common symbols, and centerline symbols useful for assembling kaomoji are supported. Users can type or paste kaomoji manually; the program writes them character by character and no longer provides built-in kaomoji categories. Color emoji, keycap sequences, and ZWJ sequences are not supported.
 
 2. Set the start and end coordinates
 The two coordinates form the writable rectangle and use absolute screen positions.
@@ -213,8 +196,6 @@ Click Update preview first and confirm that all content is inside the rectangle.
 6. Emergency stop
 Press ESC during coordinate detection, the start countdown, or writing. During writing, moving the pointer quickly to any screen corner also triggers the failsafe. The program releases the left mouse button automatically after a stop or error.""",
     "start_coordinates": "Start coordinates", "end_coordinates": "End coordinates", "detect": "Detect {target}", "update_preview": "Update preview", "start_writing": "Start writing",
-    "kaomoji_picker": "Kaomoji", "kaomoji_insert": "Insert", "kaomoji_hint": "Kaomoji are outline-drawn for precise text-face shapes.", "kaomoji_inserted": "Inserted kaomoji: {value}",
-    "kaomoji_happy": "Happy", "kaomoji_cute": "Cute", "kaomoji_greeting": "Greeting / apology", "kaomoji_shy": "Shy", "kaomoji_love": "Love", "kaomoji_sad": "Sad / crying", "kaomoji_angry": "Angry", "kaomoji_surprised": "Surprised", "kaomoji_sweat": "Anxious / sweat", "kaomoji_sleepy": "Sleepy / tired", "kaomoji_shrug": "Confused / shrug", "kaomoji_action": "Action / gesture", "kaomoji_animal": "Animal / character",
     "actual_preview": "Layout preview", "preview_hint": "Light cells show placement; black paths are the actual strokes.", "preview_empty": "Check the text, coordinates, and layout settings",
     "text_layout": "Text and layout", "font_size_px": "Font size (px)", "char_gap_px": "Character gap (px)", "line_gap_px": "Line gap (px)", "orientation": "Orientation", "flow": "Flow",
     "horizontal": "Horizontal", "vertical": "Vertical", "right": "Right", "left": "Left", "presets": "Presets", "preset_add": "Add", "preset_overwrite": "Overwrite",
@@ -248,7 +229,7 @@ ZH_HANS = {**ZH_HANT,
     "help_title": "程序功能与操作方式",
     "help_content": """1. 输入内容并确认预览
 在“内容与预览”中输入要书写的文字。空格、Tab、换行和自动换行都会反映在实际结果中。浅色字格表示占用范围，黑色线条才是实际笔顺。
-支持日文、英数字、半形片假名、常用符号与精选颜文字。颜文字会以字体轮廓描绘，预览黑线与实际书写路径一致；颜文字会作为整段处理，不会在中间自动换行。彩色 emoji、keycap 与 ZWJ 组合序列不支持。
+支持日文、英数字、半形片假名、常用符号，以及可用来拼凑颜文字的中心线符号。使用者可自行输入或粘贴颜文字；程序会逐字符书写，不再提供内置颜文字分类。彩色 emoji、keycap 与 ZWJ 组合序列不支持。
 
 2. 设置起始坐标与末端坐标
 两个坐标共同形成允许书写的矩形范围，坐标是整个屏幕的绝对位置。
@@ -267,8 +248,7 @@ ZH_HANS = {**ZH_HANT,
 
 6. 紧急停止
 坐标检测、开始倒计时或书写期间都可按 ESC 停止。书写时也可将鼠标快速移到任一屏幕角落触发安全停止。程序在停止或发生错误时会自动释放鼠标左键。""",
-    "writing_text": "书写文字", "kaomoji_picker": "颜文字", "kaomoji_insert": "插入", "kaomoji_hint": "颜文字会以轮廓描绘，适合需要形状精确的文字脸。", "kaomoji_inserted": "已插入颜文字：{value}",
-    "kaomoji_happy": "笑／开心", "kaomoji_cute": "可爱", "kaomoji_greeting": "寒暄／道歉", "kaomoji_shy": "害羞", "kaomoji_love": "爱心", "kaomoji_sad": "悲伤／哭", "kaomoji_angry": "怒", "kaomoji_surprised": "惊讶", "kaomoji_sweat": "焦虑／汗", "kaomoji_sleepy": "睡眠／疲劳", "kaomoji_shrug": "困惑／耸肩", "kaomoji_action": "动作／手势", "kaomoji_animal": "动物／角色",
+    "writing_text": "书写文字",
     "canvas_coordinates": "画布坐标", "start_coordinates": "起始坐标", "end_coordinates": "末端坐标", "detect": "检测{target}", "update_preview": "更新预览", "start_writing": "开始书写",
     "actual_preview": "实际排版预览", "preview_hint": "浅色字格仅供定位；实际输出为黑色笔顺路径。", "preview_empty": "请确认文字、坐标与排版设置", "text_layout": "文字与排版",
     "font_size_px": "字体大小（px）", "char_gap_px": "字距（px）", "line_gap_px": "行距（px）", "orientation": "排列方向", "flow": "流向", "horizontal": "水平", "vertical": "垂直", "right": "向右", "left": "向左",
@@ -298,7 +278,7 @@ JA = {**EN,
     "help_title": "機能と操作方法",
     "help_content": """1. 内容を入力してプレビューを確認する
 「内容とプレビュー」に書き込む文字を入力します。スペース、Tab、改行、自動折り返しは実際の結果にも反映されます。薄いマスは占有範囲、黒い線は実際の筆順です。
-日本語、英数字、半角カタカナ、一般記号、精選した顔文字に対応します。顔文字はフォントアウトラインで描画され、黒いプレビュー線と実際の書き込み経路が一致します。顔文字は1つのまとまりとして扱い、途中で自動改行しません。カラー絵文字、keycap、ZWJ シーケンスは非対応です。
+日本語、英数字、半角カタカナ、一般記号、顔文字を組み立てるための中心線記号に対応します。顔文字は利用者が手入力または貼り付けし、プログラムは1文字ずつ書き込みます。内蔵の顔文字分類は提供しません。カラー絵文字、keycap、ZWJ シーケンスは非対応です。
 
 2. 開始座標と終了座標を設定する
 2つの座標で書き込み可能な長方形を指定します。座標は画面全体の絶対位置です。
@@ -317,8 +297,7 @@ JA = {**EN,
 
 6. 緊急停止
 座標検出、開始カウントダウン、書き込み中は ESC で停止できます。書き込み中にマウスを画面のいずれかの隅へ素早く移動しても安全停止します。停止またはエラー時にはマウス左ボタンを自動で解放します。""",
-    "writing_text": "書く文字", "kaomoji_picker": "顔文字", "kaomoji_insert": "挿入", "kaomoji_hint": "顔文字は形を正確に保つためアウトラインで描画します。", "kaomoji_inserted": "顔文字を挿入しました：{value}",
-    "kaomoji_happy": "笑／楽しい", "kaomoji_cute": "かわいい", "kaomoji_greeting": "挨拶／謝罪", "kaomoji_shy": "照れ", "kaomoji_love": "ラブ", "kaomoji_sad": "悲しい／泣く", "kaomoji_angry": "怒り", "kaomoji_surprised": "驚き", "kaomoji_sweat": "焦り／汗", "kaomoji_sleepy": "眠い／疲れ", "kaomoji_shrug": "困惑／肩すくめ", "kaomoji_action": "動作／手振り", "kaomoji_animal": "動物／キャラ",
+    "writing_text": "書く文字",
     "canvas_coordinates": "キャンバス座標", "start_coordinates": "開始座標", "end_coordinates": "終了座標", "detect": "{target}を検出", "update_preview": "プレビュー更新", "start_writing": "書き始める",
     "actual_preview": "レイアウトプレビュー", "preview_hint": "薄い枠は配置位置、黒い線が実際の筆順です。", "preview_empty": "文字、座標、レイアウト設定を確認してください", "text_layout": "文字とレイアウト",
     "font_size_px": "文字サイズ（px）", "char_gap_px": "文字間隔（px）", "line_gap_px": "行間隔（px）", "orientation": "配置方向", "flow": "進行方向", "horizontal": "横書き", "vertical": "縦書き", "right": "右へ", "left": "左へ",

@@ -60,14 +60,18 @@ class DocumentationTests(unittest.TestCase):
             self.assertIn("ｶﾞ", text)
             self.assertIn("keycap", text)
             self.assertTrue("顏文字" in text or "Kaomoji" in text or "顔文字" in text)
-            self.assertTrue("輪廓" in text or "outline" in text or "アウトライン" in text)
+            self.assertTrue("中心線" in text or "centerline" in text)
+            self.assertNotIn("輪廓", text)
+            self.assertNotIn("outline", text.lower())
+            self.assertNotIn("アウトライン", text)
             for pair in symbol_pairs:
                 self.assertIn(pair, text)
 
     def test_all_documents_use_current_version(self) -> None:
         for document in DOCS:
             text = document.read_text(encoding="utf-8")
-            self.assertIn("V2.4.0", text)
+            self.assertIn("V2.4.1", text)
+            self.assertNotIn("V2.4.0", text)
             self.assertNotIn("V2.3.1", text)
 
     def test_license_privacy_and_code_signing_policy_are_public(self) -> None:
@@ -78,7 +82,7 @@ class DocumentationTests(unittest.TestCase):
         self.assertIn("Copyright (c) 2026 Tsukira1229", license_text)
         self.assertIn("Code signing policy", policy)
         self.assertIn("was not approved", policy)
-        self.assertIn("Current releases", policy)
+        self.assertIn("Current releases and internal builds", policy)
         self.assertNotIn("Free code signing provided by", policy)
         self.assertNotIn("active Authenticode signing workflow", policy.split("does not currently have", 1)[0])
         self.assertIn("Tsukira1229", policy)
@@ -93,6 +97,9 @@ class DocumentationTests(unittest.TestCase):
             "Free code signing provided by",
             "核准後",
             "承認後",
+            "font contours",
+            "font outline",
+            "built-in kaomoji categories",
         )
         for document in (*DOCS, *POLICY_DOCS):
             text = document.read_text(encoding="utf-8")
@@ -105,6 +112,13 @@ class DocumentationTests(unittest.TestCase):
         for document in DOCS:
             text = document.read_text(encoding="utf-8")
             self.assertFalse(any(description in text for description in old_descriptions))
+
+    def test_internal_build_does_not_document_release_zip(self) -> None:
+        for document in DOCS:
+            text = document.read_text(encoding="utf-8")
+            self.assertNotIn("JapaneseStrokeMouseWriter-v2.4.1-win-x64-portable.zip", text)
+            self.assertNotIn("GitHub Release から", text)
+            self.assertNotIn("Download", text)
 
 
 if __name__ == "__main__":

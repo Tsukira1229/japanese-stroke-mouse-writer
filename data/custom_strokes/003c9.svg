@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Project-authored centerline stroke data for U+03C9. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 109 109">
+  <path id="custom:003c9-s1" d="M24,34 C20,68 34,89 54,66 C74,89 89,68 85,34" />
+  <path id="custom:003c9-s2" d="M54,66 C50,51 50,42 54,34 C58,42 58,51 54,66" />
+</svg>

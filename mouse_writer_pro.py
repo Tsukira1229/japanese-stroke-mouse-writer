@@ -13,7 +13,6 @@ from collections.abc import Callable, Iterable
 from ctypes import wintypes
 from dataclasses import dataclass, field
 from enum import Enum
-from functools import lru_cache
 from pathlib import Path
 
 from localization import Language, LocalizedOSError, LocalizedValueError, tr
@@ -22,7 +21,7 @@ Point = tuple[float, float]
 PathList = list[list[Point]]
 PathBounds = tuple[float, float, float, float]
 
-APP_VERSION = "2.4.0"
+APP_VERSION = "2.4.1"
 SCRIPT_DIR = Path(__file__).resolve().parent
 BUNDLE_DIR = Path(getattr(sys, "_MEIPASS", SCRIPT_DIR))
 EXECUTABLE_DIR = Path(sys.executable).resolve().parent if getattr(sys, "frozen", False) else SCRIPT_DIR
@@ -35,34 +34,14 @@ FULLWIDTH_PUNCTUATION = frozenset(chr(ord(char) + 0xFEE0) for char in ASCII_PUNC
 JAPANESE_BRACKETS = frozenset("「」『』【】〈〉《》〔〕｢｣")
 JAPANESE_PUNCTUATION = frozenset("、､。｡・･ーｰ") | JAPANESE_BRACKETS
 VARIATION_SELECTORS = frozenset("\ufe0e\ufe0f")
-SUPPORTED_SYMBOLS = ASCII_PUNCTUATION | FULLWIDTH_PUNCTUATION | JAPANESE_PUNCTUATION
-KAOMOJI_PRESETS: dict[str, tuple[str, ...]] = {
-    "happy": ("(^O^)", "(≧▽≦)", "(*´▽｀*)", "ヽ(=´▽`=)ﾉ"),
-    "cute": ("(๑•﹏•)", "(｡◕‿◕｡)", "(❁´ω`❁)", "٩꒰｡•◡•｡꒱۶"),
-    "greeting": ("(^-^)/", "m(_ _)m", "＼(^o^)／", "ヾ(＾∇＾)"),
-    "shy": ("(/ω＼)", "(//∇//)", "(*ﾉωﾉ)", "(〃▽〃)"),
-    "love": ("(づ｡◕‿‿◕｡)づ", "(人❛ᴗ❛)", "(♡˙︶˙♡)", "(*˘︶˘*).｡.:*♡"),
-    "sad": ("(T_T)", "(；ω；)", "(｡•́︿•̀｡)", "(╥﹏╥)"),
-    "angry": ("(｀Д´)", "(╬ಠ益ಠ)", "ヽ(｀Д´)ﾉ", "(＃`Д´)"),
-    "surprised": ("(ﾟ∀ﾟ)", "(⊙ꇴ⊙)", "Σ(ﾟДﾟ)", "(°□°)"),
-    "sweat": ("(^_^;)", "(；´Д｀)", "(汗)", "(・_・;)"),
-    "sleepy": ("(-_-)zzz", "(＿ ＿*) Z z z", "(∪｡∪)｡｡｡zzz", "(´-ω-`)"),
-    "shrug": ("¯\\_(ツ)_/¯", "┐(´∀｀)┌", "╮(╯_╰)╭", "┐(´д｀)┌"),
-    "action": ("(╯°□°)╯︵ ┻━┻", "o(≧▽≦)o", "٩(ˊᗜˋ*)و", "∑d(°∀°d)"),
-    "animal": ("ฅ^•ﻌ•^ฅ", "(·(ｪ)·)", "(▽◕ ᴥ ◕▽)", "⊂((〃￣⊥￣〃))⊃"),
-}
-KAOMOJI_TEXTS = frozenset(kaomoji for values in KAOMOJI_PRESETS.values() for kaomoji in values)
-KAOMOJI_MATCHES = tuple(sorted(KAOMOJI_TEXTS, key=len, reverse=True))
-KAOMOJI_FONT_FAMILIES = (
-    "Yu Gothic UI",
-    "Meiryo",
-    "MS Gothic",
-    "Segoe UI Symbol",
-    "Segoe UI",
-    "Tahoma",
-    "Leelawadee UI",
-    "Nirmala UI",
-    "Microsoft Yi Baiti",
+SUPPORTED_EMOTICON_SYMBOLS = frozenset(
+    "¯´¨°•·˙˘◕‿﹏︿︶╥ಠꇴﻌฅ≧≦∇▽□╯╰╮╭┐┌┻━︵♡❁๑⊙Дд∀∑ᗜˊˋ٩و꒰꒱۶❛ᴗ◡ᴥ⊂⊃∪╬⊥ω"
+)
+SUPPORTED_SYMBOLS = (
+    ASCII_PUNCTUATION
+    | FULLWIDTH_PUNCTUATION
+    | JAPANESE_PUNCTUATION
+    | SUPPORTED_EMOTICON_SYMBOLS
 )
 SMALL_KANA = frozenset("ぁぃぅぇぉっゃゅょゎゕゖァィゥェォッャュョヮヵヶ")
 HALFWIDTH_KATAKANA = frozenset(chr(codepoint) for codepoint in range(0xFF66, 0xFF9E))
@@ -171,7 +150,6 @@ class WritingToken:
     span: float = 1.0
     subcells: int = 1
     is_whitespace: bool = False
-    is_kaomoji: bool = False
 
 
 @dataclass(frozen=True)
@@ -188,7 +166,6 @@ class GlyphPlacement:
     box_height: float = 0.0
     rotation_degrees: int = 0
     is_whitespace: bool = False
-    is_kaomoji: bool = False
     automatic_wrap_before: bool = False
 
 
@@ -423,144 +400,6 @@ def transform_kanjivg(
     )
 
 
-@lru_cache(maxsize=1)
-def _system_font_paths() -> tuple[str, ...]:
-    try:
-        from matplotlib.font_manager import findSystemFonts
-    except ModuleNotFoundError as exc:
-        raise SystemExit("缺少套件 matplotlib。請先安裝 requirements.txt。") from exc
-    return tuple(findSystemFonts())
-
-
-@lru_cache(maxsize=1)
-def _preferred_font_paths() -> tuple[str, ...]:
-    try:
-        from matplotlib.font_manager import FontProperties, findfont
-    except ModuleNotFoundError as exc:
-        raise SystemExit("缺少套件 matplotlib。請先安裝 requirements.txt。") from exc
-    paths: list[str] = []
-    for family in KAOMOJI_FONT_FAMILIES:
-        prop = FontProperties(family=family)
-        try:
-            path = findfont(prop, fallback_to_default=False)
-        except ValueError:
-            continue
-        if path not in paths:
-            paths.append(path)
-    return tuple(paths)
-
-
-@lru_cache(maxsize=4096)
-def _font_supports_char(font_path: str, codepoint: int) -> bool:
-    try:
-        from matplotlib.ft2font import FT2Font
-    except ModuleNotFoundError as exc:
-        raise SystemExit("缺少套件 matplotlib。請先安裝 requirements.txt。") from exc
-    try:
-        return codepoint in FT2Font(font_path).get_charmap()
-    except Exception:
-        return False
-
-
-@lru_cache(maxsize=4096)
-def _font_path_for_char(char: str) -> str | None:
-    codepoint = ord(char)
-    for path in _preferred_font_paths():
-        if _font_supports_char(path, codepoint):
-            return path
-    for path in _system_font_paths():
-        if _font_supports_char(path, codepoint):
-            return path
-    return _preferred_font_paths()[0] if _preferred_font_paths() else None
-
-
-def _kaomoji_font_properties(char: str, font_size: float):
-    try:
-        from matplotlib.font_manager import FontProperties
-    except ModuleNotFoundError as exc:
-        raise SystemExit("缺少套件 matplotlib。請先安裝 requirements.txt。") from exc
-    path = _font_path_for_char(char)
-    if path:
-        return FontProperties(fname=path, size=font_size)
-    return FontProperties(family=KAOMOJI_FONT_FAMILIES, size=font_size)
-
-
-def load_text_outline_paths(text: str, font_size: float, sample_spacing: float) -> tuple[PathList, float, float]:
-    try:
-        from matplotlib.path import Path as MplPath
-        from matplotlib.textpath import TextPath
-        from matplotlib.textpath import TextToPath
-    except ModuleNotFoundError as exc:
-        raise SystemExit("缺少套件 matplotlib。請先安裝 requirements.txt。") from exc
-
-    text_to_path = TextToPath()
-    raw_paths: PathList = []
-    cursor_x = 0.0
-    for char in text:
-        prop = _kaomoji_font_properties(char, font_size)
-        if char.isspace():
-            width, _height, _descent = text_to_path.get_text_width_height_descent(char, prop, ismath=False)
-            cursor_x += max(float(width), font_size * 0.35)
-            continue
-        text_path = TextPath((cursor_x, 0), char, size=font_size, prop=prop)
-        current: list[Point] = []
-        previous: Point | None = None
-        for vertices, code in text_path.iter_segments(curves=False, simplify=False):
-            if code == MplPath.STOP:
-                break
-            point = (float(vertices[0]), float(vertices[1]))
-            if code == MplPath.MOVETO:
-                if len(current) >= 2:
-                    raw_paths.append(current)
-                current = [point]
-            elif code == MplPath.CLOSEPOLY:
-                if current:
-                    current.append(current[0])
-                    if len(current) >= 2:
-                        raw_paths.append(current)
-                current = []
-            else:
-                if not current:
-                    current = [previous] if previous is not None else [point]
-                current.append(point)
-            previous = point
-        if len(current) >= 2:
-            raw_paths.append(current)
-        width, _height, _descent = text_to_path.get_text_width_height_descent(char, prop, ismath=False)
-        bbox = text_path.get_extents()
-        cursor_x += max(float(width), float(bbox.x1 - cursor_x), font_size * 0.25)
-
-    if not raw_paths:
-        return [], max(1.0, cursor_x), font_size
-    min_x, min_y, max_x, max_y = bounds(raw_paths)
-    min_x = min(0.0, min_x)
-    max_x = max(cursor_x, max_x, min_x + 1.0)
-    glyph_height = max(1.0, max_y - min_y)
-    box_width = max(1.0, max_x - min_x)
-    box_height = max(font_size, glyph_height)
-    pad_y = max(0.0, (box_height - glyph_height) / 2)
-    paths = [[(x - min_x, pad_y + max_y - y) for x, y in path] for path in raw_paths]
-    filtered: PathList = []
-    for path in paths:
-        reduced: list[Point] = []
-        for point in path:
-            if not reduced:
-                reduced.append(point)
-                continue
-            last_x, last_y = reduced[-1]
-            if ((point[0] - last_x) ** 2 + (point[1] - last_y) ** 2) ** 0.5 >= max(sample_spacing, 0.1):
-                reduced.append(point)
-        if reduced[-1] != path[-1]:
-            reduced.append(path[-1])
-        if len(reduced) >= 2:
-            filtered.append(reduced)
-    return filtered, box_width, box_height
-
-
-def translate_paths(paths: PathList, origin_x: float, origin_y: float) -> PathList:
-    return [[(x + origin_x, y + origin_y) for x, y in path] for path in paths]
-
-
 def move_paths_to_opposite_corner(paths: PathList, source_bounds: PathBounds) -> PathList:
     min_x, min_y, max_x, max_y = bounds(paths)
     source_min_x, source_min_y, source_max_x, source_max_y = source_bounds
@@ -619,31 +458,10 @@ def _gap_between_tokens(previous: WritingToken, current: WritingToken, gap: floa
     return gap
 
 
-def _match_kaomoji(text: str, source_index: int) -> str | None:
-    for kaomoji in KAOMOJI_MATCHES:
-        if text.startswith(kaomoji, source_index):
-            return kaomoji
-    return None
-
-
 def tokenize_writing_text(text: str) -> list[WritingToken]:
     tokens: list[WritingToken] = []
     source_index = 0
     while source_index < len(text):
-        matched_kaomoji = _match_kaomoji(text, source_index)
-        if matched_kaomoji:
-            tokens.append(
-                WritingToken(
-                    text=matched_kaomoji,
-                    resource_char=matched_kaomoji,
-                    source_index=source_index,
-                    source_length=len(matched_kaomoji),
-                    is_kaomoji=True,
-                )
-            )
-            source_index += len(matched_kaomoji)
-            continue
-
         char = text[source_index]
         if char in VARIATION_SELECTORS:
             source_index += 1
@@ -766,29 +584,10 @@ def build_layout(
 
         span = token.span
         subcells = token.subcells
-        outline_paths: PathList | None = None
-        if token.is_kaomoji:
-            outline_paths, outline_width, outline_height = load_text_outline_paths(
-                token.text,
-                size,
-                environment.sample_spacing,
-            )
-            if not outline_paths:
-                raise UnsupportedCharacterError(
-                    "missing_character",
-                    index=token.source_index + 1,
-                    char=token.text,
-                )
-            box_width = outline_width
-            box_height = outline_height
-            extent = box_width if general.orientation is Orientation.HORIZONTAL else box_height
-            cross_extent = box_height if general.orientation is Orientation.HORIZONTAL else box_width
-            span = extent / size
-        else:
-            extent = _token_extent(span, subcells, size, general.char_gap)
-            box_width = extent if general.orientation is Orientation.HORIZONTAL else size
-            box_height = size if general.orientation is Orientation.HORIZONTAL else extent
-            cross_extent = box_height if general.orientation is Orientation.HORIZONTAL else box_width
+        extent = _token_extent(span, subcells, size, general.char_gap)
+        box_width = extent if general.orientation is Orientation.HORIZONTAL else size
+        box_height = size if general.orientation is Orientation.HORIZONTAL else extent
+        cross_extent = box_height if general.orientation is Orientation.HORIZONTAL else box_width
         gap_before = (
             _gap_between_tokens(previous_token, token, general.char_gap)
             if previous_token is not None
@@ -816,11 +615,7 @@ def build_layout(
             )
             placement_y = cursor_y
         else:
-            placement_x = (
-                cursor_x + size - box_width
-                if general.flow is FlowDirection.LEFT and token.is_kaomoji
-                else cursor_x
-            )
+            placement_x = cursor_x
             placement_y = cursor_y + gap_before
 
         rotation_degrees = vertical_rotation_for_token(token, general.orientation)
@@ -837,16 +632,11 @@ def build_layout(
             box_height=box_height,
             rotation_degrees=rotation_degrees,
             is_whitespace=token.is_whitespace,
-            is_kaomoji=token.is_kaomoji,
             automatic_wrap_before=automatic_wrap,
         )
         result.placements.append(placement)
 
-        if token.is_kaomoji:
-            assert outline_paths is not None
-            result.paths.extend(translate_paths(outline_paths, placement_x, placement_y))
-            result.kanjivg_chars.append(token.text)
-        elif not token.is_whitespace:
+        if not token.is_whitespace:
             if not is_supported_writing_char(token.resource_char):
                 raise UnsupportedCharacterError(
                     "unsupported_character",

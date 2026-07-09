@@ -57,23 +57,17 @@ class JapaneseWriterUiTests(unittest.TestCase):
         self.assertIn("起始座標", help_text)
         self.assertIn("末端座標", help_text)
         self.assertIn("顏文字", help_text)
-        self.assertIn("輪廓", help_text)
+        self.assertIn("中心線符號", help_text)
         self.assertIn("左上角", help_text)
         self.assertIn("右上角", help_text)
         self.assertIn("ESC", help_text)
         self.assertNotIn("安裝", help_text)
         self.assertNotIn("SmartScreen", help_text)
 
-    def test_kaomoji_picker_inserts_selected_face(self) -> None:
-        self.assertEqual(self.app.kaomoji_category.get(), "笑／開心")
-        self.assertGreater(self.app.kaomoji_list.size(), 0)
-        self.app.text_input.delete("1.0", "end")
-        self.app.kaomoji_list.selection_clear(0, "end")
-        self.app.kaomoji_list.selection_set(0)
-        selected = self.app.kaomoji_list.get(0)
-        self.app.insert_selected_kaomoji()
-        self.assertEqual(self.app.text_input.get("1.0", "end-1c"), selected)
-        self.assertIn("顏文字", self.app.status.get())
+    def test_kaomoji_picker_is_removed(self) -> None:
+        self.assertFalse(hasattr(self.app, "kaomoji_category"))
+        self.assertFalse(hasattr(self.app, "kaomoji_list"))
+        self.assertFalse(hasattr(self.app, "insert_selected_kaomoji"))
 
     def test_startup_and_operation_restore_zoomed_state(self) -> None:
         with patch.object(self.root, "state") as state:
@@ -120,7 +114,6 @@ class JapaneseWriterUiTests(unittest.TestCase):
         self.assertEqual(self.app.notebook.tab(0, "text"), "Content & Preview")
         self.assertEqual(self.app.notebook.tab(3, "text"), "Help")
         self.assertIn("start and end coordinates", self.app.help_text.get("1.0", "end-1c"))
-        self.assertEqual(self.app.kaomoji_category.get(), "Happy")
         self.assertEqual(self.app.orientation.get(), "Horizontal")
         self.assertIn("language", self.app.status.get().lower())
         self.assertEqual(

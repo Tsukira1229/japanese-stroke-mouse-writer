@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Project-authored centerline stroke data for U+06F6. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 109 109">
+  <path id="custom:006f6-s1" d="M35,28 C63,20 82,40 74,63 C67,84 43,86 32,72" />
+  <path id="custom:006f6-s2" d="M74,63 L91,42" />
+</svg>

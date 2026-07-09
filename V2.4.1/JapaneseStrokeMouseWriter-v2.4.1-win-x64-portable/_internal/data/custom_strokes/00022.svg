@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Project-authored centerline stroke data for U+0022 QUOTATION MARK. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 109 109">
+  <path id="custom:00022-s1" d="M40,19 C40,26 38,32 35,37" />
+  <path id="custom:00022-s2" d="M68,19 C68,26 66,32 63,37" />
+</svg>

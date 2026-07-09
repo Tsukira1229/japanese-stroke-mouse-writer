@@ -18,10 +18,9 @@ from mouse_writer_pro import (
     JAPANESE_BRACKETS,
     JAPANESE_PUNCTUATION,
     KANJIVG_VIEWBOX,
-    KAOMOJI_PRESETS,
-    KAOMOJI_TEXTS,
     SMALL_KANA,
     STROKE_ALIASES,
+    SUPPORTED_EMOTICON_SYMBOLS,
     SUPPORTED_SYMBOLS,
     VARIATION_SELECTORS,
     VERTICAL_CORNER_PUNCTUATION,
@@ -40,7 +39,6 @@ from mouse_writer_pro import (
     interruptible_sleep,
     is_halfwidth_char,
     is_supported_writing_char,
-    load_text_outline_paths,
     load_kanjivg_strokes,
     tokenize_writing_text,
 )
@@ -58,6 +56,12 @@ SYMBOL_PAIR_TEXT = ASCII_PUNCTUATION_TEXT + FULLWIDTH_PUNCTUATION_TEXT + JAPANES
 
 
 class LayoutTests(unittest.TestCase):
+    def test_font_dependent_kaomoji_code_is_removed(self) -> None:
+        source = (Path(__file__).resolve().parents[1] / "mouse_writer_pro.py").read_text(encoding="utf-8")
+        for phrase in ("KAOMOJI_", "TextPath", "TextToPath", "load_text_outline_paths", "is_kaomoji"):
+            with self.subTest(phrase=phrase):
+                self.assertNotIn(phrase, source)
+
     def layout(self, orientation: Orientation, flow: FlowDirection):
         start_x = 300 if flow is FlowDirection.LEFT else 100
         if orientation is Orientation.HORIZONTAL:
@@ -202,50 +206,43 @@ class LayoutTests(unittest.TestCase):
                 strokes = load_kanjivg_strokes(char, DEFAULT_KANJIVG_DIR, 2.0)
                 self.assertTrue(strokes)
 
-    def test_curated_kaomoji_are_single_outline_tokens(self) -> None:
-        self.assertGreaterEqual(len(KAOMOJI_TEXTS), 40)
-        expected_categories = {
-            "happy", "cute", "greeting", "shy", "love", "sad", "angry",
-            "surprised", "sweat", "sleepy", "shrug", "action", "animal",
-        }
-        self.assertEqual(set(KAOMOJI_PRESETS), expected_categories)
-        for text in KAOMOJI_TEXTS:
-            with self.subTest(text=text):
-                tokens = tokenize_writing_text(text)
-                self.assertEqual(len(tokens), 1)
-                self.assertTrue(tokens[0].is_kaomoji)
-                paths, width, height = load_text_outline_paths(text, 100, 2.0)
-                self.assertTrue(paths)
-                self.assertGreater(width, 0)
-                self.assertGreaterEqual(height, 100)
+    def test_emoticon_symbols_have_centerline_strokes(self) -> None:
+        self.assertGreaterEqual(len(SUPPORTED_EMOTICON_SYMBOLS), 50)
+        for char in SUPPORTED_EMOTICON_SYMBOLS:
+            with self.subTest(char=char):
+                self.assertTrue(is_supported_writing_char(char))
+                strokes = load_kanjivg_strokes(char, DEFAULT_KANJIVG_DIR, 2.0)
+                self.assertTrue(strokes)
 
-    def test_kaomoji_layout_uses_outline_paths_and_keeps_run_together(self) -> None:
+    def test_emoticons_are_character_tokens_without_outline_runs(self) -> None:
+        text = "(≧▽≦)(╯°□°)╯︵ ┻━┻"
+        tokens = tokenize_writing_text(text)
+        self.assertEqual("".join(token.text for token in tokens), text)
+        self.assertTrue(all(token.source_length == 1 for token in tokens))
         result = build_layout(
-            "(^O^)(≧▽≦)",
+            text,
             DEFAULT_KANJIVG_DIR,
-            LayoutSettings(start_x=0, start_y=0, general=GeneralSettings(font_size=100, char_gap=10)),
+            LayoutSettings(start_x=0, start_y=0, end_x=2000, end_y=500, general=GeneralSettings(font_size=80)),
         )
-        self.assertEqual([placement.char for placement in result.placements], ["(^O^)", "(≧▽≦)"])
-        self.assertTrue(all(placement.is_kaomoji for placement in result.placements))
-        self.assertGreater(result.placements[0].box_width, 100)
+        self.assertEqual([placement.char for placement in result.placements], list(text))
         self.assertGreater(len(result.paths), 0)
 
-    def test_kaomoji_does_not_wrap_in_the_middle(self) -> None:
-        narrow = 180
-        with self.assertRaises(LayoutOverflowError):
-            build_layout(
-                "(╯°□°)╯︵ ┻━┻",
-                DEFAULT_KANJIVG_DIR,
-                LayoutSettings(
-                    start_x=0,
-                    start_y=0,
-                    end_x=narrow,
-                    end_y=300,
-                    general=GeneralSettings(font_size=100),
-                ),
-            )
+    def test_emoticon_layout_wraps_by_character(self) -> None:
+        result = build_layout(
+            "(╯°□°)╯︵ ┻━┻",
+            DEFAULT_KANJIVG_DIR,
+            LayoutSettings(
+                start_x=0,
+                start_y=0,
+                end_x=180,
+                end_y=1600,
+                general=GeneralSettings(font_size=100),
+            ),
+        )
+        self.assertTrue(result.automatic_wraps)
+        self.assertEqual("".join(item.char for item in result.placements), "(╯°□°)╯︵ ┻━┻")
 
-    def test_kaomoji_layout_in_all_directions(self) -> None:
+    def test_emoticon_symbol_layout_in_all_directions(self) -> None:
         text = "(^O^) m(_ _)m ¯\\_(ツ)_/¯"
         for orientation in Orientation:
             for flow in FlowDirection:
@@ -270,7 +267,6 @@ class LayoutTests(unittest.TestCase):
                         ),
                     )
                     self.assertEqual("".join(item.char for item in result.placements), text)
-                    self.assertTrue(any(item.is_kaomoji for item in result.placements))
                     min_x, min_y, max_x, max_y = result.canvas_bounds
                     self.assertTrue(all(min_x <= x <= max_x and min_y <= y <= max_y for path in result.paths for x, y in path))
 
