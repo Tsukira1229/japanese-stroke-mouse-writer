@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Project-authored centerline stroke data for U+0F3D. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 109 109">
+  <path id="custom:00f3d-s1" d="M31,18 C61,28 78,43 78,63 C78,82 60,94 31,101" />
+  <path id="custom:00f3d-s2" d="M54,35 C64,44 64,73 54,82" />
+</svg>

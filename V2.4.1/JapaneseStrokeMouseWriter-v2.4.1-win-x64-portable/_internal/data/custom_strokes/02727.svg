@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Project-authored centerline stroke data for U+2727. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 109 109">
+  <path id="custom:02727-s1" d="M54,14 L63,45 L94,54 L63,63 L54,94 L45,63 L14,54 L45,45 L54,14" />
+</svg>

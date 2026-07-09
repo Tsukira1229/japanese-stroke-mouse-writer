@@ -271,7 +271,7 @@ class LayoutTests(unittest.TestCase):
                     self.assertTrue(all(min_x <= x <= max_x and min_y <= y <= max_y for path in result.paths for x, y in path))
 
     def test_unsuitable_pictorial_symbols_are_not_supported(self) -> None:
-        for char in "♔☀☺●✿☆":
+        for char in "♔☀☺●⚑☂":
             with self.subTest(char=char):
                 self.assertFalse(is_supported_writing_char(char))
                 with self.assertRaises(UnsupportedCharacterError):

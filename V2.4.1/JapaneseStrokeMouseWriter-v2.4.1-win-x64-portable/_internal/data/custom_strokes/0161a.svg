@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Project-authored centerline stroke data for U+161A. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 109 109">
+  <path id="custom:0161a-s1" d="M30,20 C64,25 84,42 84,55 C84,68 64,85 30,90" />
+  <path id="custom:0161a-s2" d="M60,37 L39,55 L60,73" />
+</svg>

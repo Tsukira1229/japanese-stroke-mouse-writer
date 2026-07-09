@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Project-authored centerline stroke data for U+0E07. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 109 109">
+  <path id="custom:00e07-s1" d="M42,28 C31,44 35,75 55,82 C75,75 79,44 66,28" />
+  <path id="custom:00e07-s2" d="M55,82 L79,93" />
+</svg>

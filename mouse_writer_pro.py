@@ -36,6 +36,8 @@ JAPANESE_PUNCTUATION = frozenset("、､。｡・･ーｰ") | JAPANESE_BRACKETS
 VARIATION_SELECTORS = frozenset("\ufe0e\ufe0f")
 SUPPORTED_EMOTICON_SYMBOLS = frozenset(
     "¯´¨°•·˙˘◕‿﹏︿︶╥ಠꇴﻌฅ≧≦∇▽□╯╰╮╭┐┌┻━︵♡❁๑⊙Дд∀∑ᗜˊˋ٩و꒰꒱۶❛ᴗ◡ᴥ⊂⊃∪╬⊥ω"
+    "ʘ¬≖◔◉◎☉꒪꒦꒨ᵔᵕᵒ˶˃˂ᵘзεºლღ♥✿✧✦✩✪☼☾⁄୧୨งᕦᕤᕙᕗᕕʕʔᘛᘚ"
+    "༼༽ᐠᐟᐢᐡᐛᐕᐖᵇᵈᵗㅅㅂㅁㅇㅈㅎㅜㅠᆺ"
 )
 SUPPORTED_SYMBOLS = (
     ASCII_PUNCTUATION

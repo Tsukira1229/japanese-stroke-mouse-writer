@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Project-authored centerline stroke data for U+11BA. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 109 109">
+  <path id="custom:011ba-s1" d="M54,28 L25,83" />
+  <path id="custom:011ba-s2" d="M54,28 L84,83" />
+</svg>

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Project-authored centerline stroke data for U+141B. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 109 109">
+  <path id="custom:0141b-s1" d="M24,38 L54,74 L85,38" />
+  <path id="custom:0141b-s2" d="M24,76 L85,76" />
+</svg>
