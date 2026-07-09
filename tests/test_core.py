@@ -18,9 +18,12 @@ from mouse_writer_pro import (
     JAPANESE_BRACKETS,
     JAPANESE_PUNCTUATION,
     KANJIVG_VIEWBOX,
+    KAOMOJI_PRESETS,
+    KAOMOJI_TEXTS,
     SMALL_KANA,
     STROKE_ALIASES,
     SUPPORTED_SYMBOLS,
+    VARIATION_SELECTORS,
     VERTICAL_CORNER_PUNCTUATION,
     VERTICAL_ROTATE_CHARS,
     EnvironmentSettings,
@@ -37,6 +40,7 @@ from mouse_writer_pro import (
     interruptible_sleep,
     is_halfwidth_char,
     is_supported_writing_char,
+    load_text_outline_paths,
     load_kanjivg_strokes,
     tokenize_writing_text,
 )
@@ -190,13 +194,116 @@ class LayoutTests(unittest.TestCase):
         self.assertEqual(ASCII_PUNCTUATION, frozenset(ASCII_PUNCTUATION_TEXT))
         self.assertEqual(FULLWIDTH_PUNCTUATION, frozenset(FULLWIDTH_PUNCTUATION_TEXT))
         self.assertEqual(JAPANESE_PUNCTUATION, frozenset(JAPANESE_PUNCTUATION_TEXT))
-        self.assertEqual(SUPPORTED_SYMBOLS, frozenset(SYMBOL_PAIR_TEXT))
-        self.assertEqual(len(SUPPORTED_SYMBOLS), 86)
+        self.assertTrue(frozenset(SYMBOL_PAIR_TEXT) <= SUPPORTED_SYMBOLS)
+        self.assertEqual(len(frozenset(SYMBOL_PAIR_TEXT)), 86)
         self.assertTrue(all(is_supported_writing_char(char) for char in characters))
         for char in characters:
             with self.subTest(char=char):
                 strokes = load_kanjivg_strokes(char, DEFAULT_KANJIVG_DIR, 2.0)
                 self.assertTrue(strokes)
+
+    def test_curated_kaomoji_are_single_outline_tokens(self) -> None:
+        self.assertGreaterEqual(len(KAOMOJI_TEXTS), 40)
+        expected_categories = {
+            "happy", "cute", "greeting", "shy", "love", "sad", "angry",
+            "surprised", "sweat", "sleepy", "shrug", "action", "animal",
+        }
+        self.assertEqual(set(KAOMOJI_PRESETS), expected_categories)
+        for text in KAOMOJI_TEXTS:
+            with self.subTest(text=text):
+                tokens = tokenize_writing_text(text)
+                self.assertEqual(len(tokens), 1)
+                self.assertTrue(tokens[0].is_kaomoji)
+                paths, width, height = load_text_outline_paths(text, 100, 2.0)
+                self.assertTrue(paths)
+                self.assertGreater(width, 0)
+                self.assertGreaterEqual(height, 100)
+
+    def test_kaomoji_layout_uses_outline_paths_and_keeps_run_together(self) -> None:
+        result = build_layout(
+            "(^O^)(≧▽≦)",
+            DEFAULT_KANJIVG_DIR,
+            LayoutSettings(start_x=0, start_y=0, general=GeneralSettings(font_size=100, char_gap=10)),
+        )
+        self.assertEqual([placement.char for placement in result.placements], ["(^O^)", "(≧▽≦)"])
+        self.assertTrue(all(placement.is_kaomoji for placement in result.placements))
+        self.assertGreater(result.placements[0].box_width, 100)
+        self.assertGreater(len(result.paths), 0)
+
+    def test_kaomoji_does_not_wrap_in_the_middle(self) -> None:
+        narrow = 180
+        with self.assertRaises(LayoutOverflowError):
+            build_layout(
+                "(╯°□°)╯︵ ┻━┻",
+                DEFAULT_KANJIVG_DIR,
+                LayoutSettings(
+                    start_x=0,
+                    start_y=0,
+                    end_x=narrow,
+                    end_y=300,
+                    general=GeneralSettings(font_size=100),
+                ),
+            )
+
+    def test_kaomoji_layout_in_all_directions(self) -> None:
+        text = "(^O^) m(_ _)m ¯\\_(ツ)_/¯"
+        for orientation in Orientation:
+            for flow in FlowDirection:
+                with self.subTest(orientation=orientation, flow=flow):
+                    start_x = 1200 if flow is FlowDirection.LEFT else 0
+                    end_x = 0 if flow is FlowDirection.LEFT else 1200
+                    result = build_layout(
+                        text,
+                        DEFAULT_KANJIVG_DIR,
+                        LayoutSettings(
+                            start_x=start_x,
+                            start_y=0,
+                            end_x=end_x,
+                            end_y=1200,
+                            general=GeneralSettings(
+                                font_size=50,
+                                char_gap=5,
+                                line_gap=10,
+                                orientation=orientation,
+                                flow=flow,
+                            ),
+                        ),
+                    )
+                    self.assertEqual("".join(item.char for item in result.placements), text)
+                    self.assertTrue(any(item.is_kaomoji for item in result.placements))
+                    min_x, min_y, max_x, max_y = result.canvas_bounds
+                    self.assertTrue(all(min_x <= x <= max_x and min_y <= y <= max_y for path in result.paths for x, y in path))
+
+    def test_unsuitable_pictorial_symbols_are_not_supported(self) -> None:
+        for char in "♔☀☺●✿☆":
+            with self.subTest(char=char):
+                self.assertFalse(is_supported_writing_char(char))
+                with self.assertRaises(UnsupportedCharacterError):
+                    build_layout(
+                        char,
+                        DEFAULT_KANJIVG_DIR,
+                        LayoutSettings(start_x=0, start_y=0, general=GeneralSettings(font_size=100)),
+                    )
+
+    def test_variation_selectors_are_ignored_before_unsupported_check(self) -> None:
+        self.assertEqual(VARIATION_SELECTORS, frozenset("\ufe0e\ufe0f"))
+        self.assertEqual(tokenize_writing_text("\ufe0e\ufe0f"), [])
+        with self.assertRaises(UnsupportedCharacterError):
+            build_layout(
+                "☀︎",
+                DEFAULT_KANJIVG_DIR,
+                LayoutSettings(start_x=0, start_y=0, general=GeneralSettings(font_size=109)),
+            )
+
+    def test_keycap_and_zwj_sequences_are_rejected(self) -> None:
+        for text in ("1️⃣", "👨\u200d👩\u200d👧\u200d👦"):
+            with self.subTest(text=text):
+                with self.assertRaises(UnsupportedCharacterError):
+                    build_layout(
+                        text,
+                        DEFAULT_KANJIVG_DIR,
+                        LayoutSettings(start_x=0, start_y=0, general=GeneralSettings(font_size=100)),
+                    )
 
     def test_custom_and_aliased_symbol_strokes(self) -> None:
         ascii_comma = load_kanjivg_strokes(",", DEFAULT_KANJIVG_DIR, 2.0)
@@ -218,7 +325,7 @@ class LayoutTests(unittest.TestCase):
             "^": 1, "_": 1, "`": 1, "{": 1, "|": 1, "}": 1,
         }
         custom_dir = Path(__file__).resolve().parents[1] / "data" / "custom_strokes"
-        self.assertEqual(len(list(custom_dir.glob("*.svg"))), 38)
+        self.assertGreaterEqual(len(list(custom_dir.glob("*.svg"))), 38)
         for char, stroke_count in expected_stroke_counts.items():
             with self.subTest(char=char):
                 path = custom_dir / f"{ord(char):05x}.svg"

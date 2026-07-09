@@ -24,7 +24,7 @@ The Portable build includes open-source Python and Python packages. Direct proje
 
 These packages may include transitive open-source dependencies under their respective licenses. Their original copyright and license terms remain in effect.
 
-## Project-authored stroke data
+## Project-authored stroke and kaomoji data
 
 The centerline SVG paths for U+FF5E FULLWIDTH TILDE (`～`), U+0040 COMMERCIAL AT (`@`), the Japanese brackets `「」『』【】〈〉《》〔〕`, and the following 24 ASCII punctuation characters were created specifically for this project and are not third-party data:
 
@@ -33,3 +33,5 @@ The centerline SVG paths for U+FF5E FULLWIDTH TILDE (`～`), U+0040 COMMERCIAL A
 ```
 
 Fullwidth aliases use the corresponding ASCII source path. Project-authored stroke data is licensed under the project MIT License. Characters that resolve to included KanjiVG paths remain subject to the KanjiVG terms above.
+
+V2.4.0 adds a project-curated kaomoji preset list. The list is written in this repository as plain text examples and is not copied wholesale from any one external source. Kaomoji output paths are generated from the selected local Windows font outline at runtime.

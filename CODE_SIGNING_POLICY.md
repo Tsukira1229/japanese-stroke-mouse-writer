@@ -2,20 +2,20 @@
 
 ## Status
 
-The project is applying for the SignPath Foundation open-source code-signing program. V2.3.2 and earlier releases are unsigned. This policy becomes the active release-signing policy after the application is approved.
+The project applied for the SignPath Foundation open-source code-signing program, but the application was not approved at this time. Current releases, including V2.4.0, are unsigned.
 
-Free code signing provided by [SignPath.io](https://signpath.io/), certificate by [SignPath Foundation](https://signpath.org/).
+The project does not currently have an active Authenticode signing workflow, signing certificate, signing request process, or planned signed release. If code signing is introduced in the future, this policy will be updated before any signed artifact is published.
 
 ## Team roles
 
 - Committer and reviewer: [Tsukira1229](https://github.com/Tsukira1229)
-- Signing approver: [Tsukira1229](https://github.com/Tsukira1229)
+- Release approver: [Tsukira1229](https://github.com/Tsukira1229)
 
-Changes from contributors without commit access must be reviewed before they are merged. Every signing request requires manual approval by the signing approver.
+Changes from contributors without commit access must be reviewed before they are merged. Release artifacts are built from the repository source and published with a SHA-256 checksum.
 
-## Signed artifacts
+## Unsigned artifacts
 
-Only `JapaneseStrokeMouseWriter.exe`, built by the public GitHub Actions workflow from this repository, will be signed with the project's certificate. Bundled third-party executables and libraries will not be re-signed with the project's certificate.
+Portable ZIP releases contain an unsigned `JapaneseStrokeMouseWriter.exe`. Windows SmartScreen may display an unknown-publisher warning. Users should download releases from the project GitHub repository and verify the provided SHA-256 checksum when possible.
 
 ## Privacy
 

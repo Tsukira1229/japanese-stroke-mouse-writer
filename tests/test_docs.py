@@ -58,13 +58,16 @@ class DocumentationTests(unittest.TestCase):
             self.assertIn("0–9", text)
             self.assertIn("0.5", text)
             self.assertIn("ｶﾞ", text)
+            self.assertIn("keycap", text)
+            self.assertTrue("顏文字" in text or "Kaomoji" in text or "顔文字" in text)
+            self.assertTrue("輪廓" in text or "outline" in text or "アウトライン" in text)
             for pair in symbol_pairs:
                 self.assertIn(pair, text)
 
     def test_all_documents_use_current_version(self) -> None:
         for document in DOCS:
             text = document.read_text(encoding="utf-8")
-            self.assertIn("V2.3.2", text)
+            self.assertIn("V2.4.0", text)
             self.assertNotIn("V2.3.1", text)
 
     def test_license_privacy_and_code_signing_policy_are_public(self) -> None:
@@ -74,9 +77,28 @@ class DocumentationTests(unittest.TestCase):
         self.assertIn("MIT License", license_text)
         self.assertIn("Copyright (c) 2026 Tsukira1229", license_text)
         self.assertIn("Code signing policy", policy)
-        self.assertIn("Free code signing provided by", policy)
+        self.assertIn("was not approved", policy)
+        self.assertIn("Current releases", policy)
+        self.assertNotIn("Free code signing provided by", policy)
+        self.assertNotIn("active Authenticode signing workflow", policy.split("does not currently have", 1)[0])
         self.assertIn("Tsukira1229", policy)
         self.assertIn("will not transfer any information", privacy)
+
+    def test_signpath_status_is_not_pending_or_integrating(self) -> None:
+        forbidden = (
+            "正在申請",
+            "申請中",
+            "is applying",
+            "after the application is approved",
+            "Free code signing provided by",
+            "核准後",
+            "承認後",
+        )
+        for document in (*DOCS, *POLICY_DOCS):
+            text = document.read_text(encoding="utf-8")
+            for phrase in forbidden:
+                with self.subTest(document=document.name, phrase=phrase):
+                    self.assertNotIn(phrase, text)
 
     def test_ui_guidance_matches_bottom_status_bar_and_help_tab(self) -> None:
         old_descriptions = ("標題下方固定", "below the title", "タイトル下")
@@ -87,3 +109,4 @@ class DocumentationTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+

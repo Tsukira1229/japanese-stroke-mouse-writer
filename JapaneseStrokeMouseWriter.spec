@@ -40,5 +40,6 @@ coll = COLLECT(
     strip=False,
     upx=True,
     upx_exclude=[],
-    name="JapaneseStrokeMouseWriter-v2.3.2-win-x64-portable",
+    name="JapaneseStrokeMouseWriter-v2.4.0-win-x64-portable",
 )
+
