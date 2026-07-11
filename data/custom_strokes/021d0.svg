@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Project-authored centerline stroke data for U+21D0. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 109 109">
+  <path id="custom:021d0-s1" d="M85,59 L31,59" />
+  <path id="custom:021d0-s2" d="M85,50 L31,50" />
+  <path id="custom:021d0-s3" d="M40,74 L21,54.5 L40,35" />
+</svg>

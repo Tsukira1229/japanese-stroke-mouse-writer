@@ -2,7 +2,7 @@
 
 ## Status
 
-The project applied for the SignPath Foundation open-source code-signing program, but the application was not approved at this time. Current releases and internal builds, including V2.4.1, are unsigned.
+The project applied for the SignPath Foundation open-source code-signing program, but the application was not approved. Current releases, including V2.5.0, are unsigned.
 
 The project does not currently have an active Authenticode signing workflow, signing certificate, signing request process, or planned signed release. If code signing is introduced in the future, this policy will be updated before any signed artifact is published.
 

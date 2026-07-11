@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Project-authored centerline stroke data for U+25FC. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 109 109">
+  <path id="custom:025fc-s1" d="M17,17 L92,17 L92,92 L17,92 L17,17" />
+  <path id="custom:025fc-s2" d="M17,27 L27,17" />
+  <path id="custom:025fc-s3" d="M17,38 L38,17" />
+  <path id="custom:025fc-s4" d="M17,49 L49,17" />
+  <path id="custom:025fc-s5" d="M17,60 L60,17" />
+  <path id="custom:025fc-s6" d="M17,71 L71,17" />
+  <path id="custom:025fc-s7" d="M17,82 L82,17" />
+  <path id="custom:025fc-s8" d="M18,92 L92,18" />
+  <path id="custom:025fc-s9" d="M29,92 L92,29" />
+  <path id="custom:025fc-s10" d="M40,92 L92,40" />
+  <path id="custom:025fc-s11" d="M51,92 L92,51" />
+  <path id="custom:025fc-s12" d="M62,92 L92,62" />
+  <path id="custom:025fc-s13" d="M73,92 L92,73" />
+  <path id="custom:025fc-s14" d="M84,92 L92,84" />
+</svg>

@@ -1,5 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Project-authored centerline stroke data for U+3147. -->
+<!-- Reviewed centerline stroke data for U+3147. -->
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 109 109">
-  <path id="custom:03147-s1" d="M54,18 C74,18 91,35 91,55 C91,75 74,91 54,91 C34,91 18,75 18,55 C18,35 34,18 54,18" />
+  <path id="custom:03147-s1" d="M52.41,38.58 L61.14,39.12 L68.06,41.85 L74.24,46.95 L78.43,54.23 L79.70,62.23 L78.61,70.06 L75.15,76.61 L68.97,82.25" />
+  <path id="custom:03147-s2" d="M50.22,38.76 L52.23,38.76" />
+  <path id="custom:03147-s3" d="M43.13,40.76 L41.31,41.85" />
+  <path id="custom:03147-s4" d="M40.22,42.40 L38.03,44.04" />
+  <path id="custom:03147-s5" d="M37.67,44.22 L32.75,49.68 L29.66,58.96 L30.21,69.15 L34.03,76.79 L41.85,83.34 L49.50,85.89 L59.69,85.89 L68.42,82.61" />
 </svg>

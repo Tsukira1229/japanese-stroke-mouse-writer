@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Project-authored centerline stroke data for U+25AA. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 109 109">
+  <path id="custom:025aa-s1" d="M39,39 L70,39 L70,70 L39,70 L39,39" />
+  <path id="custom:025aa-s2" d="M39,49 L49,39" />
+  <path id="custom:025aa-s3" d="M39,60 L60,39" />
+  <path id="custom:025aa-s4" d="M40,70 L70,40" />
+  <path id="custom:025aa-s5" d="M51,70 L70,51" />
+  <path id="custom:025aa-s6" d="M62,70 L70,62" />
+</svg>

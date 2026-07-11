@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Reviewed centerline stroke data for U+228B. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 109 109">
+  <path id="custom:0228b-s1" d="M26.20,32.57 L59.69,32.57 L70.97,34.21 L76.06,36.76 L79.88,40.58 L82.80,50.41 L82.25,57.87 L80.07,62.96 L76.61,66.78 L70.79,69.69 L61.87,71.15 L26.20,71.15" />
+  <path id="custom:0228b-s2" d="M77.34,37.67 L78.79,39.12" />
+  <path id="custom:0228b-s3" d="M78.79,64.78 L77.52,66.06" />
+  <path id="custom:0228b-s4" d="M58.41,82.07 L56.23,88.80" />
+  <path id="custom:0228b-s5" d="M26.02,88.98 L82.98,88.98" />
+  <path id="custom:0228b-s6" d="M53.32,88.98 L52.23,93.71 L49.31,96.63" />
+</svg>

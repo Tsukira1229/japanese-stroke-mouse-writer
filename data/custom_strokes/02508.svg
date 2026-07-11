@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Project-authored Unicode box-drawing centerlines for U+2508. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 109 109">
+  <path id="custom:02508-s1" d="M0,54.5 L21.2,54.5" />
+  <path id="custom:02508-s2" d="M29.2,54.5 L50.5,54.5" />
+  <path id="custom:02508-s3" d="M58.5,54.5 L79.8,54.5" />
+  <path id="custom:02508-s4" d="M87.8,54.5 L109,54.5" />
+</svg>

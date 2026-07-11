@@ -1,35 +1,54 @@
-# Japanese Stroke Mouse Writer V2.4.1 Internal
+# Japanese Stroke Mouse Writer V2.5.0
 
-A portable Windows 10/11 x64 writing tool. It uses Windows SendInput to write Japanese, English letters, numbers, common symbols, halfwidth katakana, and centerline symbols that users can combine into kaomoji.
+A portable Windows 10/11 x64 mouse-writing tool. It converts Japanese text, alphanumeric characters, and supported symbols into centerline strokes, then writes them in Paint or another mouse-driven canvas.
 
 [繁體中文](README.md) / [日本語](README.ja.md)
 
 ## Installation
 
-V2.4.1 is an internal development build. It does not create a GitHub Release, tag, or ZIP. Use the uncompressed folder in this repository:
+1. Place the complete `JapaneseStrokeMouseWriter-v2.5.0-win-x64-portable` folder in a writable location such as Documents or Desktop.
+2. Do not move the EXE alone. Keep `_internal`, `user_data`, and all bundled files in their original relative locations.
+3. Run `JapaneseStrokeMouseWriter.exe`. Python and administrator privileges are not required.
+4. If Windows SmartScreen shows an unknown-publisher warning, verify that the files came from this project before choosing **More info** and **Run anyway**. The program is currently unsigned.
 
-1. Open `V2.4.1/JapaneseStrokeMouseWriter-v2.4.1-win-x64-portable/`.
-2. Run `JapaneseStrokeMouseWriter.exe`.
-3. Settings are written to `user_data/settings.json` beside the executable folder. Registry and AppData are not used.
+Settings are stored in `user_data/settings.json` inside the program folder. Registry and AppData are not used, so the folder must be writable by the current account.
+
+## Quick Start
+
+1. Open Paint or another target canvas and select its pen or pencil tool.
+2. Enter text in **Content & Preview**.
+3. Use **Detect start coordinates** and **Detect end coordinates** to define the writable rectangle.
+4. Adjust font size, character gap, line gap, orientation, and flow in **General Settings**.
+5. Click **Update preview** and confirm that every black writing path is inside the rectangle.
+6. Click **Start writing**, then switch to the target canvas during the countdown.
+
+See the [Complete Guide](complete-guide.en.md) for detailed instructions and coordinate directions.
 
 ## Features
 
-- Writes Japanese kana, kanji, English letters, numbers, halfwidth katakana, and common symbols using KanjiVG or project-authored centerline strokes.
-- Halfwidth characters occupy `0.5` cell; fullwidth and wide characters occupy `1` cell. Adjacent halfwidth characters use half the character gap; all other pairs use the full gap.
-- Users can type or paste kaomoji manually, such as `(^O^)`, `(≧▽≦)`, `m(_ _)m`, `(/ω＼)`, `¯\_(ツ)_/¯`, and `(╯°□°)╯︵ ┻━┻`.
-- Kaomoji no longer use built-in categories or font-dependent drawing. Every character is written one by one with centerline strokes.
-- Color emoji, keycap emoji, ZWJ sequences, and unsupported pictorial symbols are rejected before the mouse moves.
+- Writes Japanese kana, kanji, alphanumeric characters, halfwidth katakana, and symbols using KanjiVG or project-authored centerline SVG data.
+- Preserves spaces, Tab, explicit and repeated line breaks, and wraps automatically at the writable boundary.
+- Supports horizontal, vertical, right, and left layouts. Preview and mouse output use the same path data.
+- Halfwidth characters occupy `0.5` cell; fullwidth and wide characters occupy `1` cell. Adjacent halfwidth characters use half the character gap; other pairs use the full gap.
+- Saves font size, character gap, line gap, orientation, and flow as multiple named presets.
+- Accepts manually assembled Kaomoji such as `(^O^)`, `(≧▽≦)`, `m(_ _)m`, `(/ω＼)`, and `(╯°□°)╯︵ ┻━┻`. Each supported character is written with centerline strokes.
 
-## Supported Symbols
+## Supported Text
 
-Supported input includes `A–Z`, `a–z`, `0–9`, fullwidth alphanumerics, halfwidth katakana voiced pairs such as `ｶﾞ`, printable ASCII punctuation and fullwidth counterparts such as `#＃`, `(（`, `)）`, `[［`, `]］`, `@＠`, and `~～`. Japanese punctuation includes `、､`, `。｡`, `・･`, `ーｰ`, `「」`, `【】`, and `｢｣`.
+Supported input includes Japanese kana, kanji available in KanjiVG, `A–Z`, `a–z`, `0–9`, fullwidth alphanumerics, and halfwidth katakana. Valid voiced and semi-voiced combinations such as `ｶﾞ` and `ﾊﾟ` are merged into one half-cell character.
 
-V2.4.1 also adds centerline symbols useful for assembling kaomoji. See [V2.4.1/SUPPORTED_EMOTICON_SYMBOLS.md](V2.4.1/SUPPORTED_EMOTICON_SYMBOLS.md).
+Printable ASCII punctuation and fullwidth counterparts are supported, including `#＃`, `(（`, `)）`, `[［`, `]］`, `@＠`, and `~～`. Japanese symbols include `、､`, `。｡`, `・･`, `ーｰ`, `「」`, `【】`, and `｢｣`.
 
-## Code Signing
+All 128 Unicode Box Drawing characters in `U+2500–U+257F` are supported. Set character gap and line gap to `0 px` to connect adjacent cells such as `┏━┷━┓`.
 
-The SignPath Foundation application was not approved. Current builds remain unsigned, and there is no active official signing integration. Windows SmartScreen may show an unknown-publisher warning.
+Geometry, star, check, arrow, bracket, and mathematical symbols load by their own Unicode code points, including `☆★`, `○●`, `△▲`, `◇◆`, `□■`, and `✓✔`. See [Supported Centerline Symbols](SUPPORTED_SYMBOLS.md) for the complete list.
+
+Color emoji, keycap emoji, ZWJ sequences, and unlisted pictorial symbols are unsupported and are reported before the mouse moves.
+
+## Emergency Stop
+
+Press `ESC` during coordinate detection, the start countdown, or writing. During writing, quickly moving the pointer to any screen corner also triggers the failsafe. The program releases the left mouse button when stopped.
 
 ## License
 
-Project code and project-authored centerline SVG files are MIT licensed. KanjiVG data remains CC BY-SA 3.0. See [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
+Project code and project-authored centerline SVG files use the MIT License. KanjiVG data uses CC BY-SA 3.0. See [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).

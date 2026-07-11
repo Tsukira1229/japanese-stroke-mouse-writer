@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Project-authored centerline stroke data for U+2605. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 109 109">
+  <path id="custom:02605-s1" d="M54.5,13 L65.08,40.44 L94.44,42.02 L71.62,60.56 L79.19,88.98 L54.5,73 L29.81,88.98 L37.38,60.56 L14.56,42.02 L43.92,40.44 L54.5,13" />
+  <path id="custom:02605-s2" d="M23.07,48.93 L30.86,41.14" />
+  <path id="custom:02605-s3" d="M51.68,20.32 L55.75,16.25" />
+  <path id="custom:02605-s4" d="M29.69,54.31 L43.54,40.46" />
+  <path id="custom:02605-s5" d="M44.14,39.86 L59.09,24.91" />
+  <path id="custom:02605-s6" d="M36.31,59.69 L62.43,33.57" />
+  <path id="custom:02605-s7" d="M33.73,74.27 L67.44,40.56" />
+  <path id="custom:02605-s8" d="M33.24,86.76 L78.82,41.18" />
+  <path id="custom:02605-s9" d="M57.23,74.77 L90.21,41.79" />
+  <path id="custom:02605-s10" d="M64.52,79.48 L74.1,69.9" />
+  <path id="custom:02605-s11" d="M71.8,84.2 L76.63,79.37" />
+</svg>

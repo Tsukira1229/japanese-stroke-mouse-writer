@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Project-authored centerline stroke data for U+25BE. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 109 109">
+  <path id="custom:025be-s1" d="M54.5,79.5 L29.5,36.5 L79.5,36.5 L54.5,79.5" />
+  <path id="custom:025be-s2" d="M33.54,43.46 L40.5,36.5" />
+  <path id="custom:025be-s3" d="M37.59,50.41 L51.5,36.5" />
+  <path id="custom:025be-s4" d="M41.63,57.37 L62.5,36.5" />
+  <path id="custom:025be-s5" d="M45.68,64.32 L73.5,36.5" />
+  <path id="custom:025be-s6" d="M49.72,71.28 L72.56,48.44" />
+</svg>

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Project-authored centerline stroke data for U+2570. -->
+<!-- Project-authored Unicode box-drawing centerlines for U+2570. -->
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 109 109">
-  <path id="custom:02570-s1" d="M80,18 C80,55 58,78 22,84" />
+  <path id="custom:02570-s1" d="M54.5,0 L54.5,37 C54.5,47 62,54.5 72,54.5 L109,54.5" />
 </svg>

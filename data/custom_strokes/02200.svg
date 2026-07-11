@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Project-authored centerline stroke data for U+2200. -->
+<!-- Reviewed centerline stroke data for U+2200. -->
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 109 109">
-  <path id="custom:02200-s1" d="M19,22 L54,88 L89,22" />
-  <path id="custom:02200-s2" d="M37,58 L72,58" />
+  <path id="custom:02200-s1" d="M90.80,19.29 L87.89,20.93 L75.34,48.40 L34.21,48.59" />
+  <path id="custom:02200-s2" d="M20.74,20.74 L32.57,47.68 L34.39,48.59" />
+  <path id="custom:02200-s3" d="M34.21,48.59 L34.94,53.14 L52.04,92.62 L54.41,94.44 L57.14,92.26 L73.52,54.41 L74.61,48.59" />
 </svg>

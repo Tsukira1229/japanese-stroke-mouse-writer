@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Project-authored centerline stroke data for U+25A1. -->
+<!-- Reviewed centerline stroke data for U+25A1. -->
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 109 109">
-  <path id="custom:025a1-s1" d="M22,22 L87,22 L87,87 L22,87 L22,22" />
+  <path id="custom:025a1-s1" d="M15.29,18.92 L93.71,18.92 L93.53,97.35 L15.29,97.17 L15.29,18.92" />
 </svg>

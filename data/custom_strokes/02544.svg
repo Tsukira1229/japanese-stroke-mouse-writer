@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Project-authored Unicode box-drawing centerlines for U+2544. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 109 109">
+  <path id="custom:02544-s1" d="M0,54.5 L57.5,54.5" />
+  <path id="custom:02544-s2" d="M51.5,51.5 L109,51.5" />
+  <path id="custom:02544-s3" d="M51.5,54.5 L109,54.5" />
+  <path id="custom:02544-s4" d="M51.5,57.5 L109,57.5" />
+  <path id="custom:02544-s5" d="M51.5,0 L51.5,57.5" />
+  <path id="custom:02544-s6" d="M54.5,0 L54.5,57.5" />
+  <path id="custom:02544-s7" d="M57.5,0 L57.5,57.5" />
+  <path id="custom:02544-s8" d="M54.5,51.5 L54.5,109" />
+</svg>

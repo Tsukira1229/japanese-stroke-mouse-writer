@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Corrected centerline stroke data for U+14C8. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 109 109">
+  <path id="custom:014c8-s1" d="M88,95 L59,95 L59,75 C59,65 50,57 39,57 C28,57 20,65 20,76 C20,87 28,95 39,95 L59,95" />
+  <path id="custom:014c8-s2" d="M40,31 C43,31 45,33 45,36 C45,39 43,41 40,41 C37,41 35,39 35,36 C35,33 37,31 40,31" />
+</svg>

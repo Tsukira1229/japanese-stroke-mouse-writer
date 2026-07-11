@@ -70,7 +70,8 @@ class DocumentationTests(unittest.TestCase):
     def test_all_documents_use_current_version(self) -> None:
         for document in DOCS:
             text = document.read_text(encoding="utf-8")
-            self.assertIn("V2.4.1", text)
+            self.assertIn("V2.5.0", text)
+            self.assertNotIn("V2.4.1", text)
             self.assertNotIn("V2.4.0", text)
             self.assertNotIn("V2.3.1", text)
 
@@ -82,7 +83,7 @@ class DocumentationTests(unittest.TestCase):
         self.assertIn("Copyright (c) 2026 Tsukira1229", license_text)
         self.assertIn("Code signing policy", policy)
         self.assertIn("was not approved", policy)
-        self.assertIn("Current releases and internal builds", policy)
+        self.assertIn("Current releases", policy)
         self.assertNotIn("Free code signing provided by", policy)
         self.assertNotIn("active Authenticode signing workflow", policy.split("does not currently have", 1)[0])
         self.assertIn("Tsukira1229", policy)
@@ -113,12 +114,11 @@ class DocumentationTests(unittest.TestCase):
             text = document.read_text(encoding="utf-8")
             self.assertFalse(any(description in text for description in old_descriptions))
 
-    def test_internal_build_does_not_document_release_zip(self) -> None:
-        for document in DOCS:
+    def test_readmes_document_current_portable_folder(self) -> None:
+        for document in DOCS[:3]:
             text = document.read_text(encoding="utf-8")
-            self.assertNotIn("JapaneseStrokeMouseWriter-v2.4.1-win-x64-portable.zip", text)
-            self.assertNotIn("GitHub Release から", text)
-            self.assertNotIn("Download", text)
+            self.assertIn("JapaneseStrokeMouseWriter-v2.5.0-win-x64-portable", text)
+            self.assertNotIn("JapaneseStrokeMouseWriter-v2.4.1-win-x64-portable", text)
 
 
 if __name__ == "__main__":

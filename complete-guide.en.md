@@ -1,34 +1,93 @@
-# Japanese Stroke Mouse Writer V2.4.1 Complete Guide
+# Japanese Stroke Mouse Writer V2.5.0 Complete Guide
 
-## 1. Enter Text
+This guide starts with the first launch and explains how to define the writing area, verify the preview, and run the program safely.
 
-Enter or paste the content in Content & Preview. Spaces, Tab, explicit line breaks, repeated line breaks, and automatic wrapping are preserved. Type kaomoji directly in the text box, for example `(^O^)`, `(≧▽≦)`, `m(_ _)m`, `(/ω＼)`, `¯\_(ツ)_/¯`, and `(╯°□°)╯︵ ┻━┻`.
+## 1. Launch and Prepare the Canvas
 
-V2.4.1 does not provide a kaomoji category picker and does not use font-dependent drawing. Kaomoji are written as individual centerline characters, so users can assemble their own shapes from supported symbols.
+1. Run `JapaneseStrokeMouseWriter.exe`. The window opens maximized. Its initial language follows Windows and can be changed in **Environment Settings**.
+2. Open Paint or another application that accepts mouse drawing.
+3. Select the target pen or pencil tool and set its color and thickness.
+4. Make sure the canvas is large enough and no dialog or window covers the intended writing area.
 
-## 2. Set Coordinates
+## 2. Enter the Writing Content
 
-Start and end coordinates form the writable rectangle. For right flow, Start is the top-left corner and End is the bottom-right corner. For left flow, Start is the top-right corner and End is the bottom-left corner. You can enter X/Y manually or use the detection buttons. During detection the main window is minimized, and the pointer position is captured when the countdown ends. Press ESC to cancel.
+Enter or paste text in **Content & Preview**. Spaces, Tab, explicit line breaks, and repeated line breaks are preserved. Text without a manual line break wraps automatically when it reaches the main boundary of the writable rectangle.
 
-## 3. Adjust Layout
+You can type kaomoji directly, such as `(^O^)`, `(≧▽≦)`, `m(_ _)m`, `(/ω＼)`, and `(╯°□°)╯︵ ┻━┻`. A kaomoji is assembled from the centerline paths of its individual supported characters, so symbol choice, halfwidth/fullwidth forms, and spacing affect the result.
 
-Supported input includes `A–Z`, `a–z`, `0–9`, fullwidth alphanumerics, halfwidth katakana voiced pairs such as `ｶﾞ`, and common halfwidth/fullwidth symbol pairs: `#＃`, `(（`, `)）`, `[［`, `]］`, `@＠`, `~～`, `、､`, `。｡`, `・･`, `ーｰ`, `「」`, `【】`, and `｢｣`.
+## 3. Set Start and End Coordinates
 
-Font size is measured in px. Halfwidth characters occupy `0.5` cell, fullwidth and wide characters occupy `1` cell, and Tab equals four halfwidth spaces. Halfwidth katakana voiced pairs such as `ｶﾞ` are merged into one half-cell character. Halfwidth-to-halfwidth pairs use half the character gap; fullwidth pairs and mixed pairs use the full gap. Horizontal text wraps downward at the side boundary. Vertical text creates a new left or right column at the bottom boundary.
+The start and end coordinates form the writable rectangle. They are X/Y pointer positions across the complete Windows desktop and may be negative on multi-monitor systems.
 
-In vertical layout, letters, numbers, brackets, and long marks rotate clockwise, while `、。` move to the upper-right corner. Every character inside a kaomoji follows the normal character layout rules.
+- Horizontal or vertical with right flow: Start is the top-left corner and End is the bottom-right corner.
+- Horizontal or vertical with left flow: Start is the top-right corner and End is the bottom-left corner.
 
-## 4. Update Preview
+Coordinate detection is recommended:
 
-Click Update preview. Light cells show occupied space, and black lines are the exact mouse writing paths. Unsupported characters are reported before the mouse moves.
+1. Click **Detect start coordinates**. The main window minimizes and shows a three-second countdown.
+2. Move the pointer to the matching upper corner of the target canvas and hold it still.
+3. Click **Detect end coordinates**, then move the pointer to the matching lower corner.
+4. When the program returns, verify the captured X and Y values. Coordinates may also be entered manually.
 
-## 5. Start and Stop Writing
+Press `ESC` during detection to cancel without replacing the previous values. The rectangle must fit at least one character cell; invalid range or direction is reported before preview.
 
-After checking the preview, click Start writing. During the countdown, switch to Paint or another target canvas and keep its pen or pencil tool selected. Press ESC during writing to stop, or move the pointer to a screen corner to trigger the failsafe. The program releases the left mouse button after stops or errors.
+## 4. Adjust General Settings
 
-## 6. Troubleshooting
+- **Font size**: width and height of one fullwidth cell in px.
+- **Character gap**: distance between adjacent characters. Two halfwidth characters use half this value; other pairs use the full value.
+- **Line gap**: row spacing in horizontal layout or column spacing in vertical layout.
+- **Orientation**: horizontal places characters left or right; vertical places characters downward.
+- **Flow**: right or left, which also determines the side used by the start coordinate.
 
-- **Unsupported writing character**: use characters listed in the README or `V2.4.1/SUPPORTED_EMOTICON_SYMBOLS.md`.
-- **Emoji sequences are unsupported**: color emoji, keycap emoji, and ZWJ sequences are rejected before mouse movement.
-- **Kaomoji shape differs from expectation**: V2.4.1 writes character-by-character centerlines; adjust symbol choices, spacing, or halfwidth/fullwidth variants.
-- **SmartScreen warning**: V2.4.1 is an unsigned internal build and may show an unknown-publisher warning.
+Halfwidth characters occupy `0.5` cell, fullwidth and wide characters occupy `1` cell, and Tab equals four halfwidth spaces. Valid halfwidth katakana combinations such as `ｶﾞ` and `ﾊﾟ` occupy one half-cell.
+
+In vertical layout, alphanumeric characters, brackets, and long marks rotate clockwise. `、。` move to the upper-right of their cells. Arrows and box-drawing characters preserve their direction.
+
+**Presets** can add, load, overwrite, rename, or delete named settings. A preset stores only font size, character gap, line gap, orientation, and flow; it does not store text or coordinates.
+
+## 5. Adjust Environment Settings
+
+- **Language**: Japanese, Traditional Chinese, Simplified Chinese, or English.
+- **Start countdown**: seconds available to switch to the target canvas after starting; range `0–30`.
+- **Curve detail**: range `0.1–20`. Smaller values create smoother curves with more points and longer writing time.
+- **Sample delay**: wait time at each curve point; range `1–1000` ms. Increase it gradually if strokes break.
+
+Environment settings are saved automatically. Start with the defaults and adjust only when curves are rough or strokes break.
+
+## 6. Check Supported Input
+
+Supported input includes Japanese kana, kanji available in KanjiVG, `A–Z`, `a–z`, `0–9`, fullwidth alphanumerics, halfwidth katakana, and common symbols.
+
+Halfwidth/fullwidth pairs include `#＃`, `(（`, `)）`, `[［`, `]］`, `@＠`, `~～`, `、､`, `。｡`, `・･`, `ーｰ`, `「」`, `【】`, and `｢｣`. See [Supported Centerline Symbols](SUPPORTED_SYMBOLS.md) for geometry, stars, checks, arrows, brackets, mathematics, and box drawing.
+
+Color emoji, keycap emoji, ZWJ sequences, and unlisted images are unsupported. The first unsupported character is reported before the mouse moves.
+
+For box drawing, set character gap and line gap to `0 px` to connect adjacent endpoints in `┏━┷━┓`, `┃　　┃`, and `┗━━━┛`.
+
+## 7. Update the Preview
+
+Click **Update preview**. Light cells show the occupied character areas, and black lines are the exact paths sent to the mouse.
+
+Before starting, confirm that:
+
+- All content is inside the writable rectangle.
+- Spaces, explicit line breaks, and automatic wrapping appear as expected.
+- Filled symbols have the required outer boundary and sparse diagonal hatching.
+- No unsupported-character or insufficient-range warning is shown.
+
+## 8. Start Writing and Stop Safely
+
+1. Click **Start writing**.
+2. Switch to the target canvas during the countdown. Do not move the target window or change its zoom afterward.
+3. When the countdown ends, the program writes from the start coordinate using the previewed paths.
+
+Press `ESC` during coordinate detection, the start countdown, or writing. During writing, quickly moving the pointer to any screen corner also triggers the failsafe. The program releases the left mouse button after completion, cancellation, or an error.
+
+## 9. Troubleshooting
+
+- **SmartScreen shows an unknown publisher**: the program is currently unsigned. Run only a complete folder obtained from this project.
+- **Settings cannot be saved**: move the complete program folder to a writable location such as Documents or Desktop.
+- **Strokes break**: increase Sample delay and avoid an unstable or overly fast target brush.
+- **Curves look rough**: lower Curve detail; lower values increase writing time.
+- **Output is offset**: detect the coordinates again and do not move the canvas, window, or zoom after the countdown.
+- **Kaomoji proportions look wrong**: adjust character gap and verify the intended halfwidth or fullwidth symbols.

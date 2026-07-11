@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Project-authored centerline stroke data for U+141F. -->
+<!-- Reviewed centerline stroke data for U+141F. -->
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 109 109">
-  <path id="custom:0141f-s1" d="M54,18 L54,78" />
-  <path id="custom:0141f-s2" d="M54,91 L55,91" />
+  <path id="custom:0141f-s1" d="M67.15,23.47 L62.60,25.84 L46.40,58.78 L44.22,59.87" />
 </svg>

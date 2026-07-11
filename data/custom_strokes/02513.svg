@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Project-authored Unicode box-drawing centerlines for U+2513. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 109 109">
+  <path id="custom:02513-s1" d="M0,51.5 L57.5,51.5" />
+  <path id="custom:02513-s2" d="M0,54.5 L57.5,54.5" />
+  <path id="custom:02513-s3" d="M0,57.5 L57.5,57.5" />
+  <path id="custom:02513-s4" d="M51.5,51.5 L51.5,109" />
+  <path id="custom:02513-s5" d="M54.5,51.5 L54.5,109" />
+  <path id="custom:02513-s6" d="M57.5,51.5 L57.5,109" />
+</svg>

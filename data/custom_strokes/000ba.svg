@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Project-authored centerline stroke data for U+00BA. -->
+<!-- Reviewed centerline stroke data for U+00BA. -->
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 109 109">
-  <path id="custom:000ba-s1" d="M54,24 C64,24 72,32 72,42 C72,52 64,60 54,60 C44,60 36,52 36,42 C36,32 44,24 54,24" />
+  <path id="custom:000ba-s1" d="M53.14,25.11 L63.14,26.93 L66.78,30.21 L69.15,34.76 L69.69,46.95 L67.69,52.59 L64.42,56.41" />
+  <path id="custom:000ba-s2" d="M51.32,25.29 L52.95,25.29" />
+  <path id="custom:000ba-s3" d="M46.04,27.30 L43.85,29.12" />
+  <path id="custom:000ba-s4" d="M43.49,29.30 L40.03,34.76 L38.76,41.85 L39.67,49.13 L42.22,54.23 L45.67,57.32 L50.59,59.14 L57.87,59.14 L63.87,56.77" />
 </svg>

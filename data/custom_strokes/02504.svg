@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Project-authored Unicode box-drawing centerlines for U+2504. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 109 109">
+  <path id="custom:02504-s1" d="M0,54.5 L31,54.5" />
+  <path id="custom:02504-s2" d="M39,54.5 L70,54.5" />
+  <path id="custom:02504-s3" d="M78,54.5 L109,54.5" />
+</svg>

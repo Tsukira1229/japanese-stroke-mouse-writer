@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Project-authored centerline stroke data for U+2266. -->
+<!-- Reviewed centerline stroke data for U+2266. -->
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 109 109">
-  <path id="custom:02266-s1" d="M84,26 L25,55 L84,84" />
-  <path id="custom:02266-s2" d="M30,37 L78,37" />
-  <path id="custom:02266-s3" d="M30,73 L78,73" />
+  <path id="custom:02266-s1" d="M85.16,23.11 L82.98,26.20 L29.30,40.76 L27.48,42.94 L29.48,45.49 L83.34,59.50" />
+  <path id="custom:02266-s2" d="M25.84,70.97 L82.80,70.97" />
+  <path id="custom:02266-s3" d="M25.84,87.16 L82.80,87.16" />
 </svg>

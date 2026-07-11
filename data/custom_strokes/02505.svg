@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Project-authored Unicode box-drawing centerlines for U+2505. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 109 109">
+  <path id="custom:02505-s1" d="M0,51.5 L31,51.5" />
+  <path id="custom:02505-s2" d="M39,51.5 L70,51.5" />
+  <path id="custom:02505-s3" d="M78,51.5 L109,51.5" />
+  <path id="custom:02505-s4" d="M0,54.5 L31,54.5" />
+  <path id="custom:02505-s5" d="M39,54.5 L70,54.5" />
+  <path id="custom:02505-s6" d="M78,54.5 L109,54.5" />
+  <path id="custom:02505-s7" d="M0,57.5 L31,57.5" />
+  <path id="custom:02505-s8" d="M39,57.5 L70,57.5" />
+  <path id="custom:02505-s9" d="M78,57.5 L109,57.5" />
+</svg>

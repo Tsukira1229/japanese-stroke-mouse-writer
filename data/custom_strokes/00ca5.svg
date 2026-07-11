@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Corrected centerline stroke data for U+0CA5. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 109 109">
+  <path id="custom:00ca5-s1" d="M88,2 C92,5 94,10 92,15 C90,21 83,23 74,23" />
+  <path id="custom:00ca5-s2" d="M15,22 L34,22 C31,29 24,33 20,41 C15,49 14,61 18,70 C22,81 33,85 42,80 C48,77 51,71 54,67 C57,71 60,77 67,80 C76,84 87,80 91,70 C95,60 93,48 88,40 C84,33 77,29 74,23 L34,23" />
+  <path id="custom:00ca5-s3" d="M54,37 C59,37 63,41 63,46 C63,51 59,55 54,55 C49,55 45,51 45,46 C45,41 49,37 54,37" />
+  <path id="custom:00ca5-s4" d="M54,83 L47,104 L61,104 L54,83" />
+</svg>

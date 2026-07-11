@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Reviewed centerline stroke data for U+2725. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 109 109">
+  <path id="custom:02725-s1" d="M54.59,30.03 L54.59,92.80" />
+  <path id="custom:02725-s2" d="M49.13,37.85 L54.77,36.76 L60.05,37.85" />
+  <path id="custom:02725-s3" d="M78.25,55.32 L79.34,61.14 L78.25,66.60" />
+  <path id="custom:02725-s4" d="M30.93,55.68 L29.84,61.51 L30.93,67.33" />
+  <path id="custom:02725-s5" d="M23.84,61.32 L85.71,61.32" />
+  <path id="custom:02725-s6" d="M48.95,84.98 L54.41,86.07 L60.23,84.98" />
+</svg>

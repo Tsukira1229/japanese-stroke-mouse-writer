@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Project-authored centerline stroke data for U+3141. -->
+<!-- Reviewed centerline stroke data for U+3141. -->
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 109 109">
-  <path id="custom:03141-s1" d="M25,25 L84,25 L84,84 L25,84 L25,25" />
+  <path id="custom:03141-s1" d="M25.66,40.40 L81.89,40.40 L82.25,84.07 L25.48,84.25 L25.66,40.40" />
 </svg>

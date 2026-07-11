@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Reviewed centerline stroke data for U+272B. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 109 109">
+  <path id="custom:0272b-s1" d="M54.41,23.84 L54.23,46.04" />
+  <path id="custom:0272b-s2" d="M14.92,52.04 L34.76,57.68 L45.31,53.14 L54.23,45.86 L63.33,53.14 L73.88,57.68 L93.90,52.04" />
+  <path id="custom:0272b-s3" d="M48.59,49.50 L47.13,50.95" />
+  <path id="custom:0272b-s4" d="M34.76,57.68 L39.49,70.06 L41.31,82.80 L29.30,99.17" />
+  <path id="custom:0272b-s5" d="M74.06,57.68 L69.33,69.69 L67.51,82.80 L79.34,98.99" />
+  <path id="custom:0272b-s6" d="M40.94,82.98 L52.41,81.34 L67.51,82.61" />
+</svg>

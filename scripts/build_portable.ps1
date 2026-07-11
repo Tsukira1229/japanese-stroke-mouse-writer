@@ -4,7 +4,7 @@ param(
 
 $ErrorActionPreference = "Stop"
 $Root = (Resolve-Path (Join-Path $PSScriptRoot "..")).Path
-$PackageName = "JapaneseStrokeMouseWriter-v2.4.1-win-x64-portable"
+$PackageName = "JapaneseStrokeMouseWriter-v2.5.0-win-x64-portable"
 $Dist = Join-Path $Root "dist"
 $PackageDir = Join-Path $Dist $PackageName
 $Archive = Join-Path $Dist "$PackageName.zip"
@@ -21,6 +21,16 @@ try {
         Copy-Item -Destination $PackageDir -Force
     Copy-Item -LiteralPath (Join-Path $Root "LICENSE") -Destination $PackageDir -Force
     New-Item -ItemType Directory -Path (Join-Path $PackageDir "user_data") -Force | Out-Null
+
+    $MatplotlibSampleData = Join-Path $PackageDir "_internal\matplotlib\mpl-data\sample_data"
+    if (Test-Path -LiteralPath $MatplotlibSampleData) {
+        $ResolvedSampleData = (Resolve-Path -LiteralPath $MatplotlibSampleData).Path
+        $ResolvedPackageDir = (Resolve-Path -LiteralPath $PackageDir).Path
+        if (-not $ResolvedSampleData.StartsWith($ResolvedPackageDir + "\", [StringComparison]::OrdinalIgnoreCase)) {
+            throw "Refusing to remove unexpected path: $ResolvedSampleData"
+        }
+        Remove-Item -LiteralPath $ResolvedSampleData -Recurse -Force
+    }
 
     $Executable = Join-Path $PackageDir "JapaneseStrokeMouseWriter.exe"
     $SelfTestSettings = Join-Path $PackageDir "user_data\self-test-settings.json"

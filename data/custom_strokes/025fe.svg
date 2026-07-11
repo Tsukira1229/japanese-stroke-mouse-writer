@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Project-authored centerline stroke data for U+25FE. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 109 109">
+  <path id="custom:025fe-s1" d="M31,31 L78,31 L78,78 L31,78 L31,31" />
+  <path id="custom:025fe-s2" d="M31,35 L35,31" />
+  <path id="custom:025fe-s3" d="M31,46 L46,31" />
+  <path id="custom:025fe-s4" d="M31,57 L57,31" />
+  <path id="custom:025fe-s5" d="M31,68 L68,31" />
+  <path id="custom:025fe-s6" d="M32,78 L78,32" />
+  <path id="custom:025fe-s7" d="M43,78 L78,43" />
+  <path id="custom:025fe-s8" d="M54,78 L78,54" />
+  <path id="custom:025fe-s9" d="M65,78 L78,65" />
+</svg>

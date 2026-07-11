@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Project-authored centerline stroke data for U+1415. -->
+<!-- Reviewed centerline stroke data for U+1415. -->
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 109 109">
-  <path id="custom:01415-s1" d="M24,35 L54,72 L85,35" />
-  <path id="custom:01415-s2" d="M54,72 L54,92" />
+  <path id="custom:01415-s1" d="M14.74,90.44 L14.56,32.39 L22.38,33.85 L65.33,54.95 L71.15,57.87 L73.15,61.32 L85.34,61.32" />
+  <path id="custom:01415-s2" d="M73.15,61.32 L70.24,65.33 L22.56,88.80 L14.74,90.44 L10.37,99.17" />
+  <path id="custom:01415-s3" d="M14,2 C17,2 20,5 20,8 C20,11 17,14 14,14 C11,14 8,11 8,8 C8,5 11,2 14,2" />
+  <path id="custom:01415-s4" d="M97,55 C100,55 103,58 103,61 C103,64 100,67 97,67 C94,67 91,64 91,61 C91,58 94,55 97,55" />
 </svg>

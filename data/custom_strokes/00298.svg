@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Project-authored centerline stroke data for U+0298. -->
+<!-- Reviewed centerline stroke data for U+0298. -->
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 109 109">
-  <path id="custom:00298-s1" d="M54,18 C74,18 91,35 91,55 C91,75 74,91 54,91 C34,91 18,75 18,55 C18,35 34,18 54,18" />
-  <path id="custom:00298-s2" d="M54,39 C63,39 70,46 70,55 C70,64 63,71 54,71 C45,71 38,64 38,55 C38,46 45,39 54,39" />
-  <path id="custom:00298-s3" d="M44,65 L66,43" />
+  <path id="custom:00298-s1" d="M54,15 C78,15 92,34 92,55 C92,79 78,97 54,97 C30,97 16,79 16,55 C16,31 30,15 54,15" />
+  <path id="custom:00298-s2" d="M54,48 C58,48 61,51 61,55 C61,59 58,62 54,62 C50,62 47,59 47,55 C47,51 50,48 54,48" />
 </svg>

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Project-authored centerline stroke data for U+25C6. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 109 109">
+  <path id="custom:025c6-s1" d="M54.5,14 L94,54.5 L54.5,95 L15,54.5 L54.5,14" />
+  <path id="custom:025c6-s2" d="M18.7,58.3 L58.7,18.3" />
+  <path id="custom:025c6-s3" d="M24.13,63.87 L64.13,23.87" />
+  <path id="custom:025c6-s4" d="M29.57,69.43 L69.56,29.44" />
+  <path id="custom:025c6-s5" d="M35,75 L74.99,35.01" />
+  <path id="custom:025c6-s6" d="M40.43,80.57 L80.42,40.58" />
+  <path id="custom:025c6-s7" d="M45.86,86.14 L85.85,46.15" />
+  <path id="custom:025c6-s8" d="M51.29,91.71 L91.28,51.72" />
+</svg>

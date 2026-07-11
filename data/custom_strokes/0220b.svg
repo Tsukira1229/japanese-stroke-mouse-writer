@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Project-authored centerline stroke data for U+220B. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 109 109">
+  <path id="custom:0220b-s1" d="M31,25 C67,17 82,34 82,54.5 C82,76 65,92 31,84" />
+  <path id="custom:0220b-s2" d="M40,54.5 L81,54.5" />
+</svg>

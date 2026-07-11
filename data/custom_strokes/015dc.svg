@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Project-authored centerline stroke data for U+15DC. -->
+<!-- Reviewed centerline stroke data for U+15DC. -->
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 109 109">
-  <path id="custom:015dc-s1" d="M26,25 L26,84 L62,84 C82,84 94,70 94,55 C94,40 82,25 62,25 L26,25" />
-  <path id="custom:015dc-s2" d="M44,43 L75,43" />
-  <path id="custom:015dc-s3" d="M44,67 L75,67" />
+  <path id="custom:015dc-s1" d="M24.20,27.48 L85.34,27.84 L87.71,43.85 L86.07,65.51 L81.89,78.07 L73.52,89.53" />
+  <path id="custom:015dc-s2" d="M23.84,27.84 L21.65,39.12 L21.84,58.05 L25.66,74.43 L31.66,85.34 L40.22,92.80 L50.77,96.08 L62.60,95.35 L73.15,89.71" />
 </svg>

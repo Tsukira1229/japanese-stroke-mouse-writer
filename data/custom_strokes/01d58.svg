@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Project-authored centerline stroke data for U+1D58. -->
+<!-- Reviewed centerline stroke data for U+1D58. -->
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 109 109">
-  <path id="custom:01d58-s1" d="M31,31 L31,59 C31,76 45,84 54,84 C63,84 77,76 77,59 L77,31" />
+  <path id="custom:01d58-s1" d="M44.76,38.21 L44.95,55.14 L48.04,61.14 L50.95,62.23 L55.32,61.51 L64.05,56.96" />
+  <path id="custom:01d58-s2" d="M64.05,38.40 L64.05,60.60" />
 </svg>

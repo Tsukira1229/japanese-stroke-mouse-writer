@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Project-authored centerline stroke data for U+2B50. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 109 109">
+  <path id="custom:02b50-s1" d="M54.5,16 L64.49,41.25 L91.59,42.95 L70.67,60.25 L77.42,86.55 L54.5,72 L31.58,86.55 L38.33,60.25 L17.41,42.95 L44.51,41.25 L54.5,16" />
+  <path id="custom:02b50-s2" d="M23.78,48.22 L29.83,42.17" />
+  <path id="custom:02b50-s3" d="M30.35,53.65 L42.64,41.36" />
+  <path id="custom:02b50-s4" d="M45.66,38.34 L58.33,25.67" />
+  <path id="custom:02b50-s5" d="M36.92,59.08 L61.73,34.27" />
+  <path id="custom:02b50-s6" d="M35.08,72.92 L66.62,41.38" />
+  <path id="custom:02b50-s7" d="M36.7,83.3 L77.91,42.09" />
+  <path id="custom:02b50-s8" d="M57.86,74.14 L70.89,61.11" />
+  <path id="custom:02b50-s9" d="M76.91,55.09 L89.2,42.8" />
+  <path id="custom:02b50-s10" d="M65.2,78.8 L73.34,70.66" />
+</svg>

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Project-authored centerline stroke data for U+02F6. -->
+<!-- Reviewed centerline stroke data for U+02F6. -->
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 109 109">
-  <path id="custom:002f6-s1" d="M38,54 L39,54" />
-  <path id="custom:002f6-s2" d="M70,54 L71,54" />
+  <path id="custom:002f6-s1" d="M56.41,62.42 L52.23,64.05 L42.94,77.16 L39.31,78.97" />
+  <path id="custom:002f6-s2" d="M69.51,62.60 L65.33,64.05 L55.86,77.16 L52.59,78.79" />
 </svg>

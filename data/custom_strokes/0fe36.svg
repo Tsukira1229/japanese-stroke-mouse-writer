@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Project-authored centerline stroke data for U+FE36. -->
+<!-- Reviewed centerline stroke data for U+FE36. -->
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 109 109">
-  <path id="custom:0fe36-s1" d="M22,42 C38,72 71,72 87,42" />
+  <path id="custom:0fe36-s1" d="M4.37,11.46 L15.47,22.75 L28.21,30.93 L41.67,35.12 L54.23,36.21 L67.33,35.12 L81.16,30.75 L92.62,23.47 L104.63,11.46" />
+  <path id="custom:0fe36-s2" d="M100.63,16.20 L99.17,17.65" />
+  <path id="custom:0fe36-s3" d="M8.55,16.38 L9.64,17.47" />
 </svg>

@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Project-authored centerline stroke data for U+141B. -->
+<!-- Reviewed centerline stroke data for U+141B. -->
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 109 109">
-  <path id="custom:0141b-s1" d="M24,38 L54,74 L85,38" />
-  <path id="custom:0141b-s2" d="M24,76 L85,76" />
+  <path id="custom:0141b-s1" d="M90.98,23.47 L86.62,32.21 L86.62,90.62 L91.17,99.36" />
+  <path id="custom:0141b-s2" d="M86.62,32.39 L78.97,33.85 L34.57,55.68 L30.21,57.87 L28.39,61.51 L30.21,64.78 L74.43,86.62 L79.34,88.98 L86.80,90.26" />
+  <path id="custom:0141b-s3" d="M15.47,61.32 L28.39,61.32" />
+  <path id="custom:0141b-s4" d="M52,17 C55,17 58,20 58,23 C58,26 55,29 52,29 C49,29 46,26 46,23 C46,20 49,17 52,17" />
+  <path id="custom:0141b-s5" d="M87,2 C90,2 93,5 93,8 C93,11 90,14 87,14 C84,14 81,11 81,8 C81,5 84,2 87,2" />
 </svg>

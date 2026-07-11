@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Project-authored centerline stroke data for U+2718. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 109 109">
+  <path id="custom:02718-s1" d="M27,24 L82,79" />
+  <path id="custom:02718-s2" d="M82,24 L27,79" />
+  <path id="custom:02718-s3" d="M27,27 L82,82" />
+  <path id="custom:02718-s4" d="M82,27 L27,82" />
+  <path id="custom:02718-s5" d="M27,30 L82,85" />
+  <path id="custom:02718-s6" d="M82,30 L27,85" />
+</svg>

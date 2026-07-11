@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Project-authored centerline stroke data for U+1557. -->
+<!-- Reviewed centerline stroke data for U+1557. -->
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 109 109">
-  <path id="custom:01557-s1" d="M82,77 C78,40 59,28 37,34" />
-  <path id="custom:01557-s2" d="M37,34 L49,22" />
-  <path id="custom:01557-s3" d="M37,34 L51,47" />
-  <path id="custom:01557-s4" d="M63,67 L27,90" />
+  <path id="custom:01557-s1" d="M48.22,45.86 L43.67,41.31 L38.76,39.12 L32.39,38.76 L26.02,41.13 L21.84,46.58 L20.93,53.32 L22.75,59.69 L29.30,64.78 L36.03,65.51 L43.31,62.78 L47.31,56.77 L48.40,45.86 L56.05,47.31 L71.51,54.95 L77.34,57.87 L79.34,61.32 L91.53,61.32" />
+  <path id="custom:01557-s2" d="M23.84,61.14 L25.29,62.60" />
+  <path id="custom:01557-s3" d="M79.34,61.32 L77.34,64.78 L19.65,93.17 L16.56,99.17" />
 </svg>

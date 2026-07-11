@@ -21,7 +21,7 @@ Point = tuple[float, float]
 PathList = list[list[Point]]
 PathBounds = tuple[float, float, float, float]
 
-APP_VERSION = "2.4.1"
+APP_VERSION = "2.5.0"
 SCRIPT_DIR = Path(__file__).resolve().parent
 BUNDLE_DIR = Path(getattr(sys, "_MEIPASS", SCRIPT_DIR))
 EXECUTABLE_DIR = Path(sys.executable).resolve().parent if getattr(sys, "frozen", False) else SCRIPT_DIR
@@ -34,15 +34,36 @@ FULLWIDTH_PUNCTUATION = frozenset(chr(ord(char) + 0xFEE0) for char in ASCII_PUNC
 JAPANESE_BRACKETS = frozenset("「」『』【】〈〉《》〔〕｢｣")
 JAPANESE_PUNCTUATION = frozenset("、､。｡・･ーｰ") | JAPANESE_BRACKETS
 VARIATION_SELECTORS = frozenset("\ufe0e\ufe0f")
+BOX_DRAWING_SYMBOLS = frozenset(chr(codepoint) for codepoint in range(0x2500, 0x2580))
+COMMON_SYMBOL_VARIANTS = frozenset(
+    "☆★⚝⭐⭑⭒"
+    "○●◯◦"
+    "■▪▫◻◼◽◾"
+    "◆◈♢♦"
+    "△▲▼▷▶◁◀▴▵▸▹▾▿◂◃"
+    "✓✔✕✖✗✘"
+    "←↑→↓↔↕↖↗↘↙⇐⇑⇒⇓⇔⇕"
+    "⁅⁆❨❩❪❫❬❭❰❱❲❳❴❵"
+    "±×÷≤≥∞√∏∫∂∆∈∉∋∅⊕⊗"
+)
+VERTICAL_COMMON_BRACKETS = frozenset("⁅⁆❨❩❪❫❬❭❰❱❲❳❴❵")
 SUPPORTED_EMOTICON_SYMBOLS = frozenset(
-    "¯´¨°•·˙˘◕‿﹏︿︶╥ಠꇴﻌฅ≧≦∇▽□╯╰╮╭┐┌┻━︵♡❁๑⊙Дд∀∑ᗜˊˋ٩و꒰꒱۶❛ᴗ◡ᴥ⊂⊃∪╬⊥ω"
+    "¯´¨°•·˙˘◕‿﹏︿︶ಠꇴﻌฅ≧≦∇▽□︵♡❁๑⊙Дд∀∑ᗜˊˋ٩و꒰꒱۶❛ᴗ◡ᴥ⊂⊃∪⊥ω"
     "ʘ¬≖◔◉◎☉꒪꒦꒨ᵔᵕᵒ˶˃˂ᵘзεºლღ♥✿✧✦✩✪☼☾⁄୧୨งᕦᕤᕙᕗᕕʕʔᘛᘚ"
     "༼༽ᐠᐟᐢᐡᐛᐕᐖᵇᵈᵗㅅㅂㅁㅇㅈㅎㅜㅠᆺ"
+    "⌒⌣⌢⌜⌝⌞⌟〈〉⟨⟩⟪⟫⟦⟧⟮⟯⸜⸝⸨⸩⸢⸣⸤⸥"
+    "◌◍◐◑◒◓◖◗◘◙◚◛◜◝◞◟◠◇"
+    "ʚɞᓄᓂᓀᓁᓆᓇᓈᓉᗒᗕᗣᗨᗩᗪ"
+    "ಥಢಡ༎།"
+    "≠≡≈≋≌≺≻≪≫∝∠∴∵∷∼∽∣∥∧∨∩⊆⊇⊊⊋⊄⊅"
+    "⋆⋄✣✤✥✫✬✭✮✯"
 )
 SUPPORTED_SYMBOLS = (
     ASCII_PUNCTUATION
     | FULLWIDTH_PUNCTUATION
     | JAPANESE_PUNCTUATION
+    | BOX_DRAWING_SYMBOLS
+    | COMMON_SYMBOL_VARIANTS
     | SUPPORTED_EMOTICON_SYMBOLS
 )
 SMALL_KANA = frozenset("ぁぃぅぇぉっゃゅょゎゕゖァィゥェォッャュョヮヵヶ")
@@ -75,6 +96,7 @@ VERTICAL_ROTATE_CHARS = (
     ASCII_ALNUM
     | FULLWIDTH_ALNUM
     | JAPANESE_BRACKETS
+    | VERTICAL_COMMON_BRACKETS
     | frozenset("()（）[]［］{}｛｝ーｰ-－_＿~～")
 )
 VERTICAL_CORNER_PUNCTUATION = frozenset("、､。｡")

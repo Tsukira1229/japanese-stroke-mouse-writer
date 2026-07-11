@@ -271,7 +271,7 @@ class LayoutTests(unittest.TestCase):
                     self.assertTrue(all(min_x <= x <= max_x and min_y <= y <= max_y for path in result.paths for x, y in path))
 
     def test_unsuitable_pictorial_symbols_are_not_supported(self) -> None:
-        for char in "♔☀☺●⚑☂":
+        for char in "♔☀☺⚑☂":
             with self.subTest(char=char):
                 self.assertFalse(is_supported_writing_char(char))
                 with self.assertRaises(UnsupportedCharacterError):
@@ -290,6 +290,16 @@ class LayoutTests(unittest.TestCase):
                 DEFAULT_KANJIVG_DIR,
                 LayoutSettings(start_x=0, start_y=0, general=GeneralSettings(font_size=109)),
             )
+
+    def test_combining_marks_are_rejected_before_layout(self) -> None:
+        for text in ("a\u0300", "ಥ\u0338", "ω\u0325", "ˇ\u0301"):
+            with self.subTest(text=text):
+                with self.assertRaises(UnsupportedCharacterError):
+                    build_layout(
+                        text,
+                        DEFAULT_KANJIVG_DIR,
+                        LayoutSettings(start_x=0, start_y=0, general=GeneralSettings(font_size=100)),
+                    )
 
     def test_keycap_and_zwj_sequences_are_rejected(self) -> None:
         for text in ("1️⃣", "👨\u200d👩\u200d👧\u200d👦"):

@@ -37,10 +37,10 @@ jobs:
       - name: Upload workflow artifact
         uses: actions/upload-artifact@v4
         with:
-          name: JapaneseStrokeMouseWriter-v2.3.2-win-x64-portable
+          name: JapaneseStrokeMouseWriter-v2.5.0-win-x64-portable
           path: |
-            dist/JapaneseStrokeMouseWriter-v2.3.2-win-x64-portable.zip
-            dist/JapaneseStrokeMouseWriter-v2.3.2-win-x64-portable.zip.sha256
+            dist/JapaneseStrokeMouseWriter-v2.5.0-win-x64-portable.zip
+            dist/JapaneseStrokeMouseWriter-v2.5.0-win-x64-portable.zip.sha256
 
       - name: Publish GitHub release
         if: startsWith(github.ref, 'refs/tags/v2.')
@@ -49,7 +49,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           gh release create "${{ github.ref_name }}" `
-            "dist/JapaneseStrokeMouseWriter-v2.3.2-win-x64-portable.zip" `
-            "dist/JapaneseStrokeMouseWriter-v2.3.2-win-x64-portable.zip.sha256" `
-            --title "Japanese Stroke Mouse Writer V2.3.2 Portable" `
-            --notes "Adds adaptive character spacing: halfwidth-to-halfwidth pairs use half of the configured gap, while pairs containing a fullwidth character use the full gap. This release also adds the MIT license and public [Code signing policy](https://github.com/Tsukira1229/japanese-stroke-mouse-writer/blob/main/CODE_SIGNING_POLICY.md) for the pending SignPath Foundation application. V2.3.2 remains unsigned, so Windows SmartScreen may show a warning."
+            "dist/JapaneseStrokeMouseWriter-v2.5.0-win-x64-portable.zip" `
+            "dist/JapaneseStrokeMouseWriter-v2.5.0-win-x64-portable.zip.sha256" `
+            --title "Japanese Stroke Mouse Writer V2.5.0 Portable" `
+            --notes-file "CHANGELOG.md"

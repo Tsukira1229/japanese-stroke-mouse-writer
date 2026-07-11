@@ -1,5 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Project-authored centerline stroke data for U+2729. -->
+<!-- Reviewed centerline stroke data for U+2729. -->
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 109 109">
-  <path id="custom:02729-s1" d="M54,15 L64,43 L94,43 L69,60 L79,91 L54,72 L29,91 L39,60 L14,43 L44,43 L54,15" />
+  <path id="custom:02729-s1" d="M54.41,24.02 L54.41,28.57 L55.68,29.30 L64.05,52.59 L89.89,53.32 L93.71,52.23" />
+  <path id="custom:02729-s2" d="M54.41,28.57 L52.95,29.84 L44.76,52.59 L19.83,53.32 L20.93,55.86 L37.49,68.42 L38.94,70.79 L31.84,95.72 L29.12,99.36" />
+  <path id="custom:02729-s3" d="M14.92,52.04 L19.83,53.50" />
+  <path id="custom:02729-s4" d="M89.35,53.32 L87.71,56.05 L70.06,70.60 L76.61,92.26 L76.43,95.17" />
+  <path id="custom:02729-s5" d="M31.84,95.53 L34.76,94.81 L51.68,82.98 L54.59,82.07 L74.24,94.81 L76.61,95.17 L79.34,98.99" />
 </svg>

@@ -1,13 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Project-authored centerline stroke data for U+263C. -->
+<!-- Reviewed centerline stroke data for U+263C. -->
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 109 109">
-  <path id="custom:0263c-s1" d="M54,18 C74,18 91,35 91,55 C91,75 74,91 54,91 C34,91 18,75 18,55 C18,35 34,18 54,18" />
-  <path id="custom:0263c-s2" d="M54,5 L54,24" />
-  <path id="custom:0263c-s3" d="M54,85 L54,104" />
-  <path id="custom:0263c-s4" d="M5,55 L24,55" />
-  <path id="custom:0263c-s5" d="M85,55 L104,55" />
-  <path id="custom:0263c-s6" d="M20,20 L34,34" />
-  <path id="custom:0263c-s7" d="M75,75 L89,89" />
-  <path id="custom:0263c-s8" d="M89,20 L75,34" />
-  <path id="custom:0263c-s9" d="M34,75 L20,89" />
+  <path id="custom:0263c-s1" d="M54.41,19.47 L54.41,30.93" />
+  <path id="custom:0263c-s2" d="M78.07,37.12 L76.61,38.40 L62.23,31.84 L53.68,30.93 L42.76,33.12 L32.21,38.40 L26.20,50.95 L24.75,59.50 L26.20,70.24 L32.21,82.98 L25.29,89.89" />
+  <path id="custom:0263c-s3" d="M25.29,31.48 L32.21,38.40" />
+  <path id="custom:0263c-s4" d="M83.71,31.48 L76.79,38.21 L82.25,49.86 L84.07,59.87 L82.98,69.15 L76.79,82.98 L83.52,89.71" />
+  <path id="custom:0263c-s5" d="M13.28,60.60 L24.75,60.60" />
+  <path id="custom:0263c-s6" d="M84.07,60.60 L95.53,60.60" />
+  <path id="custom:0263c-s7" d="M30.75,84.25 L32.75,82.98 L44.22,88.62 L57.14,90.08 L65.15,88.44 L76.79,82.98" />
+  <path id="custom:0263c-s8" d="M54.41,90.08 L54.41,101.72" />
 </svg>

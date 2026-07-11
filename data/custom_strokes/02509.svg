@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Project-authored Unicode box-drawing centerlines for U+2509. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 109 109">
+  <path id="custom:02509-s1" d="M0,51.5 L21.2,51.5" />
+  <path id="custom:02509-s2" d="M29.2,51.5 L50.5,51.5" />
+  <path id="custom:02509-s3" d="M58.5,51.5 L79.8,51.5" />
+  <path id="custom:02509-s4" d="M87.8,51.5 L109,51.5" />
+  <path id="custom:02509-s5" d="M0,54.5 L21.2,54.5" />
+  <path id="custom:02509-s6" d="M29.2,54.5 L50.5,54.5" />
+  <path id="custom:02509-s7" d="M58.5,54.5 L79.8,54.5" />
+  <path id="custom:02509-s8" d="M87.8,54.5 L109,54.5" />
+  <path id="custom:02509-s9" d="M0,57.5 L21.2,57.5" />
+  <path id="custom:02509-s10" d="M29.2,57.5 L50.5,57.5" />
+  <path id="custom:02509-s11" d="M58.5,57.5 L79.8,57.5" />
+  <path id="custom:02509-s12" d="M87.8,57.5 L109,57.5" />
+</svg>

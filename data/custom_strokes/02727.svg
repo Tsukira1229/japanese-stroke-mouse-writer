@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Project-authored centerline stroke data for U+2727. -->
+<!-- Reviewed centerline stroke data for U+2727. -->
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 109 109">
-  <path id="custom:02727-s1" d="M54,14 L63,45 L94,54 L63,63 L54,94 L45,63 L14,54 L45,45 L54,14" />
+  <path id="custom:02727-s1" d="M54.41,23.66 L54.41,29.12" />
+  <path id="custom:02727-s2" d="M54.41,93.90 L64.42,72.06 L85.71,62.60 L85.89,60.23 L64.96,51.32 L55.86,30.21 L54.05,29.12 L44.58,50.59 L22.38,61.14 L23.11,62.60 L44.22,71.70 L53.32,93.35 L54.59,93.90 L54.41,99.17" />
+  <path id="custom:02727-s3" d="M17.11,61.32 L22.38,61.32" />
+  <path id="custom:02727-s4" d="M86.44,61.32 L91.89,61.32" />
 </svg>

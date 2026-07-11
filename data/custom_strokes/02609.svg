@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Project-authored centerline stroke data for U+2609. -->
+<!-- Reviewed centerline stroke data for U+2609. -->
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 109 109">
-  <path id="custom:02609-s1" d="M54,18 C74,18 91,35 91,55 C91,75 74,91 54,91 C34,91 18,75 18,55 C18,35 34,18 54,18" />
-  <path id="custom:02609-s2" d="M54,34 L54,76" />
-  <path id="custom:02609-s3" d="M32,55 L76,55" />
+  <path id="custom:02609-s1" d="M53.68,30.93 L62.23,31.84 L72.42,36.76 L78.79,43.31 L82.98,52.04 L84.07,61.32 L82.07,71.88 L77.52,79.70 L71.51,85.16" />
+  <path id="custom:02609-s2" d="M51.13,31.12 L53.50,31.12" />
+  <path id="custom:02609-s3" d="M49.31,31.30 L50.95,31.30" />
+  <path id="custom:02609-s4" d="M41.13,34.03 L38.94,35.30" />
+  <path id="custom:02609-s5" d="M38.21,35.67 L29.66,43.85 L25.66,52.95 L25.11,65.33 L29.30,76.79 L38.21,85.71 L47.49,89.53 L60.41,89.71 L70.97,85.53" />
 </svg>

@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Project-authored centerline stroke data for U+A1F4. -->
+<!-- Reviewed centerline stroke data for U+A1F4. -->
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 109 109">
-  <path id="custom:0a1f4-s1" d="M22,30 C37,18 72,18 87,30" />
-  <path id="custom:0a1f4-s2" d="M30,43 L30,66 C30,82 42,91 54,91 C66,91 78,82 78,66 L78,43" />
-  <path id="custom:0a1f4-s3" d="M42,64 C46,69 62,69 66,64" />
+  <path id="custom:0a1f4-s1" d="M32.75,17.11 L32.75,64.24 L34.39,76.79 L37.12,84.43 L41.49,90.08 L47.13,93.35 L54.41,94.44 L60.60,93.71 L66.60,90.80 L71.15,85.53 L74.06,78.61 L76.25,62.05 L76.25,17.11" />
+  <path id="custom:0a1f4-s2" d="M32.75,32.75 L76.25,32.75" />
 </svg>

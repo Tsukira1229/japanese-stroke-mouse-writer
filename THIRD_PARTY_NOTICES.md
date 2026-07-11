@@ -34,4 +34,4 @@ The centerline SVG paths for U+FF5E FULLWIDTH TILDE (`～`), U+0040 COMMERCIAL A
 
 Fullwidth aliases use the corresponding ASCII source path. Project-authored stroke data is licensed under the project MIT License. Characters that resolve to included KanjiVG paths remain subject to the KanjiVG terms above.
 
-V2.4.1 adds project-authored centerline SVG paths for selected Unicode symbols that are useful when users manually assemble kaomoji. These paths are project-authored centerlines and are not copied from third-party symbol lists. Project-authored centerline SVG data is licensed under the project MIT License.
+V2.5.0 includes project-authored centerline SVG paths for selected Unicode symbols that are useful when users manually assemble kaomoji and line drawings. These paths are not copied from third-party symbol lists and are licensed under the project MIT License.

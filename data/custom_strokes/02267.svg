@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Project-authored centerline stroke data for U+2267. -->
+<!-- Reviewed centerline stroke data for U+2267. -->
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 109 109">
-  <path id="custom:02267-s1" d="M25,26 L84,55 L25,84" />
-  <path id="custom:02267-s2" d="M30,37 L78,37" />
-  <path id="custom:02267-s3" d="M30,73 L78,73" />
+  <path id="custom:02267-s1" d="M25.29,26.02 L79.34,40.76 L82.25,43.13" />
+  <path id="custom:02267-s2" d="M25.11,60.05 L78.79,45.67 L81.34,43.13" />
+  <path id="custom:02267-s3" d="M25.84,70.97 L82.80,70.97" />
+  <path id="custom:02267-s4" d="M25.84,87.16 L82.80,87.16" />
 </svg>

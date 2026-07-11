@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Project-authored centerline stroke data for U+256D. -->
+<!-- Project-authored Unicode box-drawing centerlines for U+256D. -->
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 109 109">
-  <path id="custom:0256d-s1" d="M88,24 C52,30 30,53 30,90" />
+  <path id="custom:0256d-s1" d="M54.5,109 L54.5,72 C54.5,62 62,54.5 72,54.5 L109,54.5" />
 </svg>

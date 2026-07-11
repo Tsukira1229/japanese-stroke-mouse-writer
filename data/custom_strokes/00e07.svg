@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Project-authored centerline stroke data for U+0E07. -->
+<!-- Reviewed centerline stroke data for U+0E07. -->
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 109 109">
-  <path id="custom:00e07-s1" d="M42,28 C31,44 35,75 55,82 C75,75 79,44 66,28" />
-  <path id="custom:00e07-s2" d="M55,82 L79,93" />
+  <path id="custom:00e07-s1" d="M63.33,61.51 L62.05,60.23 L54.59,59.32 L52.04,56.23 L51.68,53.32 L52.59,50.04 L55.68,47.49 L60.78,47.49 L64.24,50.59 L63.14,94.81" />
+  <path id="custom:00e07-s2" d="M54.23,48.22 L52.77,49.68" />
+  <path id="custom:00e07-s3" d="M33.48,65.69 L35.85,72.42 L53.86,89.71 L56.77,92.44 L63.33,94.08" />
+  <path id="custom:00e07-s4" d="M45.13,81.16 L46.22,82.25" />
+  <path id="custom:00e07-s5" d="M48.95,84.80 L50.04,85.89" />
+  <path id="custom:00e07-s6" d="M52.77,88.44 L53.86,89.53" />
 </svg>

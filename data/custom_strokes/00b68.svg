@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Project-authored centerline stroke data for U+0B68. -->
+<!-- Reviewed centerline stroke data for U+0B68. -->
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 109 109">
-  <path id="custom:00b68-s1" d="M47,21 C68,31 77,49 69,65 C61,81 40,75 38,58" />
-  <path id="custom:00b68-s2" d="M38,58 L21,42" />
+  <path id="custom:00b68-s1" d="M68.42,57.68 L55.14,60.78 L45.67,58.05 L41.31,53.14 L39.49,47.13 L40.03,39.67 L42.04,35.48 L49.50,29.84 L54.77,28.93 L60.23,29.84 L64.60,32.39 L67.87,36.21 L70.60,46.40 L67.51,66.42 L62.78,76.61 L52.77,88.44 L42.58,95.53" />
+  <path id="custom:00b68-s2" d="M43.31,55.86 L44.95,57.50" />
+  <path id="custom:00b68-s3" d="M56.96,84.43 L54.41,86.98" />
 </svg>

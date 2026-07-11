@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Project-authored centerline stroke data for U+25EF. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 109 109">
+  <path id="custom:025ef-s1" d="M54.5,9.5 C79.35,9.5 99.5,29.65 99.5,54.5 C99.5,79.35 79.35,99.5 54.5,99.5 C29.65,99.5 9.5,79.35 9.5,54.5 C9.5,29.65 29.65,9.5 54.5,9.5" />
+</svg>

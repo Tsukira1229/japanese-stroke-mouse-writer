@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Project-authored Unicode box-drawing centerlines for U+255C. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 109 109">
+  <path id="custom:0255c-s1" d="M0,54.5 L60.5,54.5" />
+  <path id="custom:0255c-s2" d="M48.5,0 L48.5,54.5" />
+  <path id="custom:0255c-s3" d="M60.5,0 L60.5,54.5" />
+</svg>

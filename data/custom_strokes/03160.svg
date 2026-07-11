@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Project-authored centerline stroke data for U+3160. -->
+<!-- Reviewed centerline stroke data for U+3160. -->
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 109 109">
-  <path id="custom:03160-s1" d="M24,37 L84,37" />
-  <path id="custom:03160-s2" d="M39,37 L39,86" />
-  <path id="custom:03160-s3" d="M69,37 L69,86" />
+  <path id="custom:03160-s1" d="M10.55,48.95 L98.45,48.95" />
+  <path id="custom:03160-s2" d="M72.61,49.13 L72.42,95.35" />
+  <path id="custom:03160-s3" d="M36.39,49.31 L36.39,95.35" />
 </svg>

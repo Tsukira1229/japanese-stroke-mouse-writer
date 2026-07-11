@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Project-authored centerline stroke data for U+25BD. -->
+<!-- Reviewed centerline stroke data for U+25BD. -->
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 109 109">
-  <path id="custom:025bd-s1" d="M20,24 L54,88 L88,24 L20,24" />
+  <path id="custom:025bd-s1" d="M5.46,18.38 L9.46,20.38 L99.72,20.20 L102.63,18.92" />
+  <path id="custom:025bd-s2" d="M9.64,20.20 L10.74,24.57 L52.95,97.72 L54.23,98.26 L56.41,96.99 L98.81,23.47 L99.54,20.20" />
+  <path id="custom:025bd-s3" d="M54.41,98.26 L54.41,102.81" />
 </svg>

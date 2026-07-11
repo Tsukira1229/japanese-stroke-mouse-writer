@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Project-authored centerline stroke data for U+2666. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 109 109">
+  <path id="custom:02666-s1" d="M54.5,19 L84,54.5 L54.5,91 L25,54.5 L54.5,19" />
+  <path id="custom:02666-s2" d="M37.29,39.71 L56.09,20.91" />
+  <path id="custom:02666-s3" d="M28.8,59.2 L61.08,26.92" />
+  <path id="custom:02666-s4" d="M33.72,65.28 L66.07,32.93" />
+  <path id="custom:02666-s5" d="M38.63,71.37 L71.07,38.93" />
+  <path id="custom:02666-s6" d="M43.55,77.45 L76.06,44.94" />
+  <path id="custom:02666-s7" d="M48.47,83.53 L81.05,50.95" />
+  <path id="custom:02666-s8" d="M53.38,89.62 L65.04,77.96" />
+</svg>

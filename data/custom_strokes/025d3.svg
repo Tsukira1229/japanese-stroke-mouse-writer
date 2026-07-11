@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Corrected centerline stroke data for U+25D3. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 109 109">
+  <path id="custom:025d3-s1" d="M54,13 C79,13 99,33 99,58 C99,83 79,103 54,103 C29,103 10,83 10,58 C10,33 29,13 54,13" />
+  <path id="custom:025d3-s2" d="M10,58 L99,58" />
+  <path id="custom:025d3-s3" d="M25,27 L54,56" />
+  <path id="custom:025d3-s4" d="M48,20 L86,58" />
+  <path id="custom:025d3-s5" d="M75,20 L97,42" />
+</svg>

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Project-authored centerline stroke data for U+275B. -->
+<!-- Reviewed centerline stroke data for U+275B. -->
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 109 109">
-  <path id="custom:0275b-s1" d="M62,24 C45,34 43,53 56,58 C68,63 79,52 73,41 C70,35 66,29 62,24" />
+  <path id="custom:0275b-s1" d="M62.96,20.38 L61.69,22.38 L54.05,26.39 L49.13,32.94 L48.04,38.76 L55.32,46.04" />
 </svg>

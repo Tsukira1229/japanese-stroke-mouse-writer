@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Project-authored centerline stroke data for U+A4AA. -->
+<!-- Reviewed centerline stroke data for U+A4AA. -->
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 109 109">
-  <path id="custom:0a4aa-s1" d="M54,18 C74,18 91,35 91,55 C91,75 74,91 54,91 C34,91 18,75 18,55 C18,35 34,18 54,18" />
-  <path id="custom:0a4aa-s2" d="M35,34 C48,44 61,44 74,34" />
-  <path id="custom:0a4aa-s3" d="M35,76 C48,66 61,66 74,76" />
+  <path id="custom:0a4aa-s1" d="M51.13,14.19 L67.15,16.01 L74.43,21.29 L76.97,27.66 L76.97,33.30 L75.15,38.58 L71.51,42.58 L63.87,45.86 L49.68,46.58 L40.76,44.40 L34.03,38.94 L31.84,32.03 L32.21,26.39 L34.03,22.02 L41.31,16.20 L51.13,14.19" />
+  <path id="custom:0a4aa-s2" d="M35.12,40.40 L36.76,42.04" />
 </svg>

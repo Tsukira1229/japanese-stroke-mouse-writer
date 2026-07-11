@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Project-authored centerline stroke data for U+02D9. -->
+<!-- Reviewed centerline stroke data for U+02D9. -->
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 109 109">
-  <path id="custom:002d9-s1" d="M54,31 L55,31" />
+  <path id="custom:002d9-s1" d="M54.68,21.44 L58.12,21.44 L59.59,22.91 L59.59,26.34 L59.59,29.78 L58.12,31.25 L54.68,31.25 L51.25,31.25 L49.78,29.78 L49.78,26.34 L49.78,22.91 L51.25,21.44 L54.68,21.44" />
 </svg>

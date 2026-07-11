@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Project-authored centerline stroke data for U+0414. -->
+<!-- Reviewed centerline stroke data for U+0414. -->
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 109 109">
-  <path id="custom:00414-s1" d="M30,22 L78,22 L88,86" />
-  <path id="custom:00414-s2" d="M42,22 L28,86" />
-  <path id="custom:00414-s3" d="M18,86 L95,86" />
+  <path id="custom:00414-s1" d="M28.39,95.17 L29.84,88.26 L36.39,72.97 L40.94,58.23 L44.22,44.22 L46.22,27.66 L73.52,27.30 L73.70,95.35" />
+  <path id="custom:00414-s2" d="M21.47,104.81 L21.65,95.53 L28.39,94.99 L84.62,95.53 L84.62,104.81" />
 </svg>
