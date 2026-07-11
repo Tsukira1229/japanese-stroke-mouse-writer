@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!-- Project-authored centerline stroke data for U+10DA. -->
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 109 109">
-  <path id="custom:010da-s1" d="M23,75 C31,48 45,31 58,44 C71,57 61,82 42,77" />
-  <path id="custom:010da-s2" d="M58,44 C68,23 88,30 84,55 C81,74 63,84 46,76" />
-</svg>

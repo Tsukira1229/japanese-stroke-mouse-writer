@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!-- Project-authored centerline stroke data for U+FECC. -->
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 109 109">
-  <path id="custom:0fecc-s1" d="M20,55 C32,35 48,41 54,55 C60,41 76,35 88,55" />
-  <path id="custom:0fecc-s2" d="M28,65 C41,85 67,85 80,65" />
-</svg>

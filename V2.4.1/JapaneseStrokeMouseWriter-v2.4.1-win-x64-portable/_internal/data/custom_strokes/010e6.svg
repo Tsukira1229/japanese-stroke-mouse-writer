@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!-- Project-authored centerline stroke data for U+10E6. -->
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 109 109">
-  <path id="custom:010e6-s1" d="M54,86 C32,70 21,53 28,39 C36,23 53,31 54,48 C55,31 73,23 81,39 C88,53 76,70 54,86" />
-  <path id="custom:010e6-s2" d="M32,46 C42,56 48,60 54,66 C60,60 67,56 77,46" />
-</svg>

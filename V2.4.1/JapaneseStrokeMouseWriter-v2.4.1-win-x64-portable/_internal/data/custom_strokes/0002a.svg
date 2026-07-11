@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!-- Project-authored centerline stroke data for U+002A ASTERISK. -->
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 109 109">
-  <path id="custom:0002a-s1" d="M54,22 L54,82" />
-  <path id="custom:0002a-s2" d="M28,37 L80,67" />
-  <path id="custom:0002a-s3" d="M80,37 L28,67" />
-</svg>

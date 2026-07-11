@@ -1,5 +1,0 @@
-Japanese Stroke Mouse Writer
-Version: 2.4.1
-Type: Internal development build
-Release: No GitHub Release, no tag, no ZIP
-Signing: Unsigned; SignPath Foundation application was not approved

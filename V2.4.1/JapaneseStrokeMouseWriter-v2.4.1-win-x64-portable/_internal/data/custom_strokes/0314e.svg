@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!-- Project-authored centerline stroke data for U+314E. -->
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 109 109">
-  <path id="custom:0314e-s1" d="M31,23 L78,23" />
-  <path id="custom:0314e-s2" d="M54,23 L54,43" />
-  <path id="custom:0314e-s3" d="M54,50 C72,50 86,64 86,78 C86,92 72,102 54,102 C36,102 23,92 23,78 C23,64 36,50 54,50" />
-</svg>

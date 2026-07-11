@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!-- Project-authored centerline stroke data for U+0F3C. -->
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 109 109">
-  <path id="custom:00f3c-s1" d="M78,18 C48,28 31,43 31,63 C31,82 49,94 78,101" />
-  <path id="custom:00f3c-s2" d="M55,35 C45,44 45,73 55,82" />
-</svg>

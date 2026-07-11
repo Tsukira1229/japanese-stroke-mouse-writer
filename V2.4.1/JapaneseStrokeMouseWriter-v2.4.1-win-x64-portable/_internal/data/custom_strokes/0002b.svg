@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!-- Project-authored centerline stroke data for U+002B PLUS SIGN. -->
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 109 109">
-  <path id="custom:0002b-s1" d="M20,55 L89,55" />
-  <path id="custom:0002b-s2" d="M55,20 L55,90" />
-</svg>

@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!-- Project-authored centerline stroke data for U+2741. -->
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 109 109">
-  <path id="custom:02741-s1" d="M54,54 C40,37 47,18 54,18 C61,18 68,37 54,54" />
-  <path id="custom:02741-s2" d="M54,54 C37,68 18,61 18,54 C18,47 37,40 54,54" />
-  <path id="custom:02741-s3" d="M54,54 C68,71 61,90 54,90 C47,90 40,71 54,54" />
-  <path id="custom:02741-s4" d="M54,54 C71,40 90,47 90,54 C90,61 71,68 54,54" />
-</svg>
