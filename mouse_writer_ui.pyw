@@ -15,6 +15,16 @@ from collections.abc import Callable
 from pathlib import Path
 from tkinter import messagebox, simpledialog, ttk
 
+import ttkbootstrap as tb
+from ttkbootstrap.publisher import Publisher
+
+from appearance import (
+    AppearanceMode,
+    apply_windows_titlebar_theme,
+    configure_windows_dpi_awareness,
+    resolve_palette,
+)
+
 from localization import (
     LANGUAGE_OPTIONS,
     Language,
@@ -26,6 +36,7 @@ from localization import (
 from mouse_writer_pro import (
     APP_VERSION,
     ASCII_ALNUM,
+    BUNDLE_DIR,
     DEFAULT_KANJIVG_DIR,
     FULLWIDTH_ALNUM,
     HALFWIDTH_KATAKANA,
@@ -48,6 +59,40 @@ from settings_store import DEFAULT_SETTINGS_PATH, Preset, SettingsStore
 
 
 NUMERIC_TRANSLATION = str.maketrans("０１２３４５６７８９。．，,", "0123456789....")
+
+
+class Tooltip:
+    def __init__(self, widget: tk.Widget, text: str) -> None:
+        self.widget = widget
+        self.text = text
+        self.window: tk.Toplevel | None = None
+        widget.bind("<Enter>", self._show, add="+")
+        widget.bind("<Leave>", self._hide, add="+")
+        widget.bind("<ButtonPress>", self._hide, add="+")
+
+    def _show(self, _event: tk.Event[tk.Misc] | None = None) -> None:
+        if self.window or not self.text:
+            return
+        x = self.widget.winfo_rootx() + 8
+        y = self.widget.winfo_rooty() + self.widget.winfo_height() + 6
+        window = tk.Toplevel(self.widget)
+        window.wm_overrideredirect(True)
+        window.wm_geometry(f"+{x}+{y}")
+        tk.Label(
+            window,
+            text=self.text,
+            background="#3A3342",
+            foreground="#FFFFFF",
+            padx=8,
+            pady=5,
+            font=("Microsoft JhengHei UI", 9),
+        ).pack()
+        self.window = window
+
+    def _hide(self, _event: tk.Event[tk.Misc] | None = None) -> None:
+        if self.window:
+            self.window.destroy()
+        self.window = None
 
 
 class NumericSpinbox:
@@ -111,19 +156,13 @@ class NumericSpinbox:
 
 
 class JapaneseWriterApp:
-    BACKGROUND = "#f3f5f7"
-    SURFACE = "#ffffff"
-    TEXT = "#17212b"
-    MUTED = "#5d6875"
-    BORDER = "#d8dee5"
-    PRIMARY = "#176b87"
-    PRIMARY_ACTIVE = "#12566d"
-    ACCENT = "#b4512f"
-
     def __init__(self, root: tk.Tk, settings_path: Path = DEFAULT_SETTINGS_PATH) -> None:
         self.root = root
         self.store = SettingsStore(settings_path)
         self.language = detect_system_language()
+        self.appearance_mode = AppearanceMode.LIGHT
+        self.palette = resolve_palette(self.appearance_mode)
+        self._apply_palette_tokens()
         self.busy = False
         self.closing = False
         self.stop_event = threading.Event()
@@ -144,6 +183,11 @@ class JapaneseWriterApp:
             tuple[Callable[..., None], tuple[object, ...]]
         ] = queue.Queue()
         self.preset_name_to_id: dict[str, str] = {}
+        self.status_kind = "ready"
+        self.icons: dict[str, tk.PhotoImage] = {}
+        self.inverse_icons: dict[str, tk.PhotoImage] = {}
+        self.tooltips: list[Tooltip] = []
+        self.segment_traces: list[tuple[tk.StringVar, str]] = []
 
         root.title(f"Japanese Stroke Mouse Writer V{APP_VERSION}")
         root.geometry("1200x820")
@@ -153,6 +197,7 @@ class JapaneseWriterApp:
         root.bind("<Escape>", lambda _event: self.stop_event.set())
 
         self._configure_styles()
+        self._load_icons()
         self._create_variables()
         self._build_layout()
         self._load_portable_settings()
@@ -193,19 +238,125 @@ class JapaneseWriterApp:
     def _flow_labels(self) -> dict[str, FlowDirection]:
         return {self.t("right"): FlowDirection.RIGHT, self.t("left"): FlowDirection.LEFT}
 
+    def _appearance_labels(self) -> dict[str, AppearanceMode]:
+        return {
+            self.t("appearance_system"): AppearanceMode.SYSTEM,
+            self.t("appearance_light"): AppearanceMode.LIGHT,
+            self.t("appearance_dark"): AppearanceMode.DARK,
+        }
+
     def _set_status(self, key: str, **values: object) -> None:
-        self.status.set(self.t(key, **values))
+        busy_keys = {"detecting", "preparing_write", "preview_updating", "operation_running"}
+        error_keys = {"operation_failed"}
+        warning_keys = {"cancelled_esc", "cancelled_failsafe", "stop_requested"}
+        success_keys = {"preview_updated", "writing_complete", "coordinate_detected"}
+        if key in busy_keys:
+            kind = "busy"
+        elif key in error_keys:
+            kind = "error"
+        elif key in warning_keys:
+            kind = "warning"
+        elif key in success_keys:
+            kind = "success"
+        else:
+            kind = "ready"
+        self._set_status_text(self.t(key, **values), kind)
+
+    def _set_status_text(self, value: str, kind: str) -> None:
+        self.status.set(value)
+        self.status_kind = kind
+        if hasattr(self, "status_mark"):
+            colors = {
+                "ready": self.PRIMARY,
+                "busy": self.GRAPE,
+                "success": self.SUCCESS,
+                "warning": self.WARNING,
+                "error": self.ERROR,
+            }
+            self.status_mark.configure(foreground=colors.get(self.status_kind, self.PRIMARY))
+
+    def _apply_palette_tokens(self) -> None:
+        palette = self.palette
+        self.BACKGROUND = palette.background
+        self.SURFACE = palette.surface
+        self.SURFACE_ALT = palette.surface_alt
+        self.TEXT = palette.text
+        self.MUTED = palette.muted
+        self.BORDER = palette.border
+        self.PRIMARY = palette.primary
+        self.PRIMARY_ACTIVE = palette.primary_active
+        self.ON_PRIMARY = palette.on_primary
+        self.ACCENT = palette.primary
+        self.MINT = palette.mint
+        self.SODA = palette.soda
+        self.SODA_ACTIVE = palette.soda_active
+        self.ON_SODA = palette.on_soda
+        self.GRAPE = palette.grape
+        self.GRAPE_ACTIVE = palette.grape_active
+        self.ON_GRAPE = palette.on_grape
+        self.WARNING = palette.warning
+        self.ERROR = palette.error
+        self.SUCCESS = palette.success
+        self.ANNOTATION = palette.annotation
+        self.DISABLED = palette.disabled
+        self.ON_DISABLED = palette.on_disabled
+
+    def _load_icons(self) -> None:
+        theme = "dark" if self.palette.dark else "light"
+        icon_dir = BUNDLE_DIR / "data" / "ui" / "icons" / theme
+        self.icons = {}
+        if icon_dir.is_dir():
+            for path in icon_dir.glob("*.png"):
+                self.icons[path.stem] = tk.PhotoImage(file=path)
+        self.inverse_icons = {}
+        # Matcha Sakura uses dark foregrounds on every pastel filled button in
+        # both appearance modes, so their companion icons use the dark-ink set.
+        inverse_theme = "light"
+        inverse_dir = BUNDLE_DIR / "data" / "ui" / "icons" / inverse_theme
+        if inverse_dir.is_dir():
+            for path in inverse_dir.glob("*.png"):
+                self.inverse_icons[path.stem] = tk.PhotoImage(file=path)
+        app_icon = BUNDLE_DIR / "data" / "ui" / "app-icon.png"
+        if app_icon.is_file():
+            self.app_icon = tk.PhotoImage(file=app_icon)
+            self.header_icon = self.app_icon.subsample(8, 8)
+            self.root.iconphoto(True, self.app_icon)
+        ico = BUNDLE_DIR / "data" / "ui" / "JapaneseStrokeMouseWriter.ico"
+        if ico.is_file():
+            try:
+                self.root.iconbitmap(default=ico)
+            except tk.TclError:
+                pass
+
+    def _icon(self, name: str, inverse: bool = False) -> tk.PhotoImage | str:
+        icons = self.inverse_icons if inverse else self.icons
+        return icons.get(name, "")
+
+    def _tooltip(self, widget: tk.Widget, text: str) -> None:
+        self.tooltips.append(Tooltip(widget, text))
 
     def _configure_styles(self) -> None:
-        style = ttk.Style(self.root)
-        try:
-            style.theme_use("clam")
-        except tk.TclError:
-            pass
+        style = tb.Style()
+        style.theme_use("darkly" if self.palette.dark else "flatly")
+        self.style = style
+        self.root.configure(background=self.BACKGROUND)
+        apply_windows_titlebar_theme(self.root, self.palette.dark)
         style.configure("App.TFrame", background=self.BACKGROUND)
         style.configure("Surface.TFrame", background=self.SURFACE)
+        style.configure("Alt.TFrame", background=self.SURFACE_ALT)
         style.configure("TNotebook", background=self.BACKGROUND, borderwidth=0)
-        style.configure("TNotebook.Tab", padding=(18, 9), font=("Microsoft JhengHei UI", 10))
+        style.configure(
+            "TNotebook.Tab",
+            padding=(18, 10),
+            font=("Microsoft JhengHei UI", 10),
+            background=self.BACKGROUND,
+            foreground=self.MUTED,
+        )
+        style.map(
+            "TNotebook.Tab",
+            background=[("selected", self.SURFACE), ("active", self.SURFACE_ALT)],
+            foreground=[("selected", self.PRIMARY), ("active", self.TEXT)],
+        )
         style.configure(
             "Title.TLabel",
             background=self.BACKGROUND,
@@ -225,35 +376,55 @@ class JapaneseWriterApp:
             font=("Microsoft JhengHei UI", 11, "bold"),
         )
         style.configure(
+            "Accent.TLabel",
+            background=self.SURFACE,
+            foreground=self.PRIMARY,
+            font=("Microsoft JhengHei UI", 10, "bold"),
+        )
+        style.configure(
             "Field.TLabel",
             background=self.SURFACE,
             foreground=self.MUTED,
             font=("Microsoft JhengHei UI", 9),
         )
         style.configure(
-            "Primary.TButton",
+            "CandyPrimary.TButton",
             background=self.PRIMARY,
-            foreground="white",
+            foreground=self.ON_PRIMARY,
             borderwidth=0,
             padding=(18, 10),
             font=("Microsoft JhengHei UI", 10, "bold"),
         )
         style.map(
-            "Primary.TButton",
-            background=[("active", self.PRIMARY_ACTIVE), ("disabled", "#9caab2")],
+            "CandyPrimary.TButton",
+            background=[("active", self.PRIMARY_ACTIVE), ("disabled", self.DISABLED)],
+            foreground=[("active", self.ON_PRIMARY), ("disabled", self.ON_DISABLED)],
         )
         style.configure(
-            "Secondary.TButton",
-            background="#e9eef1",
+            "CandySecondary.TButton",
+            background=self.SURFACE_ALT,
             foreground=self.TEXT,
-            borderwidth=0,
+            borderwidth=1,
+            bordercolor=self.BORDER,
             padding=(12, 8),
             font=("Microsoft JhengHei UI", 9),
         )
-        style.map("Secondary.TButton", background=[("active", "#dce5e9")])
-        style.configure("TEntry", padding=7, fieldbackground="#fbfcfd")
-        style.configure("TSpinbox", padding=7, fieldbackground="#fbfcfd")
-        style.configure("TCombobox", padding=7, fieldbackground="#fbfcfd")
+        style.map("CandySecondary.TButton", background=[("active", self.BORDER)])
+        style.configure("CandyStart.TButton", background=self.SODA, foreground=self.ON_SODA, padding=(12, 8))
+        style.map(
+            "CandyStart.TButton",
+            background=[("active", self.SODA_ACTIVE), ("disabled", self.DISABLED)],
+            foreground=[("active", self.ON_SODA), ("disabled", self.ON_DISABLED)],
+        )
+        style.configure("CandyEnd.TButton", background=self.GRAPE, foreground=self.ON_GRAPE, padding=(12, 8))
+        style.map(
+            "CandyEnd.TButton",
+            background=[("active", self.GRAPE_ACTIVE), ("disabled", self.DISABLED)],
+            foreground=[("active", self.ON_GRAPE), ("disabled", self.ON_DISABLED)],
+        )
+        style.configure("TEntry", padding=7, fieldbackground=self.SURFACE)
+        style.configure("TSpinbox", padding=7, fieldbackground=self.SURFACE)
+        style.configure("TCombobox", padding=7, fieldbackground=self.SURFACE)
 
     def _create_variables(self) -> None:
         screen_width = self.root.winfo_screenwidth()
@@ -271,17 +442,21 @@ class JapaneseWriterApp:
         self.sample_spacing = tk.StringVar(value="2.0")
         self.point_delay_ms = tk.StringVar(value="8")
         self.language_selection = tk.StringVar(value=dict(LANGUAGE_OPTIONS)[self.language])
+        self.appearance_selection = tk.StringVar(
+            value=next(label for label, value in self._appearance_labels().items() if value is self.appearance_mode)
+        )
         self.preset_selection = tk.StringVar(value="")
         self.status = tk.StringVar(value=self.t("ready"))
         self.summary = tk.StringVar(value="")
 
     def _build_layout(self) -> None:
         self.root.title(f"{self.t('app_title')} V{APP_VERSION}")
-        self.outer = ttk.Frame(self.root, style="App.TFrame", padding=(22, 12, 22, 12))
+        self.outer = ttk.Frame(self.root, style="App.TFrame", padding=(18, 8, 18, 8))
         self.outer.pack(fill="both", expand=True)
         outer = self.outer
         header = ttk.Frame(outer, style="App.TFrame")
-        header.pack(fill="x", pady=(0, 10))
+        header.pack(fill="x", pady=(0, 6))
+        ttk.Label(header, image=getattr(self, "header_icon", ""), style="Accent.TLabel").pack(side="left", padx=(0, 9))
         ttk.Label(header, text=self.t("app_title"), style="Title.TLabel").pack(side="left")
         ttk.Label(
             header,
@@ -291,21 +466,21 @@ class JapaneseWriterApp:
 
         self.notebook = ttk.Notebook(outer)
         self.notebook.pack(fill="both", expand=True)
-        self.content_tab = ttk.Frame(self.notebook, style="Surface.TFrame", padding=16)
-        self.general_tab = ttk.Frame(self.notebook, style="Surface.TFrame", padding=22)
-        self.environment_tab = ttk.Frame(self.notebook, style="Surface.TFrame", padding=22)
-        self.help_tab = ttk.Frame(self.notebook, style="Surface.TFrame", padding=22)
-        self.notebook.add(self.content_tab, text=self.t("tab_content"))
-        self.notebook.add(self.general_tab, text=self.t("tab_general"))
-        self.notebook.add(self.environment_tab, text=self.t("tab_environment"))
-        self.notebook.add(self.help_tab, text=self.t("tab_help"))
+        self.content_tab = ttk.Frame(self.notebook, style="Surface.TFrame", padding=14)
+        self.general_tab = ttk.Frame(self.notebook, style="Surface.TFrame", padding=18)
+        self.environment_tab = ttk.Frame(self.notebook, style="Surface.TFrame", padding=18)
+        self.help_tab = ttk.Frame(self.notebook, style="Surface.TFrame", padding=18)
+        self.notebook.add(self.content_tab, text=self.t("tab_content"), image=self._icon("file-pen-line"), compound="left")
+        self.notebook.add(self.general_tab, text=self.t("tab_general"), image=self._icon("save"), compound="left")
+        self.notebook.add(self.environment_tab, text=self.t("tab_environment"), image=self._icon("settings"), compound="left")
+        self.notebook.add(self.help_tab, text=self.t("tab_help"), image=self._icon("circle-question-mark"), compound="left")
         self._build_content_tab()
         self._build_general_tab()
         self._build_environment_tab()
         self._build_help_tab()
 
         self.status_bar = ttk.Frame(outer, style="App.TFrame")
-        self.status_bar.pack(fill="x", pady=(10, 0))
+        self.status_bar.pack(fill="x", pady=(6, 0), side="bottom", before=self.notebook)
         self.status_mark = tk.Label(
             self.status_bar,
             text="●",
@@ -324,8 +499,8 @@ class JapaneseWriterApp:
 
     def _build_content_tab(self) -> None:
         tab = self.content_tab
-        tab.columnconfigure(0, minsize=410)
-        tab.columnconfigure(1, weight=1)
+        tab.columnconfigure(0, weight=1, uniform="content-columns")
+        tab.columnconfigure(1, weight=1, uniform="content-columns")
         tab.rowconfigure(0, weight=1)
 
         left = ttk.Frame(tab, style="Surface.TFrame", padding=(0, 0, 16, 0))
@@ -339,19 +514,22 @@ class JapaneseWriterApp:
         text_frame.columnconfigure(0, weight=1)
         self.text_input = tk.Text(
             text_frame,
+            width=1,
+            height=1,
             wrap="none",
             undo=True,
             relief="flat",
             borderwidth=0,
             font=("Yu Gothic UI", 15),
             foreground=self.TEXT,
-            background="#fbfcfd",
+            background=self.SURFACE_ALT,
             insertbackground=self.TEXT,
             padx=10,
             pady=8,
         )
         self.text_input.insert("1.0", "こんにちは日本語")
         self.text_input.grid(row=0, column=0, sticky="nsew")
+        self.text_input.configure(background=self.SURFACE_ALT, foreground=self.TEXT, insertbackground=self.TEXT)
         self.text_input.bind("<KeyRelease>", lambda _event: self.schedule_preview())
 
         ttk.Label(left, text=self.t("canvas_coordinates"), style="Section.TLabel").grid(row=2, column=0, sticky="w")
@@ -381,17 +559,23 @@ class JapaneseWriterApp:
         self.preview_button = ttk.Button(
             actions,
             text=self.t("update_preview"),
-            style="Secondary.TButton",
+            image=self._icon("refresh-cw"),
+            compound="left",
+            style="CandySecondary.TButton",
             command=lambda: self.refresh_preview(show_errors=True),
         )
         self.preview_button.grid(row=0, column=0, sticky="ew", padx=(0, 5))
         self.execute_button = ttk.Button(
             actions,
             text=self.t("start_writing"),
-            style="Primary.TButton",
+            image=self._icon("play", inverse=True),
+            compound="left",
+            style="CandyPrimary.TButton",
             command=self.start_writing,
         )
         self.execute_button.grid(row=0, column=1, sticky="ew", padx=(5, 0))
+        self._tooltip(self.preview_button, self.t("update_preview"))
+        self._tooltip(self.execute_button, self.t("start_writing"))
 
         right = ttk.Frame(tab, style="Surface.TFrame")
         right.grid(row=0, column=1, sticky="nsew")
@@ -405,11 +589,14 @@ class JapaneseWriterApp:
         canvas_frame.grid(row=1, column=0, sticky="nsew")
         self.preview_canvas = tk.Canvas(
             canvas_frame,
-            background="white",
+            width=1,
+            height=1,
+            background=self.palette.canvas,
             highlightthickness=0,
             borderwidth=0,
         )
         self.preview_canvas.pack(fill="both", expand=True)
+        self.preview_canvas.configure(background=self.palette.canvas)
         self.preview_canvas.bind("<Configure>", lambda _event: self._draw_current_layout())
         ttk.Label(
             right,
@@ -434,8 +621,17 @@ class JapaneseWriterApp:
         entries.columnconfigure((0, 1), weight=1)
         ttk.Entry(entries, textvariable=x_variable, width=9).grid(row=0, column=0, sticky="ew", padx=(0, 3))
         ttk.Entry(entries, textvariable=y_variable, width=9).grid(row=0, column=1, sticky="ew", padx=(3, 0))
-        button = ttk.Button(frame, text=self.t("detect", target=title), style="Secondary.TButton", command=command)
+        button_style = "CandyStart.TButton" if column == 0 else "CandyEnd.TButton"
+        button = ttk.Button(
+            frame,
+            text=self.t("detect", target=title),
+            image=self._icon("crosshair", inverse=True),
+            compound="left",
+            style=button_style,
+            command=command,
+        )
         button.pack(fill="x")
+        self._tooltip(button, self.t("detect", target=title))
         self.coordinate_buttons.append(button)
 
     def _build_general_tab(self) -> None:
@@ -446,11 +642,15 @@ class JapaneseWriterApp:
         settings.grid(row=0, column=0, sticky="nsew")
         settings.columnconfigure((0, 1), weight=1)
         ttk.Label(settings, text=self.t("text_layout"), style="Section.TLabel").grid(row=0, column=0, columnspan=2, sticky="w", pady=(0, 12))
-        self._field(settings, 1, 0, self.t("font_size_px"), self.font_size)
-        self._field(settings, 1, 1, self.t("char_gap_px"), self.char_gap)
-        self._field(settings, 3, 0, self.t("line_gap_px"), self.line_gap)
-        self._combo_field(settings, 3, 1, self.t("orientation"), self.orientation, list(self._orientation_labels()))
-        self._combo_field(settings, 5, 0, self.t("flow"), self.flow, list(self._flow_labels()))
+        self._field(settings, 1, 0, self.t("font_size_px"), self.font_size, "px")
+        self._field(settings, 1, 1, self.t("char_gap_px"), self.char_gap, "px")
+        self._field(settings, 3, 0, self.t("line_gap_px"), self.line_gap, "px")
+        self.orientation_segments = self._segmented_field(
+            settings, 3, 1, self.t("orientation"), self.orientation, list(self._orientation_labels())
+        )
+        self.flow_segments = self._segmented_field(
+            settings, 5, 0, self.t("flow"), self.flow, list(self._flow_labels())
+        )
 
         presets = ttk.Frame(tab, style="Surface.TFrame", padding=(30, 0, 0, 0))
         presets.grid(row=0, column=1, sticky="nsew")
@@ -468,19 +668,28 @@ class JapaneseWriterApp:
         preset_actions.grid(row=2, column=0, sticky="ew")
         preset_actions.columnconfigure((0, 1), weight=1)
         actions = (
-            (self.t("preset_add"), self.add_preset),
-            (self.t("preset_overwrite"), self.overwrite_preset),
-            (self.t("preset_rename"), self.rename_preset),
-            (self.t("preset_delete"), self.delete_preset),
+            ("plus", self.t("preset_add"), self.add_preset),
+            ("save", self.t("preset_overwrite"), self.overwrite_preset),
+            ("pencil", self.t("preset_rename"), self.rename_preset),
+            ("trash-2", self.t("preset_delete"), self.delete_preset),
         )
-        for index, (label, command) in enumerate(actions):
-            ttk.Button(preset_actions, text=label, style="Secondary.TButton", command=command).grid(
+        for index, (icon, label, command) in enumerate(actions):
+            button = ttk.Button(
+                preset_actions,
+                text=label,
+                image=self._icon(icon),
+                compound="left",
+                style="CandySecondary.TButton",
+                command=command,
+            )
+            button.grid(
                 row=index // 2,
                 column=index % 2,
                 sticky="ew",
                 padx=(0 if index % 2 == 0 else 5, 5 if index % 2 == 0 else 0),
                 pady=(0, 6),
             )
+            self._tooltip(button, label)
         ttk.Label(
             presets,
             text=self.t("preset_hint"),
@@ -501,17 +710,27 @@ class JapaneseWriterApp:
             [label for _language, label in LANGUAGE_OPTIONS],
         )
         self.language_combo.bind("<<ComboboxSelected>>", self._language_selected)
-        self._numeric_field(tab, 1, 1, "countdown_seconds", "countdown", self.countdown, 0, 30, 1, integer=True)
-        self._numeric_field(tab, 3, 0, "curve_detail", "curve_detail", self.sample_spacing, 0.1, 20, 0.1)
-        self._numeric_field(tab, 3, 1, "point_delay_ms", "point_delay", self.point_delay_ms, 1, 1000, 1)
+        self.appearance_combo = self._combo_field(
+            tab,
+            1,
+            1,
+            self.t("appearance"),
+            self.appearance_selection,
+            list(self._appearance_labels()),
+        )
+        self.appearance_combo.bind("<<ComboboxSelected>>", self._appearance_selected)
+        self._numeric_field(tab, 3, 0, "countdown_seconds", "countdown", self.countdown, 0, 30, 1, integer=True, unit="s")
+        self._numeric_field(tab, 3, 1, "curve_detail", "curve_detail", self.sample_spacing, 0.1, 20, 0.1)
+        self._numeric_field(tab, 5, 0, "point_delay_ms", "point_delay", self.point_delay_ms, 1, 1000, 1, unit="ms")
         descriptions = (
+            self.t("appearance_hint"),
             self.t("countdown_hint"),
             self.t("curve_hint"),
             self.t("delay_hint"),
         )
         for index, text in enumerate(descriptions):
             ttk.Label(tab, text=text, style="Field.TLabel").grid(
-                row=5 + index,
+                row=7 + index,
                 column=0,
                 columnspan=2,
                 sticky="w",
@@ -540,7 +759,7 @@ class JapaneseWriterApp:
             borderwidth=0,
             font=("Microsoft JhengHei UI", 11),
             foreground=self.TEXT,
-            background="#fbfcfd",
+            background=self.SURFACE_ALT,
             padx=18,
             pady=14,
             spacing1=2,
@@ -566,13 +785,16 @@ class JapaneseWriterApp:
         maximum: float,
         increment: float,
         integer: bool = False,
+        unit: str | None = None,
     ) -> None:
         container = ttk.Frame(parent, style="Surface.TFrame")
         container.grid(row=row, column=column, sticky="ew", padx=(0 if column == 0 else 8, 8 if column == 0 else 0), pady=(0, 12))
         ttk.Label(container, text=self.t(label_key), style="Field.TLabel").pack(anchor="w", pady=(0, 4))
+        field = ttk.Frame(container, style="Surface.TFrame")
+        field.pack(fill="x")
         control = NumericSpinbox(
             self,
-            container,
+            field,
             variable,
             short_label_key,
             minimum,
@@ -580,14 +802,76 @@ class JapaneseWriterApp:
             increment,
             integer,
         )
-        control.widget.pack(fill="x")
+        control.widget.pack(side="left", fill="x", expand=True)
+        if unit:
+            ttk.Label(field, text=unit, style="Field.TLabel", width=4, anchor="center").pack(side="left", padx=(6, 0))
         self.numeric_inputs.append(control)
 
-    def _field(self, parent: ttk.Frame, row: int, column: int, label: str, variable: tk.StringVar) -> None:
+    def _field(self, parent: ttk.Frame, row: int, column: int, label: str, variable: tk.StringVar, unit: str | None = None) -> None:
         container = ttk.Frame(parent, style="Surface.TFrame")
         container.grid(row=row, column=column, sticky="ew", padx=(0 if column == 0 else 8, 8 if column == 0 else 0), pady=(0, 12))
         ttk.Label(container, text=label, style="Field.TLabel").pack(anchor="w", pady=(0, 4))
-        ttk.Entry(container, textvariable=variable).pack(fill="x")
+        field = ttk.Frame(container, style="Surface.TFrame")
+        field.pack(fill="x")
+        ttk.Entry(field, textvariable=variable).pack(side="left", fill="x", expand=True)
+        if unit:
+            ttk.Label(field, text=unit, style="Field.TLabel", width=4, anchor="center").pack(side="left", padx=(6, 0))
+
+    def _segmented_field(
+        self,
+        parent: ttk.Frame,
+        row: int,
+        column: int,
+        label: str,
+        variable: tk.StringVar,
+        values: list[str],
+    ) -> list[tk.Radiobutton]:
+        container = ttk.Frame(parent, style="Surface.TFrame")
+        container.grid(row=row, column=column, sticky="ew", padx=(0 if column == 0 else 8, 8 if column == 0 else 0), pady=(0, 12))
+        ttk.Label(container, text=label, style="Field.TLabel").pack(anchor="w", pady=(0, 4))
+        segments = tk.Frame(container, background=self.BORDER, padx=1, pady=1)
+        segments.pack(fill="x")
+        buttons: list[tk.Radiobutton] = []
+        for value in values:
+            button = tk.Radiobutton(
+                segments,
+                text=value,
+                value=value,
+                variable=variable,
+                indicatoron=False,
+                relief="flat",
+                borderwidth=0,
+                highlightthickness=0,
+                background=self.SURFACE_ALT,
+                foreground=self.TEXT,
+                activebackground=self.BORDER,
+                activeforeground=self.TEXT,
+                selectcolor=self.PRIMARY,
+                font=("Microsoft JhengHei UI", 9),
+                padx=12,
+                pady=7,
+            )
+            button.pack(side="left", fill="x", expand=True)
+            buttons.append(button)
+
+        def sync_segments(*_args: object) -> None:
+            selected_value = variable.get()
+            for button, value in zip(buttons, values):
+                selected = value == selected_value
+                button.configure(
+                    background=self.PRIMARY if selected else self.SURFACE_ALT,
+                    foreground=self.ON_PRIMARY if selected else self.TEXT,
+                    activebackground=self.PRIMARY_ACTIVE if selected else self.BORDER,
+                    activeforeground=self.ON_PRIMARY if selected else self.TEXT,
+                    selectcolor=self.PRIMARY if selected else self.SURFACE_ALT,
+                )
+
+        for button in buttons:
+            button.configure(command=sync_segments)
+        trace_id = variable.trace_add("write", sync_segments)
+        self.segment_traces.append((variable, trace_id))
+        sync_segments()
+        return buttons
 
     def _combo_field(
         self,
@@ -630,6 +914,7 @@ class JapaneseWriterApp:
             messagebox.showerror(self.t("portable_write_error"), exception_text(exc, self.language), parent=self.root)
             self.root.after(0, self.root.destroy)
             return
+        rebuild = False
         if state.language is not self.language:
             orientation = self._orientation_labels()[self.orientation.get()]
             flow = self._flow_labels()[self.flow.get()]
@@ -637,6 +922,18 @@ class JapaneseWriterApp:
             self.language_selection.set(dict(LANGUAGE_OPTIONS)[self.language])
             self.orientation.set(next(label for label, value in self._orientation_labels().items() if value is orientation))
             self.flow.set(next(label for label, value in self._flow_labels().items() if value is flow))
+            rebuild = True
+        if state.appearance_mode is not self.appearance_mode:
+            self.appearance_mode = state.appearance_mode
+            self.palette = resolve_palette(self.appearance_mode)
+            self._apply_palette_tokens()
+            rebuild = True
+        self.appearance_selection.set(
+            next(label for label, value in self._appearance_labels().items() if value is self.appearance_mode)
+        )
+        if rebuild:
+            self._configure_styles()
+            self._load_icons()
             self._rebuild_layout()
         self._apply_environment(state.environment)
         self.refresh_preset_list()
@@ -656,6 +953,9 @@ class JapaneseWriterApp:
         orientation = self._orientation_labels()[self.orientation.get()]
         flow = self._flow_labels()[self.flow.get()]
         self.language = selected
+        self.appearance_selection.set(
+            next(label for label, value in self._appearance_labels().items() if value is self.appearance_mode)
+        )
         self.orientation.set(next(label for label, value in self._orientation_labels().items() if value is orientation))
         self.flow.set(next(label for label, value in self._flow_labels().items() if value is flow))
         try:
@@ -665,13 +965,36 @@ class JapaneseWriterApp:
         self._rebuild_layout()
         self._set_status("language_changed")
 
+    def _appearance_selected(self, _event: tk.Event[tk.Misc] | None = None) -> None:
+        selected = self._appearance_labels().get(self.appearance_selection.get(), self.appearance_mode)
+        if selected is self.appearance_mode:
+            return
+        self.appearance_mode = selected
+        self.palette = resolve_palette(selected)
+        self._apply_palette_tokens()
+        try:
+            self.store.set_appearance_mode(selected)
+        except PermissionError as exc:
+            messagebox.showerror(self.t("portable_write_error"), exception_text(exc, self.language), parent=self.root)
+        self._configure_styles()
+        self._load_icons()
+        self._rebuild_layout()
+        self._set_status("appearance_changed")
+
     def _rebuild_layout(self) -> None:
         text = self.text_input.get("1.0", "end-1c") if hasattr(self, "text_input") else "こんにちは日本語"
         selected_tab = self.notebook.index(self.notebook.select()) if hasattr(self, "notebook") else 0
+        for variable, trace_id in self.segment_traces:
+            variable.trace_remove("write", trace_id)
+        self.segment_traces = []
+        for tooltip in self.tooltips:
+            tooltip._hide()
         if hasattr(self, "outer"):
+            Publisher.clear_subscribers()
             self.outer.destroy()
         self.coordinate_buttons = []
         self.numeric_inputs = []
+        self.tooltips = []
         self._build_layout()
         self.text_input.delete("1.0", "end")
         self.text_input.insert("1.0", text)
@@ -768,7 +1091,7 @@ class JapaneseWriterApp:
         try:
             text, layout, environment = self.read_layout()
         except (ValueError, KeyError) as exc:
-            self.status.set(exception_text(exc, self.language))
+            self._set_status_text(exception_text(exc, self.language), "error")
             if show_errors:
                 messagebox.showerror(self.t("settings_error"), exception_text(exc, self.language), parent=self.root)
             return
@@ -816,7 +1139,7 @@ class JapaneseWriterApp:
         self.current_layout = None
         self.current_general = None
         self.preview_canvas.delete("all")
-        self.status.set(exception_text(error, self.language))
+        self._set_status_text(exception_text(error, self.language), "error")
         if show_errors:
             messagebox.showerror(self.t("preview_error"), exception_text(error, self.language), parent=self.root)
 
@@ -852,7 +1175,26 @@ class JapaneseWriterApp:
 
         left, top = transform((min_x, min_y))
         right, bottom = transform((max_x, max_y))
-        canvas.create_rectangle(left, top, right, bottom, outline="#97a6af", dash=(6, 4), width=1)
+        canvas.configure(background=self.palette.canvas)
+        canvas.create_rectangle(left, top, right, bottom, outline=self.PRIMARY, dash=(6, 4), width=2)
+
+        marker_radius = 5
+        for point, color in (
+            ((float(self.start_x.get()), float(self.start_y.get())), self.SODA),
+            ((float(self.end_x.get()), float(self.end_y.get())), self.GRAPE),
+        ):
+            marker_x, marker_y = transform(point)
+            canvas.create_oval(
+                marker_x - marker_radius,
+                marker_y - marker_radius,
+                marker_x + marker_radius,
+                marker_y + marker_radius,
+                fill=self.palette.canvas,
+                outline=color,
+                width=2,
+            )
+            canvas.create_line(marker_x - 8, marker_y, marker_x + 8, marker_y, fill=color, width=1)
+            canvas.create_line(marker_x, marker_y - 8, marker_x, marker_y + 8, fill=color, width=1)
         for placement in result.placements:
             subcell_span = placement.span / placement.subcells
             subcell_extent = general.font_size * subcell_span
@@ -868,15 +1210,22 @@ class JapaneseWriterApp:
                 cell_width = subcell_extent if general.orientation is Orientation.HORIZONTAL else general.font_size
                 cell_height = general.font_size if general.orientation is Orientation.HORIZONTAL else subcell_extent
                 x2, y2 = transform((cell_x + cell_width, cell_y + cell_height))
-                canvas.create_rectangle(x1, y1, x2, y2, outline="#e1e7ea", dash=(2, 3))
+                canvas.create_rectangle(x1, y1, x2, y2, outline=self.BORDER, dash=(2, 3))
         for index, path in enumerate(result.paths, start=1):
             coordinates: list[float] = []
             for point in path:
                 x, y = transform(point)
                 coordinates.extend((x, y))
-            canvas.create_line(*coordinates, fill="#17212b", width=max(1, min(3, round(scale * 1.2))), smooth=False)
+            canvas.create_line(*coordinates, fill=self.palette.path, width=max(1, min(3, round(scale * 1.2))), smooth=False)
             start_x, start_y = transform(path[0])
-            canvas.create_text(start_x, start_y, text=str(index), fill="#b00020", anchor="se", font=("Segoe UI", 7))
+            canvas.create_text(
+                start_x,
+                start_y,
+                text=str(index),
+                fill=self.ANNOTATION,
+                anchor="se",
+                font=("Segoe UI", 7),
+            )
 
     def schedule_environment_save(self) -> None:
         if self.environment_after_id:
@@ -888,7 +1237,7 @@ class JapaneseWriterApp:
         try:
             self.store.set_environment(self.read_environment())
         except ValueError as exc:
-            self.status.set(exception_text(exc, self.language))
+            self._set_status_text(exception_text(exc, self.language), "error")
             return
         except PermissionError:
             return
@@ -978,15 +1327,16 @@ class JapaneseWriterApp:
         overlay.title(title)
         overlay.attributes("-topmost", True)
         overlay.resizable(False, False)
-        overlay.configure(background="#17212b")
-        self.countdown_label = ttk.Label(
+        overlay.configure(background=self.SURFACE)
+        self.countdown_label = tk.Label(
             overlay,
             text=f"{title}\n3",
-            foreground="white",
-            background="#17212b",
+            foreground=self.PRIMARY,
+            background=self.SURFACE,
             font=("Microsoft JhengHei UI", 16, "bold"),
             anchor="center",
-            padding=20,
+            padx=20,
+            pady=20,
         )
         self.countdown_label.pack(fill="both", expand=True)
         overlay.geometry("260x120+30+30")
@@ -1101,8 +1451,8 @@ class JapaneseWriterApp:
         for button in self.coordinate_buttons:
             button.configure(state=state)
         self.language_combo.configure(state="disabled" if busy else "readonly")
+        self.appearance_combo.configure(state="disabled" if busy else "readonly")
         self._set_status(status_key, **values)
-        self.status_mark.configure(foreground=self.ACCENT if busy else self.PRIMARY)
 
     def on_close(self) -> None:
         if self.busy:
@@ -1136,6 +1486,15 @@ class JapaneseWriterApp:
 
 def run_self_test(settings_path: Path = DEFAULT_SETTINGS_PATH) -> int:
     validate_translation_catalogs()
+    required_ui_assets = (
+        BUNDLE_DIR / "data/ui/app-icon.png",
+        BUNDLE_DIR / "data/ui/JapaneseStrokeMouseWriter.ico",
+        BUNDLE_DIR / "data/ui/icons/light/play.png",
+        BUNDLE_DIR / "data/ui/icons/dark/play.png",
+    )
+    missing_ui_assets = [str(path) for path in required_ui_assets if not path.is_file()]
+    if missing_ui_assets:
+        raise RuntimeError(f"UI assets are missing: {', '.join(missing_ui_assets)}")
     sample = DEFAULT_KANJIVG_DIR / "065e5.svg"
     if not sample.exists():
         raise RuntimeError(f"找不到 KanjiVG 測試檔：{sample}")
@@ -1188,6 +1547,7 @@ def main(argv: list[str] | None = None) -> int:
     args = parse_args(sys.argv[1:] if argv is None else argv)
     if args.self_test:
         return run_self_test(args.settings_path)
+    configure_windows_dpi_awareness()
     root = tk.Tk()
     JapaneseWriterApp(root, settings_path=args.settings_path)
     root.mainloop()

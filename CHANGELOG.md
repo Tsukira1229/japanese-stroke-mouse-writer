@@ -1,5 +1,15 @@
 # Changelog
 
+## V2.6.0 - 2026-07-12
+
+- Modernizes the four-tab interface with a compact responsive layout, consistent icons, fixed primary actions, segmented direction controls, and visible numeric units.
+- Adds light, dark, and Windows-following appearance modes; new and legacy settings without an appearance choice now start with the light theme.
+- Preserves text, coordinates, presets, selected tab, window size, and maximized state while switching language or appearance.
+- Improves preview clarity with dedicated start/end crosshairs, theme-aware canvas colors, writing-boundary styling, and operation status indicators.
+- Adds Per-Monitor DPI awareness, Windows title-bar integration, a new application icon, and packaged UI resources.
+- Keeps all V2.5.0 writing paths, layout behavior, emergency stopping, and portable settings compatible.
+- Remains unsigned; Windows SmartScreen may show an unknown-publisher warning.
+
 ## V2.5.0 - 2026-07-11
 
 - Writes user-entered kaomoji one character at a time with project-authored centerline SVG paths.

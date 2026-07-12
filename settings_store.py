@@ -10,6 +10,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from uuid import uuid4
 
+from appearance import AppearanceMode, appearance_from_value
 from localization import (
     Language,
     LocalizedPermissionError,
@@ -42,6 +43,7 @@ class SettingsState:
     presets: list[Preset] = field(default_factory=list)
     last_preset_id: str | None = None
     language: Language = field(default_factory=detect_system_language)
+    appearance_mode: AppearanceMode = AppearanceMode.LIGHT
 
 
 def general_to_dict(settings: GeneralSettings) -> dict[str, object]:
@@ -119,6 +121,7 @@ class SettingsStore:
                 presets=presets,
                 last_preset_id=raw.get("last_preset_id"),
                 language=language_from_code(raw.get("language"), detect_system_language()),
+                appearance_mode=appearance_from_value(raw.get("appearance_mode")),
             )
             return self.state
         except (OSError, ValueError, TypeError, KeyError, json.JSONDecodeError):
@@ -132,6 +135,7 @@ class SettingsStore:
         payload = {
             "schema_version": SCHEMA_VERSION,
             "language": self.state.language.value,
+            "appearance_mode": self.state.appearance_mode.value,
             "environment": environment_to_dict(self.state.environment),
             "last_preset_id": self.state.last_preset_id,
             "presets": [
@@ -149,6 +153,10 @@ class SettingsStore:
 
     def set_language(self, language: Language) -> None:
         self.state.language = language
+        self.save()
+
+    def set_appearance_mode(self, mode: AppearanceMode) -> None:
+        self.state.appearance_mode = mode
         self.save()
 
     def add_preset(self, name: str, general: GeneralSettings) -> Preset:
