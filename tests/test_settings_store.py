@@ -7,6 +7,7 @@ from pathlib import Path
 from unittest.mock import patch
 
 from localization import Language
+from appearance import AppearanceMode
 from mouse_writer_pro import EnvironmentSettings, FlowDirection, GeneralSettings, Orientation
 from settings_store import SettingsStore
 
@@ -55,6 +56,25 @@ class SettingsStoreTests(unittest.TestCase):
         loaded = SettingsStore(self.path).load()
         self.assertIs(loaded.language, Language.JAPANESE)
         self.assertEqual(json.loads(self.path.read_text(encoding="utf-8"))["language"], "ja")
+
+    def test_appearance_mode_persists_without_schema_change(self) -> None:
+        self.store.set_appearance_mode(AppearanceMode.DARK)
+        loaded = SettingsStore(self.path).load()
+        payload = json.loads(self.path.read_text(encoding="utf-8"))
+        self.assertIs(loaded.appearance_mode, AppearanceMode.DARK)
+        self.assertEqual(payload["appearance_mode"], "dark")
+        self.assertEqual(payload["schema_version"], 1)
+
+    def test_explicit_system_appearance_remains_supported(self) -> None:
+        self.store.set_appearance_mode(AppearanceMode.SYSTEM)
+        self.assertIs(SettingsStore(self.path).load().appearance_mode, AppearanceMode.SYSTEM)
+
+    def test_legacy_settings_default_to_light_appearance(self) -> None:
+        self.path.write_text(
+            json.dumps({"schema_version": 1, "environment": {}, "presets": []}),
+            encoding="utf-8",
+        )
+        self.assertIs(SettingsStore(self.path).load().appearance_mode, AppearanceMode.LIGHT)
 
     def test_legacy_settings_use_system_language(self) -> None:
         self.path.write_text(

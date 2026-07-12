@@ -1,4 +1,4 @@
-# Japanese Stroke Mouse Writer V2.5.0 Complete Guide
+# Japanese Stroke Mouse Writer V2.6.0 Complete Guide
 
 This guide starts with the first launch and explains how to define the writing area, verify the preview, and run the program safely.
 
@@ -48,11 +48,12 @@ In vertical layout, alphanumeric characters, brackets, and long marks rotate clo
 ## 5. Adjust Environment Settings
 
 - **Language**: Japanese, Traditional Chinese, Simplified Chinese, or English.
+- **Appearance**: Light, dark, or follow Windows. The light theme is the default for first use.
 - **Start countdown**: seconds available to switch to the target canvas after starting; range `0–30`.
 - **Curve detail**: range `0.1–20`. Smaller values create smoother curves with more points and longer writing time.
 - **Sample delay**: wait time at each curve point; range `1–1000` ms. Increase it gradually if strokes break.
 
-Environment settings are saved automatically. Start with the defaults and adjust only when curves are rough or strokes break.
+Environment settings are saved automatically. Switching language or appearance preserves text, coordinates, the selected tab, and window state. Start with the defaults and adjust only when curves are rough or strokes break.
 
 ## 6. Check Supported Input
 

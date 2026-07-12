@@ -1,15 +1,22 @@
 # -*- mode: python ; coding: utf-8 -*-
 
+import os
 from pathlib import Path
 
+from PyInstaller.utils.hooks import collect_data_files
+
 root = Path(SPECPATH)
+package_name = os.environ.get(
+    "JSMW_PACKAGE_NAME",
+    "JapaneseStrokeMouseWriter-v2.6.0-win-x64-portable",
+)
 
 a = Analysis(
     [str(root / "mouse_writer_ui.pyw")],
     pathex=[str(root)],
     binaries=[],
-    datas=[(str(root / "data"), "data")],
-    hiddenimports=["svg.path", "pyautogui"],
+    datas=[(str(root / "data"), "data"), *collect_data_files("ttkbootstrap")],
+    hiddenimports=["svg.path", "pyautogui", "ttkbootstrap"],
     hookspath=[],
     hooksconfig={},
     runtime_hooks=[],
@@ -31,6 +38,7 @@ exe = EXE(
     upx=True,
     console=False,
     disable_windowed_traceback=False,
+    icon=str(root / "data" / "ui" / "JapaneseStrokeMouseWriter.ico"),
 )
 
 coll = COLLECT(
@@ -40,6 +48,6 @@ coll = COLLECT(
     strip=False,
     upx=True,
     upx_exclude=[],
-    name="JapaneseStrokeMouseWriter-v2.5.0-win-x64-portable",
+    name=package_name,
 )
 

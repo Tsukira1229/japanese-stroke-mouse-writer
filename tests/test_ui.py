@@ -5,9 +5,11 @@ import runpy
 import tempfile
 import time
 import tkinter as tk
+import ttkbootstrap as tb
 import unittest
 from pathlib import Path
 from tkinter import ttk
+from ttkbootstrap.publisher import Publisher
 from unittest.mock import patch
 
 from localization import LANGUAGE_OPTIONS, Language
@@ -34,6 +36,9 @@ class JapaneseWriterUiTests(unittest.TestCase):
     def tearDown(self) -> None:
         self.app.closing = True
         self.app.cancel_scheduled_callbacks()
+        Publisher.clear_subscribers()
+        tb.Style.instance = None
+        self.root.update_idletasks()
         self.root.destroy()
         self.temp.cleanup()
 
@@ -44,6 +49,12 @@ class JapaneseWriterUiTests(unittest.TestCase):
             any(isinstance(child, ttk.Scrollbar) for child in self.app.text_input.master.winfo_children())
         )
 
+    def test_new_session_defaults_to_light_theme(self) -> None:
+        self.assertFalse(self.app.palette.dark)
+        self.assertEqual(self.app.appearance_selection.get(), self.app.t("appearance_light"))
+        self.assertEqual(self.app.t("appearance_light"), "亮色主題")
+        self.assertEqual(self.app.t("appearance_dark"), "暗色主題")
+
     def test_emergency_hint_uses_previous_status_bar_style(self) -> None:
         self.assertIs(self.app.emergency_label.master, self.app.status_bar)
         self.assertEqual(self.app.emergency_label.pack_info()["side"], "right")
@@ -51,7 +62,7 @@ class JapaneseWriterUiTests(unittest.TestCase):
         self.assertEqual(self.app.emergency_label.cget("style"), "Subtitle.TLabel")
 
     def test_help_tab_contains_operation_only_guidance(self) -> None:
-        self.assertEqual(self.app.notebook.tab(3, "text"), "使用說明")
+        self.assertIn("使用說明", self.app.notebook.tab(3, "text"))
         self.assertEqual(self.app.help_text.cget("state"), "disabled")
         help_text = self.app.help_text.get("1.0", "end-1c")
         self.assertIn("起始座標", help_text)
@@ -111,8 +122,8 @@ class JapaneseWriterUiTests(unittest.TestCase):
         self.assertIs(self.app.language, Language.ENGLISH)
         self.assertEqual(self.app.text_input.get("1.0", "end-1c"), content)
         self.assertEqual(self.app.start_x.get(), "432")
-        self.assertEqual(self.app.notebook.tab(0, "text"), "Content & Preview")
-        self.assertEqual(self.app.notebook.tab(3, "text"), "Help")
+        self.assertIn("Content & Preview", self.app.notebook.tab(0, "text"))
+        self.assertIn("Help", self.app.notebook.tab(3, "text"))
         self.assertIn("start and end coordinates", self.app.help_text.get("1.0", "end-1c"))
         self.assertEqual(self.app.orientation.get(), "Horizontal")
         self.assertIn("language", self.app.status.get().lower())
@@ -120,6 +131,49 @@ class JapaneseWriterUiTests(unittest.TestCase):
             json.loads((Path(self.temp.name) / "user_data/settings.json").read_text(encoding="utf-8"))["language"],
             "en",
         )
+
+    def test_theme_switch_preserves_session_and_persists_mode(self) -> None:
+        content = "日本語 ABC"
+        self.app.text_input.delete("1.0", "end")
+        self.app.text_input.insert("1.0", content)
+        self.app.start_x.set("321")
+        self.app.appearance_selection.set(self.app.t("appearance_dark"))
+        self.app._appearance_selected()
+        self.assertTrue(self.app.palette.dark)
+        self.assertEqual(self.app.text_input.get("1.0", "end-1c"), content)
+        self.assertEqual(self.app.start_x.get(), "321")
+        self.assertEqual(self.app.preview_canvas.cget("background"), self.app.palette.canvas)
+        payload = json.loads((Path(self.temp.name) / "user_data/settings.json").read_text(encoding="utf-8"))
+        self.assertEqual(payload["appearance_mode"], "dark")
+
+    def test_language_then_theme_switch_does_not_reference_destroyed_widgets(self) -> None:
+        self.app.language_selection.set(dict(LANGUAGE_OPTIONS)[Language.JAPANESE])
+        self.app._language_selected()
+        self.app.appearance_selection.set(self.app.t("appearance_dark"))
+        self.app._appearance_selected()
+        self.root.update_idletasks()
+        self.assertIs(self.app.language, Language.JAPANESE)
+        self.assertTrue(self.app.palette.dark)
+
+    def test_orientation_and_flow_use_segmented_controls(self) -> None:
+        self.assertEqual(len(self.app.orientation_segments), 2)
+        self.assertEqual(len(self.app.flow_segments), 2)
+        self.app.orientation_segments[1].invoke()
+        self.app.flow_segments[1].invoke()
+        self.assertEqual(self.app.orientation.get(), self.app.t("vertical"))
+        self.assertEqual(self.app.flow.get(), self.app.t("left"))
+
+    def test_error_status_uses_error_indicator(self) -> None:
+        self.app._set_status_text("error", "error")
+        self.assertEqual(self.app.status_kind, "error")
+        self.assertEqual(self.app.status_mark.cget("foreground"), self.app.ERROR)
+
+    def test_rebuild_closes_visible_tooltips(self) -> None:
+        tooltip = self.app.tooltips[0]
+        tooltip._show()
+        self.assertIsNotNone(tooltip.window)
+        self.app._rebuild_layout()
+        self.assertIsNone(tooltip.window)
 
     def test_default_layout_builds_paths(self) -> None:
         result, environment = self.app.build_result()
