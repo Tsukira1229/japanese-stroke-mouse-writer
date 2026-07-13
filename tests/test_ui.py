@@ -19,6 +19,7 @@ from mouse_writer_pro import WritingCancelled
 ROOT = Path(__file__).resolve().parents[1]
 UI_NAMESPACE = runpy.run_path(ROOT / "mouse_writer_ui.pyw", run_name="mouse_writer_ui_test")
 JapaneseWriterApp = UI_NAMESPACE["JapaneseWriterApp"]
+screen_geometry = UI_NAMESPACE["_screen_geometry"]
 
 
 class JapaneseWriterUiTests(unittest.TestCase):
@@ -67,6 +68,8 @@ class JapaneseWriterUiTests(unittest.TestCase):
         help_text = self.app.help_text.get("1.0", "end-1c")
         self.assertIn("起始座標", help_text)
         self.assertIn("末端座標", help_text)
+        self.assertIn("十字線", help_text)
+        self.assertIn("預計書寫矩形", help_text)
         self.assertIn("顏文字", help_text)
         self.assertIn("特殊符號", help_text)
         self.assertIn("左上角", help_text)
@@ -261,6 +264,94 @@ class JapaneseWriterUiTests(unittest.TestCase):
         self.app._coordinate_detected("end", 900, 700)
         self.assertEqual((self.app.start_x.get(), self.app.start_y.get()), ("-100", "70"))
         self.assertEqual((self.app.end_x.get(), self.app.end_y.get()), ("900", "700"))
+
+    def test_coordinate_overlay_tracks_pointer_on_negative_monitor(self) -> None:
+        overlay_globals = JapaneseWriterApp._refresh_detection_crosshair.__globals__
+        with patch.dict(
+            overlay_globals,
+            {
+                "_cursor_position": lambda: (-500, 300),
+                "_monitor_bounds_for_point": lambda _x, _y: (-1920, 0, 0, 1080),
+            },
+        ):
+            self.app._show_detection_overlay("偵測起始座標", "start")
+            self.root.update_idletasks()
+            canvas = self.app.countdown_canvas
+            self.assertIsNotNone(canvas)
+            assert canvas is not None
+            self.assertEqual(self.app.detection_monitor_bounds, (-1920, 0, 0, 1080))
+            self.assertEqual(screen_geometry((-1920, 0, 0, 1080)), "1920x1080-1920+0")
+            self.assertEqual(canvas.cget("cursor"), "crosshair")
+
+            items = canvas.find_withtag("crosshair")
+            item_types = [canvas.type(item) for item in items]
+            self.assertEqual(item_types.count("line"), 2)
+            self.assertEqual(item_types.count("oval"), 2)
+            self.assertEqual(item_types.count("text"), 1)
+            self.assertEqual(item_types.count("rectangle"), 1)
+            text_item = next(item for item in items if canvas.type(item) == "text")
+            overlay_text = canvas.itemcget(text_item, "text")
+            self.assertIn("X=-500", overlay_text)
+            self.assertIn("Y=300", overlay_text)
+            self.assertIn("3", overlay_text)
+            self.app._close_detection_overlay()
+
+        self.assertIsNone(self.app.countdown_overlay)
+        self.assertIsNone(self.app.countdown_canvas)
+        self.assertIsNone(self.app.detection_after_id)
+
+    def test_end_coordinate_overlay_shows_start_reference_and_rectangle(self) -> None:
+        self.app.start_x.set("-1800")
+        self.app.start_y.set("100")
+        overlay_globals = JapaneseWriterApp._refresh_detection_crosshair.__globals__
+        with patch.dict(
+            overlay_globals,
+            {
+                "_cursor_position": lambda: (-500, 300),
+                "_monitor_bounds_for_point": lambda _x, _y: (-1920, 0, 0, 1080),
+            },
+        ):
+            self.app._show_detection_overlay("偵測末端座標", "end")
+            self.root.update_idletasks()
+            canvas = self.app.countdown_canvas
+            self.assertIsNotNone(canvas)
+            assert canvas is not None
+            reference_items = canvas.find_withtag("start-reference")
+            reference_types = [canvas.type(item) for item in reference_items]
+            self.assertEqual(reference_types.count("line"), 2)
+            self.assertEqual(reference_types.count("oval"), 2)
+            self.assertEqual(reference_types.count("rectangle"), 2)
+            text_item = next(item for item in reference_items if canvas.type(item) == "text")
+            self.assertIn("X=-1800", canvas.itemcget(text_item, "text"))
+            self.assertIn("Y=100", canvas.itemcget(text_item, "text"))
+            self.assertIsNone(self.app.start_reference_overlay)
+            self.app._close_detection_overlay()
+
+    def test_start_reference_remains_visible_on_another_monitor(self) -> None:
+        self.app.start_x.set("-1800")
+        self.app.start_y.set("100")
+
+        def monitor_bounds(x: int, _y: int) -> tuple[int, int, int, int]:
+            return (-1920, 0, 0, 1080) if x < 0 else (0, 0, 2560, 1440)
+
+        overlay_globals = JapaneseWriterApp._refresh_detection_crosshair.__globals__
+        with patch.dict(
+            overlay_globals,
+            {
+                "_cursor_position": lambda: (500, 300),
+                "_monitor_bounds_for_point": monitor_bounds,
+            },
+        ):
+            self.app._show_detection_overlay("偵測末端座標", "end")
+            self.root.update_idletasks()
+            self.assertIsNotNone(self.app.start_reference_overlay)
+            self.assertEqual(self.app.start_reference_monitor_bounds, (-1920, 0, 0, 1080))
+            assert self.app.start_reference_canvas is not None
+            self.assertTrue(self.app.start_reference_canvas.find_withtag("start-reference"))
+            self.app._close_detection_overlay()
+
+        self.assertIsNone(self.app.start_reference_overlay)
+        self.assertIsNone(self.app.start_reference_canvas)
 
     def test_escape_cancel_keeps_existing_coordinates(self) -> None:
         before = (self.app.start_x.get(), self.app.start_y.get())

@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+import ctypes
 import math
 import queue
 import re
@@ -12,6 +13,7 @@ import threading
 import time
 import tkinter as tk
 from collections.abc import Callable
+from ctypes import wintypes
 from pathlib import Path
 from tkinter import messagebox, simpledialog, ttk
 
@@ -59,6 +61,82 @@ from settings_store import DEFAULT_SETTINGS_PATH, Preset, SettingsStore
 
 
 NUMERIC_TRANSLATION = str.maketrans("０１２３４５６７８９。．，,", "0123456789....")
+TRANSPARENT_OVERLAY_COLOR = "#010203"
+
+
+class _ScreenPoint(ctypes.Structure):
+    _fields_ = (("x", wintypes.LONG), ("y", wintypes.LONG))
+
+
+class _ScreenRect(ctypes.Structure):
+    _fields_ = (
+        ("left", wintypes.LONG),
+        ("top", wintypes.LONG),
+        ("right", wintypes.LONG),
+        ("bottom", wintypes.LONG),
+    )
+
+
+class _MonitorInfo(ctypes.Structure):
+    _fields_ = (
+        ("cbSize", wintypes.DWORD),
+        ("rcMonitor", _ScreenRect),
+        ("rcWork", _ScreenRect),
+        ("dwFlags", wintypes.DWORD),
+    )
+
+
+_USER32 = ctypes.windll.user32 if sys.platform == "win32" else None
+if _USER32 is not None:
+    _USER32.GetCursorPos.argtypes = (ctypes.POINTER(_ScreenPoint),)
+    _USER32.GetCursorPos.restype = wintypes.BOOL
+    _USER32.GetParent.argtypes = (wintypes.HWND,)
+    _USER32.GetParent.restype = wintypes.HWND
+    _USER32.GetWindowLongW.argtypes = (wintypes.HWND, ctypes.c_int)
+    _USER32.GetWindowLongW.restype = wintypes.LONG
+    _USER32.SetWindowLongW.argtypes = (wintypes.HWND, ctypes.c_int, wintypes.LONG)
+    _USER32.SetWindowLongW.restype = wintypes.LONG
+    _USER32.MonitorFromPoint.argtypes = (_ScreenPoint, wintypes.DWORD)
+    _USER32.MonitorFromPoint.restype = wintypes.HANDLE
+    _USER32.GetMonitorInfoW.argtypes = (wintypes.HANDLE, ctypes.POINTER(_MonitorInfo))
+    _USER32.GetMonitorInfoW.restype = wintypes.BOOL
+
+
+def _cursor_position() -> tuple[int, int]:
+    if _USER32 is not None:
+        point = _ScreenPoint()
+        if _USER32.GetCursorPos(ctypes.byref(point)):
+            return point.x, point.y
+    import pyautogui
+
+    position = pyautogui.position()
+    return int(position.x), int(position.y)
+
+
+def _monitor_bounds_for_point(x: int, y: int) -> tuple[int, int, int, int]:
+    if _USER32 is not None:
+        monitor = _USER32.MonitorFromPoint(_ScreenPoint(x, y), 2)
+        info = _MonitorInfo(cbSize=ctypes.sizeof(_MonitorInfo))
+        if monitor and _USER32.GetMonitorInfoW(monitor, ctypes.byref(info)):
+            rect = info.rcMonitor
+            return rect.left, rect.top, rect.right, rect.bottom
+        left = _USER32.GetSystemMetrics(76)
+        top = _USER32.GetSystemMetrics(77)
+        return (
+            left,
+            top,
+            left + _USER32.GetSystemMetrics(78),
+            top + _USER32.GetSystemMetrics(79),
+        )
+    import pyautogui
+
+    size = pyautogui.size()
+    return 0, 0, int(size.width), int(size.height)
+
+
+def _screen_geometry(bounds: tuple[int, int, int, int]) -> str:
+    left, top, right, bottom = bounds
+    return f"{right - left}x{bottom - top}{left:+d}{top:+d}"
 
 
 class Tooltip:
@@ -176,7 +254,16 @@ class JapaneseWriterApp:
         self.ui_poll_after_id: str | None = None
         self.initial_preview_after_id: str | None = None
         self.countdown_overlay: tk.Toplevel | None = None
-        self.countdown_label: ttk.Label | None = None
+        self.countdown_canvas: tk.Canvas | None = None
+        self.start_reference_overlay: tk.Toplevel | None = None
+        self.start_reference_canvas: tk.Canvas | None = None
+        self.start_reference_monitor_bounds: tuple[int, int, int, int] | None = None
+        self.detection_after_id: str | None = None
+        self.detection_monitor_bounds: tuple[int, int, int, int] | None = None
+        self.detection_start_position: tuple[int, int] | None = None
+        self.detection_title = ""
+        self.detection_target = "start"
+        self.detection_remaining = 3
         self.window_state_before_operation = "zoomed"
         self.maximize_after_id: str | None = None
         self.ui_events: queue.Queue[
@@ -1322,35 +1409,249 @@ class JapaneseWriterApp:
         except (ValueError, KeyError, PermissionError) as exc:
             messagebox.showerror(self.t("cannot_delete"), exception_text(exc, self.language), parent=self.root)
 
-    def _show_detection_overlay(self, title: str) -> None:
+    def _show_detection_overlay(self, title: str, target: str) -> None:
         overlay = tk.Toplevel(self.root)
-        overlay.title(title)
+        overlay.wm_overrideredirect(True)
         overlay.attributes("-topmost", True)
-        overlay.resizable(False, False)
-        overlay.configure(background=self.SURFACE)
-        self.countdown_label = tk.Label(
+        overlay.configure(background=TRANSPARENT_OVERLAY_COLOR)
+        try:
+            overlay.attributes("-transparentcolor", TRANSPARENT_OVERLAY_COLOR)
+        except tk.TclError:
+            overlay.attributes("-alpha", 0.82)
+        canvas = tk.Canvas(
             overlay,
-            text=f"{title}\n3",
-            foreground=self.PRIMARY,
-            background=self.SURFACE,
-            font=("Microsoft JhengHei UI", 16, "bold"),
-            anchor="center",
-            padx=20,
-            pady=20,
+            background=TRANSPARENT_OVERLAY_COLOR,
+            borderwidth=0,
+            highlightthickness=0,
+            cursor="crosshair",
         )
-        self.countdown_label.pack(fill="both", expand=True)
-        overlay.geometry("260x120+30+30")
+        canvas.pack(fill="both", expand=True)
         self.countdown_overlay = overlay
+        self.countdown_canvas = canvas
+        self.detection_title = title
+        self.detection_target = target
+        self.detection_remaining = 3
+        self.detection_monitor_bounds = None
+        self.detection_start_position = self._existing_start_position() if target == "end" else None
+        self._refresh_detection_crosshair()
+        overlay.update_idletasks()
+        self._make_overlay_click_through(overlay)
+
+    @staticmethod
+    def _make_overlay_click_through(overlay: tk.Toplevel) -> None:
+        if _USER32 is None:
+            return
+        try:
+            widget_hwnd = wintypes.HWND(overlay.winfo_id())
+            hwnd = _USER32.GetParent(widget_hwnd) or widget_hwnd
+            extended_style = _USER32.GetWindowLongW(hwnd, -20)
+            _USER32.SetWindowLongW(
+                hwnd,
+                -20,
+                extended_style | 0x00000020 | 0x00000080 | 0x08000000,
+            )
+        except (AttributeError, OSError, tk.TclError):
+            pass
+
+    def _existing_start_position(self) -> tuple[int, int] | None:
+        try:
+            return int(self.start_x.get()), int(self.start_y.get())
+        except ValueError:
+            return None
+
+    def _draw_start_reference(
+        self,
+        canvas: tk.Canvas,
+        bounds: tuple[int, int, int, int],
+        pointer: tuple[int, int] | None,
+    ) -> None:
+        if self.detection_start_position is None:
+            return
+        left, top, right, bottom = bounds
+        start_x, start_y = self.detection_start_position
+        if not (left <= start_x < right and top <= start_y < bottom):
+            return
+        width = right - left
+        height = bottom - top
+        x = start_x - left
+        y = start_y - top
+        color = self.ON_SODA
+
+        if pointer is not None:
+            pointer_x, pointer_y = pointer
+            canvas.create_rectangle(
+                x,
+                y,
+                pointer_x - left,
+                pointer_y - top,
+                outline=color,
+                width=2,
+                dash=(7, 5),
+                tags="start-reference",
+            )
+        canvas.create_line(x - 18, y, x + 18, y, fill=color, width=2, tags="start-reference")
+        canvas.create_line(x, y - 18, x, y + 18, fill=color, width=2, tags="start-reference")
+        canvas.create_oval(x - 10, y - 10, x + 10, y + 10, outline=color, width=3, tags="start-reference")
+        canvas.create_oval(x - 3, y - 3, x + 3, y + 3, fill=color, outline=color, tags="start-reference")
+
+        label_x = x + 18 if x <= width - 220 else x - 18
+        label_y = y - 18 if y >= 70 else y + 18
+        anchor = "sw" if x <= width - 220 else "se"
+        if y < 70:
+            anchor = "nw" if anchor == "sw" else "ne"
+        text_id = canvas.create_text(
+            label_x,
+            label_y,
+            text=f"{self.t('start_short')}  X={start_x}  Y={start_y}",
+            anchor=anchor,
+            fill=color,
+            font=("Microsoft JhengHei UI", 10, "bold"),
+            tags="start-reference",
+        )
+        text_bounds = canvas.bbox(text_id)
+        if text_bounds:
+            rectangle = canvas.create_rectangle(
+                text_bounds[0] - 8,
+                text_bounds[1] - 5,
+                text_bounds[2] + 8,
+                text_bounds[3] + 5,
+                fill=self.SODA,
+                outline=color,
+                tags="start-reference",
+            )
+            canvas.tag_lower(rectangle, text_id)
+
+    def _update_start_reference_overlay(
+        self,
+        cursor_bounds: tuple[int, int, int, int],
+    ) -> None:
+        if self.detection_start_position is None:
+            self._close_start_reference_overlay()
+            return
+        start_bounds = _monitor_bounds_for_point(*self.detection_start_position)
+        if start_bounds == cursor_bounds:
+            self._close_start_reference_overlay()
+            return
+        if self.start_reference_overlay is None:
+            overlay = tk.Toplevel(self.root)
+            overlay.wm_overrideredirect(True)
+            overlay.attributes("-topmost", True)
+            overlay.configure(background=TRANSPARENT_OVERLAY_COLOR)
+            try:
+                overlay.attributes("-transparentcolor", TRANSPARENT_OVERLAY_COLOR)
+            except tk.TclError:
+                overlay.attributes("-alpha", 0.82)
+            canvas = tk.Canvas(
+                overlay,
+                background=TRANSPARENT_OVERLAY_COLOR,
+                borderwidth=0,
+                highlightthickness=0,
+            )
+            canvas.pack(fill="both", expand=True)
+            self.start_reference_overlay = overlay
+            self.start_reference_canvas = canvas
+            overlay.update_idletasks()
+            self._make_overlay_click_through(overlay)
+        overlay = self.start_reference_overlay
+        canvas = self.start_reference_canvas
+        if overlay is None or canvas is None:
+            return
+        if start_bounds != self.start_reference_monitor_bounds:
+            overlay.geometry(_screen_geometry(start_bounds))
+            self.start_reference_monitor_bounds = start_bounds
+        canvas.delete("start-reference")
+        self._draw_start_reference(canvas, start_bounds, None)
+        overlay.lift()
+
+    def _close_start_reference_overlay(self) -> None:
+        if self.start_reference_overlay:
+            self.start_reference_overlay.destroy()
+        self.start_reference_overlay = None
+        self.start_reference_canvas = None
+        self.start_reference_monitor_bounds = None
+
+    def _refresh_detection_crosshair(self) -> None:
+        overlay = self.countdown_overlay
+        canvas = self.countdown_canvas
+        if overlay is None or canvas is None or not overlay.winfo_exists():
+            self.detection_after_id = None
+            return
+        try:
+            pointer_x, pointer_y = _cursor_position()
+            bounds = _monitor_bounds_for_point(pointer_x, pointer_y)
+            if bounds != self.detection_monitor_bounds:
+                overlay.geometry(_screen_geometry(bounds))
+                self.detection_monitor_bounds = bounds
+            left, top, right, bottom = bounds
+            width = right - left
+            height = bottom - top
+            x = pointer_x - left
+            y = pointer_y - top
+            line_color = self.ON_SODA if self.detection_target == "start" else self.ON_GRAPE
+            label_fill = self.SODA if self.detection_target == "start" else self.GRAPE
+
+            canvas.delete("crosshair")
+            canvas.delete("start-reference")
+            if self.detection_target == "end":
+                self._draw_start_reference(canvas, bounds, (pointer_x, pointer_y))
+                self._update_start_reference_overlay(bounds)
+            canvas.create_line(0, y, width, y, fill=line_color, width=2, tags="crosshair")
+            canvas.create_line(x, 0, x, height, fill=line_color, width=2, tags="crosshair")
+            canvas.create_oval(x - 8, y - 8, x + 8, y + 8, outline=line_color, width=2, tags="crosshair")
+            canvas.create_oval(x - 2, y - 2, x + 2, y + 2, fill=line_color, outline=line_color, tags="crosshair")
+
+            text = f"{self.detection_title}\nX={pointer_x}  Y={pointer_y}  |  {self.detection_remaining}"
+            label_x = x + 18 if x <= width - 250 else x - 18
+            label_y = y + 18 if y <= height - 90 else y - 18
+            anchor = "nw" if x <= width - 250 else "ne"
+            if y > height - 90:
+                anchor = "sw" if anchor == "nw" else "se"
+            text_id = canvas.create_text(
+                label_x,
+                label_y,
+                text=text,
+                anchor=anchor,
+                fill=line_color,
+                font=("Microsoft JhengHei UI", 11, "bold"),
+                justify="left",
+                tags="crosshair",
+            )
+            text_bounds = canvas.bbox(text_id)
+            if text_bounds:
+                rectangle = canvas.create_rectangle(
+                    text_bounds[0] - 10,
+                    text_bounds[1] - 7,
+                    text_bounds[2] + 10,
+                    text_bounds[3] + 7,
+                    fill=label_fill,
+                    outline=line_color,
+                    width=1,
+                    tags="crosshair",
+                )
+                canvas.tag_lower(rectangle, text_id)
+            overlay.lift()
+            self.detection_after_id = overlay.after(16, self._refresh_detection_crosshair)
+        except (OSError, tk.TclError):
+            self.detection_after_id = overlay.after(50, self._refresh_detection_crosshair)
 
     def _update_detection_overlay(self, title: str, remaining: int) -> None:
-        if self.countdown_label:
-            self.countdown_label.configure(text=f"{title}\n{remaining}")
+        self.detection_title = title
+        self.detection_remaining = remaining
 
     def _close_detection_overlay(self) -> None:
+        if self.countdown_overlay and self.detection_after_id:
+            try:
+                self.countdown_overlay.after_cancel(self.detection_after_id)
+            except tk.TclError:
+                pass
+        self.detection_after_id = None
+        self._close_start_reference_overlay()
         if self.countdown_overlay:
             self.countdown_overlay.destroy()
         self.countdown_overlay = None
-        self.countdown_label = None
+        self.countdown_canvas = None
+        self.detection_monitor_bounds = None
+        self.detection_start_position = None
 
     def detect_coordinate(self, target: str) -> None:
         if self.busy:
@@ -1359,8 +1660,12 @@ class JapaneseWriterApp:
         title = self.t("detect", target=target_label)
         self.set_busy(True, "detecting", target=target_label)
         self.stop_event.clear()
-        self._show_detection_overlay(title)
         self._minimize_for_operation()
+        try:
+            self._show_detection_overlay(title, target)
+        except BaseException as exc:
+            self._restore_after_operation(exc)
+            return
 
         def should_stop() -> bool:
             return self.stop_event.is_set() or escape_pressed()

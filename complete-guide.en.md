@@ -24,9 +24,9 @@ The start and end coordinates form the writable rectangle. They are X/Y pointer 
 
 Coordinate detection is recommended:
 
-1. Click **Detect start coordinates**. The main window minimizes and shows a three-second countdown.
-2. Move the pointer to the matching upper corner of the target canvas and hold it still.
-3. Click **Detect end coordinates**, then move the pointer to the matching lower corner.
+1. Click **Detect start coordinates**. The main window minimizes, and the pointer's current monitor shows a crosshair, live X/Y coordinates, and a three-second countdown.
+2. Move the crosshair intersection to the matching upper corner of the target canvas and hold it still. Moving the pointer to another monitor moves the crosshair there automatically.
+3. Click **Detect end coordinates**, then move the pointer to the matching lower corner. The captured start remains marked. When both points are on the same monitor, the expected writing rectangle is shown live; otherwise, the start monitor retains its start crosshair and coordinates.
 4. When the program returns, verify the captured X and Y values. Coordinates may also be entered manually.
 
 Press `ESC` during detection to cancel without replacing the previous values. The rectangle must fit at least one character cell; invalid range or direction is reported before preview.

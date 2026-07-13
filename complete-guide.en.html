@@ -151,9 +151,9 @@ h1:hover .headerlink, h2:hover .headerlink { color: var(--accent); }
 </ul>
 <p>Coordinate detection is recommended:</p>
 <ol>
-<li>Click <strong>Detect start coordinates</strong>. The main window minimizes and shows a three-second countdown.</li>
-<li>Move the pointer to the matching upper corner of the target canvas and hold it still.</li>
-<li>Click <strong>Detect end coordinates</strong>, then move the pointer to the matching lower corner.</li>
+<li>Click <strong>Detect start coordinates</strong>. The main window minimizes, and the pointer's current monitor shows a crosshair, live X/Y coordinates, and a three-second countdown.</li>
+<li>Move the crosshair intersection to the matching upper corner of the target canvas and hold it still. Moving the pointer to another monitor moves the crosshair there automatically.</li>
+<li>Click <strong>Detect end coordinates</strong>, then move the pointer to the matching lower corner. The captured start remains marked. When both points are on the same monitor, the expected writing rectangle is shown live; otherwise, the start monitor retains its start crosshair and coordinates.</li>
 <li>When the program returns, verify the captured X and Y values. Coordinates may also be entered manually.</li>
 </ol>
 <p>Press <code>ESC</code> during detection to cancel without replacing the previous values. The rectangle must fit at least one character cell; invalid range or direction is reported before preview.</p>

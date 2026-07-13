@@ -40,7 +40,7 @@ ZH_HANT = {
 兩個座標共同形成允許書寫的矩形範圍，座標是整個螢幕的絕對位置。
 • 向右書寫：起始座標選矩形左上角，末端座標選右下角。
 • 向左書寫：起始座標選矩形右上角，末端座標選左下角。
-按下偵測按鈕後，主視窗會最小化。請在 3 秒內將滑鼠移到指定位置，倒數結束後程式會自動填入 X、Y。偵測期間按 ESC 可取消並保留原座標。也可直接輸入座標，多螢幕環境可使用負數。
+按下偵測按鈕後，主視窗會最小化，游標所在螢幕會顯示跟隨滑鼠的十字線、即時座標與 3 秒倒數，協助對齊指定位置。偵測末端時，已取得的起點會保持標示，且同一螢幕會顯示預計書寫矩形。倒數結束後程式會自動填入 X、Y。偵測期間按 ESC 可取消並保留原座標。也可直接輸入座標，多螢幕環境可使用負數。
 
 3. 調整排版
 「一般設定」可調整字體大小、字距、行距、水平或垂直排列，以及向右或向左流向。半形字元彼此相鄰時使用一半字距；只要任一側為全形字元就使用完整字距。空格與 Tab 亦遵循此規則。文字到達主方向邊界時會自動換行或換欄；副方向空間不足時會在移動滑鼠前停止並顯示錯誤。垂直排列會自動旋轉英數字、括號與長音符號。
@@ -188,7 +188,7 @@ Japanese, letters, numbers, halfwidth katakana, common symbols, and some special
 The two coordinates form the writable rectangle and use absolute screen positions.
 • Right flow: choose the rectangle's top-left corner as Start and bottom-right corner as End.
 • Left flow: choose the rectangle's top-right corner as Start and bottom-left corner as End.
-After clicking a detection button, the main window is minimized. Move the pointer to the requested position within 3 seconds; the X and Y values are filled when the countdown ends. Press ESC to cancel detection and keep the old values. Coordinates may also be entered manually, including negative values on multi-monitor desktops.
+After clicking a detection button, the main window is minimized. The pointer's current monitor shows a crosshair, live coordinates, and a three-second countdown to help align the requested position. While detecting the end coordinate, the captured start remains marked and the expected writing rectangle appears when both points are on the same monitor. The X and Y values are filled when the countdown ends. Press ESC to cancel detection and keep the old values. Coordinates may also be entered manually, including negative values on multi-monitor desktops.
 
 3. Adjust the layout
 General settings control font size, character gap, line gap, horizontal or vertical orientation, and right or left flow. Adjacent halfwidth characters use half the configured gap; a pair containing any fullwidth character uses the full gap. Spaces and Tab follow the same rule. Text wraps at the main-axis boundary. If the secondary axis has no room, writing stops before the pointer moves and an error is shown. Vertical layout automatically rotates letters, numbers, brackets, and long marks.
@@ -241,7 +241,7 @@ ZH_HANS = {**ZH_HANT,
 两个坐标共同形成允许书写的矩形范围，坐标是整个屏幕的绝对位置。
 • 向右书写：起始坐标选择矩形左上角，末端坐标选择右下角。
 • 向左书写：起始坐标选择矩形右上角，末端坐标选择左下角。
-按下检测按钮后，主窗口会最小化。请在 3 秒内将鼠标移到指定位置，倒计时结束后程序会自动填入 X、Y。检测期间按 ESC 可取消并保留原坐标。也可直接输入坐标，多屏幕环境可使用负数。
+按下检测按钮后，主窗口会最小化，鼠标所在屏幕会显示跟随指针的十字线、实时坐标与 3 秒倒计时，帮助对齐指定位置。检测末端时，已经取得的起点会保持标示；两个点位于同一屏幕时还会显示预计书写矩形。倒计时结束后程序会自动填入 X、Y。检测期间按 ESC 可取消并保留原坐标。也可直接输入坐标，多屏幕环境可使用负数。
 
 3. 调整排版
 “常规设置”可调整字体大小、字距、行距、水平或垂直排列，以及向右或向左流向。半形字符彼此相邻时使用一半字距；只要任一侧为全形字符就使用完整字距。空格与 Tab 也遵循此规则。文字到达主方向边界时会自动换行或换列；副方向空间不足时会在移动鼠标前停止并显示错误。垂直排列会自动旋转英文字母、数字、括号和长音符号。
@@ -290,7 +290,7 @@ JA = {**EN,
 2つの座標で書き込み可能な長方形を指定します。座標は画面全体の絶対位置です。
 • 右方向：開始座標に長方形の左上、終了座標に右下を指定します。
 • 左方向：開始座標に長方形の右上、終了座標に左下を指定します。
-検出ボタンを押すとメイン画面が最小化します。3秒以内に指定位置へマウスを移動すると、カウント終了時に X、Y が入力されます。検出中に ESC を押すと元の座標を残して中止できます。座標は直接入力でき、マルチモニターの負の値にも対応します。
+検出ボタンを押すとメイン画面が最小化し、マウスがある画面に追従する十字線、現在座標、3秒のカウントダウンが表示されます。終了座標の検出中は取得済みの開始位置が固定表示され、同じ画面上では予定書き込み範囲も表示されます。十字線を指定位置に合わせると、カウント終了時に X、Y が入力されます。検出中に ESC を押すと元の座標を残して中止できます。座標は直接入力でき、マルチモニターの負の値にも対応します。
 
 3. レイアウトを調整する
 「一般設定」では文字サイズ、文字間隔、行間隔、横書きまたは縦書き、右方向または左方向を設定します。半角文字同士は半分の文字間隔を使用し、どちらかが全角文字なら完全な文字間隔を使用します。スペースと Tab にも同じ規則を適用します。主方向の境界に達すると自動で改行または改列します。副方向の空間が不足する場合は、マウスを動かす前に停止してエラーを表示します。縦書きでは英数字、括弧、長音記号を自動回転します。
