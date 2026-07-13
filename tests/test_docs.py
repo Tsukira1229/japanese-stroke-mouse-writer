@@ -14,6 +14,11 @@ DOCS = (
     ROOT / "complete-guide.en.md",
     ROOT / "complete-guide.ja.md",
 )
+HTML_GUIDES = (
+    ROOT / "complete-guide.html",
+    ROOT / "complete-guide.en.html",
+    ROOT / "complete-guide.ja.html",
+)
 POLICY_DOCS = (
     ROOT / "LICENSE",
     ROOT / "CODE_SIGNING_POLICY.md",
@@ -26,6 +31,7 @@ POLICY_DOCS = (
 class DocumentationTests(unittest.TestCase):
     def test_trilingual_documents_exist_and_old_guide_is_removed(self) -> None:
         self.assertTrue(all(path.exists() for path in DOCS))
+        self.assertTrue(all(path.exists() for path in HTML_GUIDES))
         self.assertTrue(all(path.exists() for path in POLICY_DOCS))
         self.assertFalse((ROOT / "圖文使用教學.md").exists())
 
@@ -35,6 +41,14 @@ class DocumentationTests(unittest.TestCase):
             for target in re.findall(r"\[[^]]+\]\(([^)]+\.md)\)", text):
                 with self.subTest(document=document.name, target=target):
                     self.assertTrue((document.parent / target).exists())
+
+    def test_html_guide_links_resolve(self) -> None:
+        for document in HTML_GUIDES:
+            text = document.read_text(encoding="utf-8")
+            for target in re.findall(r'href="([^"#]+)"', text):
+                if "://" not in target:
+                    with self.subTest(document=document.name, target=target):
+                        self.assertTrue((document.parent / target).exists())
 
     def test_readmes_have_installation_without_development_section(self) -> None:
         expectations = {
@@ -58,7 +72,6 @@ class DocumentationTests(unittest.TestCase):
             self.assertIn("0–9", text)
             self.assertIn("0.5", text)
             self.assertIn("ｶﾞ", text)
-            self.assertIn("keycap", text)
             self.assertTrue("顏文字" in text or "Kaomoji" in text or "顔文字" in text)
             self.assertTrue("中心線" in text or "centerline" in text)
             self.assertNotIn("輪廓", text)
@@ -68,9 +81,9 @@ class DocumentationTests(unittest.TestCase):
                 self.assertIn(pair, text)
 
     def test_all_documents_use_current_version(self) -> None:
-        for document in DOCS:
+        for document in (*DOCS, *HTML_GUIDES):
             text = document.read_text(encoding="utf-8")
-            self.assertIn("V2.6.0", text)
+            self.assertIn("V2.6.1", text)
             self.assertNotIn("2.6.0-preview", text.lower())
             self.assertNotIn("V2.4.1", text)
             self.assertNotIn("V2.4.0", text)
@@ -109,6 +122,34 @@ class DocumentationTests(unittest.TestCase):
                 with self.subTest(document=document.name, phrase=phrase):
                     self.assertNotIn(phrase, text)
 
+    def test_user_guides_describe_partial_symbol_support_without_removed_wording(self) -> None:
+        forbidden = (
+            "不再提供內建" + "顏文字分類",
+            "彩色 emoji、keycap" + " 與 ZWJ 組合序列不支援",
+            "no longer provides built-in " + "kaomoji categories",
+            "内蔵の顔文字分類" + "は提供しません",
+        )
+        localization = (ROOT / "localization.py").read_text(encoding="utf-8")
+        for text in [localization, *(path.read_text(encoding="utf-8") for path in DOCS), *(path.read_text(encoding="utf-8") for path in HTML_GUIDES)]:
+            self.assertFalse(any(phrase in text for phrase in forbidden))
+        for document in DOCS[3:]:
+            text = document.read_text(encoding="utf-8")
+            self.assertTrue(
+                "一部分" in text or "some commonly used" in text or "一部" in text,
+                document.name,
+            )
+
+    def test_readmes_document_future_font_and_symbol_expansion(self) -> None:
+        expectations = {
+            "README.md": ("文字字型選擇", "特殊符號"),
+            "README.en.md": ("selectable writing fonts", "special symbols"),
+            "README.ja.md": ("書き込み用フォント", "特殊記号"),
+        }
+        for filename, phrases in expectations.items():
+            text = (ROOT / filename).read_text(encoding="utf-8")
+            for phrase in phrases:
+                self.assertIn(phrase, text)
+
     def test_ui_guidance_matches_bottom_status_bar_and_help_tab(self) -> None:
         old_descriptions = ("標題下方固定", "below the title", "タイトル下")
         for document in DOCS:
@@ -118,8 +159,13 @@ class DocumentationTests(unittest.TestCase):
     def test_readmes_document_current_portable_folder(self) -> None:
         for document in DOCS[:3]:
             text = document.read_text(encoding="utf-8")
-            self.assertIn("JapaneseStrokeMouseWriter-v2.6.0-win-x64-portable", text)
+            self.assertIn("JapaneseStrokeMouseWriter-v2.6.1-win-x64-portable", text)
             self.assertNotIn("JapaneseStrokeMouseWriter-v2.4.1-win-x64-portable", text)
+
+    def test_portable_build_includes_html_guides(self) -> None:
+        build_script = (ROOT / "scripts" / "build_portable.ps1").read_text(encoding="utf-8")
+        self.assertIn('-Filter "*.html"', build_script)
+        self.assertIn("generate_html_guides.py", build_script)
 
 
 if __name__ == "__main__":

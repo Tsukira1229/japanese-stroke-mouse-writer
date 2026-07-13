@@ -4,7 +4,7 @@ param(
 
 $ErrorActionPreference = "Stop"
 $Root = (Resolve-Path (Join-Path $PSScriptRoot "..")).Path
-$PackageName = "JapaneseStrokeMouseWriter-v2.6.0-win-x64-portable"
+$PackageName = "JapaneseStrokeMouseWriter-v2.6.1-win-x64-portable"
 $Dist = Join-Path $Root "dist"
 $PackageDir = Join-Path $Dist $PackageName
 $Archive = Join-Path $Dist "$PackageName.zip"
@@ -14,10 +14,15 @@ Add-Type -AssemblyName System.IO.Compression.FileSystem
 
 Push-Location $Root
 try {
+    & $Python "scripts/generate_html_guides.py" --check
+    if ($LASTEXITCODE -ne 0) { throw "HTML guides are not up to date." }
+
     & $Python -m PyInstaller --noconfirm --clean "JapaneseStrokeMouseWriter.spec"
     if ($LASTEXITCODE -ne 0) { throw "PyInstaller build failed." }
 
     Get-ChildItem -LiteralPath $Root -Filter "*.md" -File |
+        Copy-Item -Destination $PackageDir -Force
+    Get-ChildItem -LiteralPath $Root -Filter "*.html" -File |
         Copy-Item -Destination $PackageDir -Force
     Copy-Item -LiteralPath (Join-Path $Root "LICENSE") -Destination $PackageDir -Force
     New-Item -ItemType Directory -Path (Join-Path $PackageDir "user_data") -Force | Out-Null

@@ -22,6 +22,7 @@ The Portable build includes open-source Python and Python packages. Direct proje
 - svg.path: MIT License
 - ttkbootstrap: MIT License
 - PyInstaller: GNU GPL with the PyInstaller bootloader exception
+- Python-Markdown: BSD 3-Clause License (build-time HTML documentation generation)
 
 These packages may include transitive open-source dependencies under their respective licenses. Their original copyright and license terms remain in effect.
 

@@ -1,5 +1,13 @@
 # Changelog
 
+## V2.6.1 - 2026-07-13
+
+- Adds standalone Traditional Chinese, English, and Japanese HTML complete guides that can be opened offline without a Markdown reader.
+- Clarifies that only part of the Unicode special-symbol range is supported and that unsupported characters are reported before writing starts.
+- Removes outdated help wording about built-in kaomoji categories and specific unsupported sequence types.
+- Documents planned writing-font selection and continued special-symbol expansion.
+- Keeps all V2.6.0 writing behavior and remains unsigned.
+
 ## V2.6.0 - 2026-07-12
 
 - Modernizes the four-tab interface with a compact responsive layout, consistent icons, fixed primary actions, segmented direction controls, and visible numeric units.

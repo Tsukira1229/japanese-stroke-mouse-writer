@@ -1,0 +1,214 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <title>Japanese Stroke Mouse Writer V2.6.1 - 完整說明</title>
+  <style>:root {
+  color-scheme: light;
+  --background: #fff8fb;
+  --surface: #ffffff;
+  --surface-alt: #f4faff;
+  --text: #3a3342;
+  --muted: #746b7c;
+  --border: #e8dde8;
+  --accent: #c83f75;
+  --accent-soft: #fde8f0;
+  --link: #306f9f;
+  --code: #f5eff6;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0;
+  background: var(--background);
+  color: var(--text);
+  font-family: "Segoe UI", "Microsoft JhengHei", "Yu Gothic UI", sans-serif;
+  font-size: 16px;
+  line-height: 1.75;
+}
+a { color: var(--link); }
+a:hover { text-decoration-thickness: 2px; }
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+  min-height: 58px;
+  padding: 10px clamp(18px, 4vw, 48px);
+  background: rgba(255, 255, 255, 0.96);
+  border-bottom: 1px solid var(--border);
+}
+.brand { color: var(--text); font-weight: 700; text-decoration: none; }
+.languages { display: flex; flex-wrap: wrap; gap: 14px; font-size: 14px; }
+.languages a[aria-current="page"] { color: var(--accent); font-weight: 700; }
+.layout {
+  display: grid;
+  grid-template-columns: minmax(180px, 230px) minmax(0, 820px);
+  justify-content: center;
+  gap: clamp(28px, 5vw, 64px);
+  padding: 38px clamp(18px, 5vw, 64px) 80px;
+}
+.toc {
+  position: sticky;
+  top: 88px;
+  align-self: start;
+  max-height: calc(100vh - 110px);
+  overflow: auto;
+  padding: 18px;
+  background: var(--surface-alt);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+.toc-title { margin: 0 0 8px; color: var(--muted); font-size: 13px; font-weight: 700; }
+.toc ul { margin: 0; padding-left: 18px; }
+.toc li { margin: 5px 0; }
+.toc a { color: var(--text); font-size: 14px; text-decoration: none; }
+main {
+  min-width: 0;
+  padding: clamp(24px, 5vw, 52px);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  box-shadow: 0 12px 36px rgba(72, 48, 77, 0.08);
+}
+h1, h2 { line-height: 1.35; }
+h1 { margin-top: 0; font-size: clamp(28px, 4vw, 40px); }
+h2 { margin-top: 2.2em; padding-bottom: 8px; border-bottom: 2px solid var(--accent-soft); font-size: 23px; }
+li + li { margin-top: 6px; }
+code {
+  padding: 2px 6px;
+  background: var(--code);
+  border-radius: 4px;
+  font-family: Consolas, "Cascadia Mono", monospace;
+  overflow-wrap: anywhere;
+}
+.headerlink { margin-left: 8px; color: var(--border); text-decoration: none; }
+h1:hover .headerlink, h2:hover .headerlink { color: var(--accent); }
+.footer { margin-top: 44px; padding-top: 20px; color: var(--muted); border-top: 1px solid var(--border); font-size: 14px; }
+@media (max-width: 820px) {
+  .topbar { position: static; align-items: flex-start; flex-direction: column; gap: 4px; }
+  .layout { display: block; padding-top: 20px; }
+  .toc { position: static; max-height: none; margin-bottom: 20px; }
+  main { padding: 24px 20px; }
+}
+@media print {
+  .topbar, .toc { display: none; }
+  body { background: #fff; }
+  .layout { display: block; padding: 0; }
+  main { border: 0; box-shadow: none; padding: 0; }
+}</style>
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="#content">Japanese Stroke Mouse Writer V2.6.1</a>
+    <nav class="languages" aria-label="Languages">
+      <a href="complete-guide.html" aria-current="page">繁體中文</a>
+<a href="complete-guide.en.html">English</a>
+<a href="complete-guide.ja.html">日本語</a>
+    </nav>
+  </header>
+  <div class="layout">
+    <nav class="toc" aria-label="本頁目錄">
+      <p class="toc-title">本頁目錄</p>
+      <div class="toc">
+<ul>
+<li><a href="#1">1. 開啟程式與準備畫布</a></li>
+<li><a href="#2">2. 輸入書寫內容</a></li>
+<li><a href="#3">3. 設定起始與末端座標</a></li>
+<li><a href="#4">4. 調整一般設定</a></li>
+<li><a href="#5">5. 調整環境設定</a></li>
+<li><a href="#6">6. 確認支援範圍</a></li>
+<li><a href="#7">7. 更新預覽</a></li>
+<li><a href="#8">8. 開始書寫與緊急停止</a></li>
+<li><a href="#9">9. 常見問題</a></li>
+</ul>
+</div>
+
+    </nav>
+    <main id="content">
+      <h1 id="japanese-stroke-mouse-writer-v261">Japanese Stroke Mouse Writer V2.6.1 完整步驟</h1>
+<p>本指南從第一次開啟程式開始，說明如何設定書寫範圍、確認預覽並安全執行。</p>
+<h2 id="1">1. 開啟程式與準備畫布</h2>
+<ol>
+<li>執行 <code>JapaneseStrokeMouseWriter.exe</code>。程式預設以最大化視窗開啟，介面語言會依 Windows 語言選擇，也可在「環境設定」切換。</li>
+<li>開啟小畫家或其他可用滑鼠繪圖的程式。</li>
+<li>在目標程式選擇畫筆或鉛筆工具，設定顏色與筆刷粗細。</li>
+<li>確認畫布已足夠大，且沒有對話框或其他視窗遮住預定書寫位置。</li>
+</ol>
+<h2 id="2">2. 輸入書寫內容</h2>
+<p>在「內容與預覽」輸入或貼上文字。空格、Tab、換行與連續換行都會保留；未手動換行的內容會在碰到書寫矩形主方向邊界時自動換行或換欄。</p>
+<p>可直接輸入顏文字，例如 <code>(^O^)</code>、<code>(≧▽≦)</code>、<code>m(_ _)m</code>、<code>(/ω＼)</code> 與 <code>(╯°□°)╯︵ ┻━┻</code>。顏文字由各個支援字元的中心線依序組成，因此符號選擇、半形／全形及字距都會影響結果。</p>
+<h2 id="3">3. 設定起始與末端座標</h2>
+<p>起始座標與末端座標會形成可書寫矩形，座標是滑鼠在整個 Windows 桌面上的 X、Y 位置，多螢幕環境可能出現負數。</p>
+<ul>
+<li>水平或垂直、流向向右：起始座標是矩形左上角，末端座標是右下角。</li>
+<li>水平或垂直、流向向左：起始座標是矩形右上角，末端座標是左下角。</li>
+</ul>
+<p>建議使用偵測功能：</p>
+<ol>
+<li>按「偵測起始座標」。主視窗會最小化並顯示 3 秒倒數。</li>
+<li>將滑鼠移到目標畫布對應的上方角落，保持不動直到程式取得座標。</li>
+<li>按「偵測末端座標」，再將滑鼠移到對應的下方角落。</li>
+<li>程式恢復後確認 X、Y 已填入。也可以直接輸入座標。</li>
+</ol>
+<p>偵測期間按 <code>ESC</code> 會取消，原本座標不會被覆蓋。矩形至少需要容納一個字格；範圍或方向不合法時，程式會在預覽前提示。</p>
+<h2 id="4">4. 調整一般設定</h2>
+<ul>
+<li><strong>字體大小</strong>：每個全形字格的寬與高，單位為 px。</li>
+<li><strong>字距</strong>：相鄰字元的距離。半形對半形使用設定值的一半，其他組合使用完整字距。</li>
+<li><strong>行距</strong>：水平排版的行距或垂直排版的欄距。</li>
+<li><strong>排列方向</strong>：水平時逐字左右排列；垂直時逐字向下排列。</li>
+<li><strong>流向</strong>：向右或向左，並決定起始座標使用矩形哪一側。</li>
+</ul>
+<p>半形字元占 <code>0.5</code> 格，全形／寬字元占 <code>1</code> 格，Tab 等於四個半形空格。<code>ｶﾞ</code>、<code>ﾊﾟ</code> 等合法半形片假名組合占一個半格。</p>
+<p>垂直排版時，英數字、括號及長線會順時針旋轉；<code>、。</code> 會移到字格右上。箭頭與框線保留原方向。</p>
+<p>「自訂選項」可新增、載入、覆寫、重新命名或刪除設定。自訂選項只保存字體大小、字距、行距、排列方向與流向，不保存文字及座標。</p>
+<h2 id="5">5. 調整環境設定</h2>
+<ul>
+<li><strong>語言</strong>：日文、繁體中文、簡體中文或英文。</li>
+<li><strong>外觀主題</strong>：可選擇亮色主題、暗色主題或跟隨 Windows。首次使用預設為亮色主題。</li>
+<li><strong>開始倒數</strong>：按下開始後，保留給使用者切換到目標畫布的秒數，範圍 <code>0–30</code> 秒。</li>
+<li><strong>曲線精細度</strong>：範圍 <code>0.1–20</code>；數字越小，曲線越細緻，但產生的點越多、書寫時間越長。</li>
+<li><strong>取樣點停頓</strong>：每個曲線點的等待時間，範圍 <code>1–1000</code> 毫秒。若筆畫斷線，可逐步提高。</li>
+</ul>
+<p>環境設定會自動保存。切換語言或外觀時，輸入文字、座標、目前頁籤及視窗狀態都會保留。一般情況可先使用預設值，只在曲線不夠平滑或筆畫斷線時調整。</p>
+<h2 id="6">6. 確認支援範圍</h2>
+<p>支援日文假名、KanjiVG 收錄的漢字、<code>A–Z</code>、<code>a–z</code>、<code>0–9</code>、全形英數、半形片假名與常用符號。</p>
+<p>半形／全形符號包括 <code>#＃</code>、<code>(（</code>、<code>)）</code>、<code>[［</code>、<code>]］</code>、<code>@＠</code>、<code>~～</code>、<code>、､</code>、<code>。｡</code>、<code>・･</code>、<code>ーｰ</code>、<code>「」</code>、<code>【】</code>、<code>｢｣</code>。程式另支援一部分常用的幾何、星形、勾叉、箭頭、括號、數學及框線符號，完整清單見 <a href="SUPPORTED_SYMBOLS.md">支援中心線符號</a>。</p>
+<p>特殊符號並非全部可用。若文字中含有未支援的特殊符號，程式會在開始書寫前指出第一個不支援字元。</p>
+<p>輸入框線時，將字距與行距設為 <code>0 px</code>，即可連接 <code>┏━┷━┓</code>、<code>┃　　┃</code>、<code>┗━━━┛</code> 等相鄰端點。</p>
+<h2 id="7">7. 更新預覽</h2>
+<p>按「更新預覽」。淡色格線代表每個字元占用的範圍，黑色線條就是實際送到滑鼠的書寫路徑。</p>
+<p>開始前請確認：</p>
+<ul>
+<li>所有內容都位於書寫矩形內。</li>
+<li>空格、換行與自動換行位置符合預期。</li>
+<li>實心符號的外框與疏斜線符合需要。</li>
+<li>沒有不支援字元或範圍不足提示。</li>
+</ul>
+<h2 id="8">8. 開始書寫與緊急停止</h2>
+<ol>
+<li>按「開始書寫」。</li>
+<li>在開始倒數期間切換到目標畫布，不要再移動目標視窗或改變畫布縮放。</li>
+<li>倒數結束後，程式會從起始座標依預覽路徑控制滑鼠書寫。</li>
+</ol>
+<p>座標偵測、開始倒數或書寫期間都可按 <code>ESC</code> 停止。書寫時也可將滑鼠快速移到任一螢幕角落觸發安全停止。正常完成、停止或錯誤時，程式都會放開滑鼠左鍵。</p>
+<h2 id="9">9. 常見問題</h2>
+<ul>
+<li><strong>SmartScreen 顯示未知發行者</strong>：目前程式未簽章。請只執行由本專案取得且內容完整的資料夾。</li>
+<li><strong>無法保存設定</strong>：將整個程式資料夾移到文件或桌面等可寫入位置。</li>
+<li><strong>筆畫斷線</strong>：提高取樣點停頓，並避免使用過快或不穩定的目標筆刷。</li>
+<li><strong>曲線不夠平滑</strong>：降低曲線精細度；數值越低，書寫時間越長。</li>
+<li><strong>結果位置偏移</strong>：重新偵測座標，並確認倒數後沒有移動畫布、視窗或改變縮放。</li>
+<li><strong>顏文字比例不理想</strong>：調整字距，並確認使用的是預期的半形或全形符號。</li>
+</ul>
+      <p class="footer">Japanese Stroke Mouse Writer V2.6.1 - Offline documentation</p>
+    </main>
+  </div>
+</body>
+</html>

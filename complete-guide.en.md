@@ -1,4 +1,4 @@
-# Japanese Stroke Mouse Writer V2.6.0 Complete Guide
+# Japanese Stroke Mouse Writer V2.6.1 Complete Guide
 
 This guide starts with the first launch and explains how to define the writing area, verify the preview, and run the program safely.
 
@@ -59,9 +59,9 @@ Environment settings are saved automatically. Switching language or appearance p
 
 Supported input includes Japanese kana, kanji available in KanjiVG, `A–Z`, `a–z`, `0–9`, fullwidth alphanumerics, halfwidth katakana, and common symbols.
 
-Halfwidth/fullwidth pairs include `#＃`, `(（`, `)）`, `[［`, `]］`, `@＠`, `~～`, `、､`, `。｡`, `・･`, `ーｰ`, `「」`, `【】`, and `｢｣`. See [Supported Centerline Symbols](SUPPORTED_SYMBOLS.md) for geometry, stars, checks, arrows, brackets, mathematics, and box drawing.
+Halfwidth/fullwidth pairs include `#＃`, `(（`, `)）`, `[［`, `]］`, `@＠`, `~～`, `、､`, `。｡`, `・･`, `ーｰ`, `「」`, `【】`, and `｢｣`. The program also supports some commonly used geometry, stars, checks, arrows, brackets, mathematics, and box-drawing symbols. See [Supported Centerline Symbols](SUPPORTED_SYMBOLS.md) for the complete list.
 
-Color emoji, keycap emoji, ZWJ sequences, and unlisted images are unsupported. The first unsupported character is reported before the mouse moves.
+Not every special symbol is available. If the text contains an unsupported special symbol, the first unsupported character is reported before writing starts.
 
 For box drawing, set character gap and line gap to `0 px` to connect adjacent endpoints in `┏━┷━┓`, `┃　　┃`, and `┗━━━┛`.
 

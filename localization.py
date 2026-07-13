@@ -34,7 +34,7 @@ ZH_HANT = {
     "help_title": "程式功能與操作方式",
     "help_content": """1. 輸入內容與確認預覽
 在「內容與預覽」輸入要書寫的文字。空格、Tab、換行及自動換行都會反映在實際結果中。淡色字格表示占用範圍，黑色線條才是實際筆順。
-支援日文、英數、半形片假名、常用符號，以及可用來拼湊顏文字的中心線符號。使用者可自行輸入或貼上顏文字；程式會逐字元書寫，不再提供內建顏文字分類。彩色 emoji、keycap 與 ZWJ 組合序列不支援。
+支援日文、英數、半形片假名、常用符號，以及一部分可用來拼湊顏文字的特殊符號。使用者可自行輸入或貼上顏文字，程式會逐字元書寫；若含有未支援的特殊符號，會在開始前提示。
 
 2. 設定起始座標與末端座標
 兩個座標共同形成允許書寫的矩形範圍，座標是整個螢幕的絕對位置。
@@ -182,7 +182,7 @@ EN = {
     "help_title": "Features and operation guide",
     "help_content": """1. Enter content and check the preview
 Enter the text in Content & Preview. Spaces, tabs, explicit line breaks, and automatic wrapping are preserved in the result. Light cells show occupied space; black lines are the actual stroke paths.
-Japanese, letters, numbers, halfwidth katakana, common symbols, and centerline symbols useful for assembling kaomoji are supported. Users can type or paste kaomoji manually; the program writes them character by character and no longer provides built-in kaomoji categories. Color emoji, keycap sequences, and ZWJ sequences are not supported.
+Japanese, letters, numbers, halfwidth katakana, common symbols, and some special symbols useful for assembling kaomoji are supported. Users can type or paste kaomoji manually, and the program writes them character by character. Unsupported special symbols are reported before writing starts.
 
 2. Set the start and end coordinates
 The two coordinates form the writable rectangle and use absolute screen positions.
@@ -235,7 +235,7 @@ ZH_HANS = {**ZH_HANT,
     "help_title": "程序功能与操作方式",
     "help_content": """1. 输入内容并确认预览
 在“内容与预览”中输入要书写的文字。空格、Tab、换行和自动换行都会反映在实际结果中。浅色字格表示占用范围，黑色线条才是实际笔顺。
-支持日文、英数字、半形片假名、常用符号，以及可用来拼凑颜文字的中心线符号。使用者可自行输入或粘贴颜文字；程序会逐字符书写，不再提供内置颜文字分类。彩色 emoji、keycap 与 ZWJ 组合序列不支持。
+支持日文、英数字、半形片假名、常用符号，以及一部分可用来拼凑颜文字的特殊符号。使用者可自行输入或粘贴颜文字，程序会逐字符书写；若包含不支持的特殊符号，会在开始前提示。
 
 2. 设置起始坐标与末端坐标
 两个坐标共同形成允许书写的矩形范围，坐标是整个屏幕的绝对位置。
@@ -284,7 +284,7 @@ JA = {**EN,
     "help_title": "機能と操作方法",
     "help_content": """1. 内容を入力してプレビューを確認する
 「内容とプレビュー」に書き込む文字を入力します。スペース、Tab、改行、自動折り返しは実際の結果にも反映されます。薄いマスは占有範囲、黒い線は実際の筆順です。
-日本語、英数字、半角カタカナ、一般記号、顔文字を組み立てるための中心線記号に対応します。顔文字は利用者が手入力または貼り付けし、プログラムは1文字ずつ書き込みます。内蔵の顔文字分類は提供しません。カラー絵文字、keycap、ZWJ シーケンスは非対応です。
+日本語、英数字、半角カタカナ、一般記号、顔文字に使える一部の特殊記号に対応します。顔文字は手入力または貼り付けでき、プログラムが1文字ずつ書き込みます。未対応の特殊記号が含まれる場合は、開始前に通知します。
 
 2. 開始座標と終了座標を設定する
 2つの座標で書き込み可能な長方形を指定します。座標は画面全体の絶対位置です。
