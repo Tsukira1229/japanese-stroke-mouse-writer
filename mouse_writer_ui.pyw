@@ -62,6 +62,7 @@ from settings_store import DEFAULT_SETTINGS_PATH, Preset, SettingsStore
 
 NUMERIC_TRANSLATION = str.maketrans("０１２３４５６７８９。．，,", "0123456789....")
 TRANSPARENT_OVERLAY_COLOR = "#010203"
+TRANSPARENT_OVERLAY_COLORREF = 0x00030201
 
 
 class _ScreenPoint(ctypes.Structure):
@@ -86,7 +87,7 @@ class _MonitorInfo(ctypes.Structure):
     )
 
 
-_USER32 = ctypes.windll.user32 if sys.platform == "win32" else None
+_USER32 = ctypes.WinDLL("user32", use_last_error=True) if sys.platform == "win32" else None
 if _USER32 is not None:
     _USER32.GetCursorPos.argtypes = (ctypes.POINTER(_ScreenPoint),)
     _USER32.GetCursorPos.restype = wintypes.BOOL
@@ -96,6 +97,13 @@ if _USER32 is not None:
     _USER32.GetWindowLongW.restype = wintypes.LONG
     _USER32.SetWindowLongW.argtypes = (wintypes.HWND, ctypes.c_int, wintypes.LONG)
     _USER32.SetWindowLongW.restype = wintypes.LONG
+    _USER32.SetLayeredWindowAttributes.argtypes = (
+        wintypes.HWND,
+        wintypes.DWORD,
+        wintypes.BYTE,
+        wintypes.DWORD,
+    )
+    _USER32.SetLayeredWindowAttributes.restype = wintypes.BOOL
     _USER32.MonitorFromPoint.argtypes = (_ScreenPoint, wintypes.DWORD)
     _USER32.MonitorFromPoint.restype = wintypes.HANDLE
     _USER32.GetMonitorInfoW.argtypes = (wintypes.HANDLE, ctypes.POINTER(_MonitorInfo))
@@ -1448,8 +1456,9 @@ class JapaneseWriterApp:
             _USER32.SetWindowLongW(
                 hwnd,
                 -20,
-                extended_style | 0x00000020 | 0x00000080 | 0x08000000,
+                extended_style | 0x00000020 | 0x00000080 | 0x00080000 | 0x08000000,
             )
+            _USER32.SetLayeredWindowAttributes(hwnd, TRANSPARENT_OVERLAY_COLORREF, 255, 0x00000001)
         except (AttributeError, OSError, tk.TclError):
             pass
 
@@ -1672,12 +1681,10 @@ class JapaneseWriterApp:
 
         def worker() -> None:
             try:
-                import pyautogui
-
                 for remaining in range(3, 0, -1):
                     self._post_ui(self._update_detection_overlay, title, remaining)
                     interruptible_sleep(1, should_stop)
-                x, y = pyautogui.position()
+                x, y = _cursor_position()
                 self._post_ui(self._coordinate_detected, target, x, y)
             except BaseException as exc:
                 self._post_ui(self._restore_after_operation, exc)
@@ -1836,6 +1843,14 @@ def run_self_test(settings_path: Path = DEFAULT_SETTINGS_PATH) -> int:
     )
     if not emoticon.paths:
         raise RuntimeError("顏文字符號中心線排版測試失敗。")
+    if sys.platform == "win32":
+        import pyautogui
+
+        native_position = _cursor_position()
+        pyautogui_position = pyautogui.position()
+        position_values = (*native_position, pyautogui_position.x, pyautogui_position.y)
+        if not all(isinstance(value, int) for value in position_values):
+            raise RuntimeError("Windows 座標讀取相容性測試失敗。")
     SettingsStore(settings_path).ensure_writable()
     print(f"Japanese Stroke Mouse Writer {APP_VERSION} self-test passed")
     return 0

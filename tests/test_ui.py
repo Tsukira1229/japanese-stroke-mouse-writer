@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import runpy
+import sys
 import tempfile
 import time
 import tkinter as tk
@@ -299,6 +300,14 @@ class JapaneseWriterUiTests(unittest.TestCase):
         self.assertIsNone(self.app.countdown_overlay)
         self.assertIsNone(self.app.countdown_canvas)
         self.assertIsNone(self.app.detection_after_id)
+
+    @unittest.skipUnless(sys.platform == "win32", "Windows coordinate binding regression")
+    def test_coordinate_binding_does_not_break_pyautogui_position(self) -> None:
+        import pyautogui
+
+        position = pyautogui.position()
+        self.assertIsInstance(position.x, int)
+        self.assertIsInstance(position.y, int)
 
     def test_end_coordinate_overlay_shows_start_reference_and_rectangle(self) -> None:
         self.app.start_x.set("-1800")
