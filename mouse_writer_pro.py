@@ -16,6 +16,7 @@ from enum import Enum
 from pathlib import Path
 
 from localization import Language, LocalizedOSError, LocalizedValueError, tr
+from symbol_catalog import load_symbol_catalog
 
 Point = tuple[float, float]
 PathList = list[list[Point]]
@@ -27,6 +28,8 @@ BUNDLE_DIR = Path(getattr(sys, "_MEIPASS", SCRIPT_DIR))
 EXECUTABLE_DIR = Path(sys.executable).resolve().parent if getattr(sys, "frozen", False) else SCRIPT_DIR
 DEFAULT_KANJIVG_DIR = BUNDLE_DIR / "data/kanjivg/20250816/main/kanji"
 DEFAULT_CUSTOM_STROKE_DIR = BUNDLE_DIR / "data/custom_strokes"
+SYMBOL_MANIFEST_PATH = BUNDLE_DIR / "data/symbol_manifest.json"
+SYMBOL_CATALOG = load_symbol_catalog(SYMBOL_MANIFEST_PATH)
 ASCII_ALNUM = frozenset(chr(codepoint) for codepoint in range(0x21, 0x7F) if chr(codepoint).isalnum())
 ASCII_PUNCTUATION = frozenset(chr(codepoint) for codepoint in range(0x21, 0x7F) if not chr(codepoint).isalnum())
 FULLWIDTH_ALNUM = frozenset(chr(ord(char) + 0xFEE0) for char in ASCII_ALNUM)
@@ -34,30 +37,11 @@ FULLWIDTH_PUNCTUATION = frozenset(chr(ord(char) + 0xFEE0) for char in ASCII_PUNC
 JAPANESE_BRACKETS = frozenset("「」『』【】〈〉《》〔〕｢｣")
 JAPANESE_PUNCTUATION = frozenset("、､。｡・･ーｰ") | JAPANESE_BRACKETS
 VARIATION_SELECTORS = frozenset("\ufe0e\ufe0f")
-BOX_DRAWING_SYMBOLS = frozenset(chr(codepoint) for codepoint in range(0x2500, 0x2580))
-COMMON_SYMBOL_VARIANTS = frozenset(
-    "☆★⚝⭐⭑⭒"
-    "○●◯◦"
-    "■▪▫◻◼◽◾"
-    "◆◈♢♦"
-    "△▲▼▷▶◁◀▴▵▸▹▾▿◂◃"
-    "✓✔✕✖✗✘"
-    "←↑→↓↔↕↖↗↘↙⇐⇑⇒⇓⇔⇕"
-    "⁅⁆❨❩❪❫❬❭❰❱❲❳❴❵"
-    "±×÷≤≥∞√∏∫∂∆∈∉∋∅⊕⊗"
-)
-VERTICAL_COMMON_BRACKETS = frozenset("⁅⁆❨❩❪❫❬❭❰❱❲❳❴❵")
-SUPPORTED_EMOTICON_SYMBOLS = frozenset(
-    "¯´¨°•·˙˘◕‿﹏︿︶ಠꇴﻌฅ≧≦∇▽□︵♡❁๑⊙Дд∀∑ᗜˊˋ٩و꒰꒱۶❛ᴗ◡ᴥ⊂⊃∪⊥ω"
-    "ʘ¬≖◔◉◎☉꒪꒦꒨ᵔᵕᵒ˶˃˂ᵘзεºლღ♥✿✧✦✩✪☼☾⁄୧୨งᕦᕤᕙᕗᕕʕʔᘛᘚ"
-    "༼༽ᐠᐟᐢᐡᐛᐕᐖᵇᵈᵗㅅㅂㅁㅇㅈㅎㅜㅠᆺ"
-    "⌒⌣⌢⌜⌝⌞⌟〈〉⟨⟩⟪⟫⟦⟧⟮⟯⸜⸝⸨⸩⸢⸣⸤⸥"
-    "◌◍◐◑◒◓◖◗◘◙◚◛◜◝◞◟◠◇"
-    "ʚɞᓄᓂᓀᓁᓆᓇᓈᓉᗒᗕᗣᗨᗩᗪ"
-    "ಥಢಡ༎།"
-    "≠≡≈≋≌≺≻≪≫∝∠∴∵∷∼∽∣∥∧∨∩⊆⊇⊊⊋⊄⊅"
-    "⋆⋄✣✤✥✫✬✭✮✯"
-)
+BOX_DRAWING_SYMBOLS = SYMBOL_CATALOG.group_chars("box_drawing")
+COMMON_SYMBOL_VARIANTS = SYMBOL_CATALOG.group_chars("common_variant")
+SUPPORTED_EMOTICON_SYMBOLS = SYMBOL_CATALOG.group_chars("emoticon")
+VERTICAL_COMMON_BRACKETS = SYMBOL_CATALOG.vertical_rotating
+SYMBOL_CELL_SPANS = SYMBOL_CATALOG.cell_spans
 SUPPORTED_SYMBOLS = (
     ASCII_PUNCTUATION
     | FULLWIDTH_PUNCTUATION
@@ -461,6 +445,8 @@ def is_halfwidth_char(char: str) -> bool:
 def _token_span(char: str) -> float:
     if char == "\t":
         return 2.0
+    if char in SYMBOL_CELL_SPANS:
+        return SYMBOL_CELL_SPANS[char]
     return 0.5 if is_halfwidth_char(char) else 1.0
 
 

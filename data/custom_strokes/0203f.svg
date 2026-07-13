@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Reviewed centerline stroke data for U+203F. -->
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 109 109">
-  <path id="custom:0203f-s1" d="M33.48,106.63 L40.22,109.00" />
-  <path id="custom:0203f-s2" d="M69.33,109.00 L75.88,106.63" />
+  <path id="custom:0203f-s1" d="M35,86 C44,96 65,96 74,86" />
 </svg>

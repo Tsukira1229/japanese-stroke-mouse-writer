@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Reviewed centerline stroke data for U+2323. -->
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 109 109">
-  <path id="custom:02323-s1" d="M13.83,102.27 L18.02,103.90 L20.74,106.82 L28.21,109.00" />
-  <path id="custom:02323-s2" d="M80.43,109.00 L88.07,106.82 L90.98,103.90 L95.53,102.27" />
+  <path id="custom:02323-s1" d="M24,82 C37,101 72,101 85,82" />
 </svg>

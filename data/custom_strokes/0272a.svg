@@ -3,4 +3,16 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 109 109">
   <path id="custom:0272a-s1" d="M54,10 C79,10 99,30 99,55 C99,80 79,100 54,100 C29,100 9,80 9,55 C9,30 29,10 54,10" />
   <path id="custom:0272a-s2" d="M54,17 L63,43 L91,43 L68,59 L77,87 L54,70 L31,87 L40,59 L17,43 L45,43 L54,17" />
+  <path id="custom:0272a-s3" d="M35,23 L47,23" />
+  <path id="custom:0272a-s4" d="M62,23 L74,23" />
+  <path id="custom:0272a-s5" d="M25,34 L44,34" />
+  <path id="custom:0272a-s6" d="M65,34 L84,34" />
+  <path id="custom:0272a-s7" d="M15,48 L34,48" />
+  <path id="custom:0272a-s8" d="M75,48 L94,48" />
+  <path id="custom:0272a-s9" d="M15,61 L32,61" />
+  <path id="custom:0272a-s10" d="M77,61 L94,61" />
+  <path id="custom:0272a-s11" d="M23,75 L42,75" />
+  <path id="custom:0272a-s12" d="M67,75 L86,75" />
+  <path id="custom:0272a-s13" d="M36,88 L48,88" />
+  <path id="custom:0272a-s14" d="M61,88 L73,88" />
 </svg>
