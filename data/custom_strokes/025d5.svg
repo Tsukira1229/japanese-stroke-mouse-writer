@@ -3,4 +3,13 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 109 109">
   <path id="custom:025d5-s1" d="M54,14 C77,14 95,32 95,55 C95,78 77,96 54,96 C31,96 13,78 13,55 C13,32 31,14 54,14" />
   <path id="custom:025d5-s2" d="M54,14 L54,55 L13,55" />
+  <path id="custom:025d5-s3" d="M58,21 L70,21" />
+  <path id="custom:025d5-s4" d="M58,30 L80,30" />
+  <path id="custom:025d5-s5" d="M58,39 L87,39" />
+  <path id="custom:025d5-s6" d="M58,48 L92,48" />
+  <path id="custom:025d5-s7" d="M18,61 L91,61" />
+  <path id="custom:025d5-s8" d="M21,70 L88,70" />
+  <path id="custom:025d5-s9" d="M27,79 L82,79" />
+  <path id="custom:025d5-s10" d="M36,88 L73,88" />
+  <path id="custom:025d5-s11" d="M47,94 L62,94" />
 </svg>

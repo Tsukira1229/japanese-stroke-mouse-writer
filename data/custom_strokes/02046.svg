@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Project-authored centerline stroke data for U+2046. -->
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 109 109">
-  <path id="custom:02046-s1" d="M72,18L82,18" />
-  <path id="custom:02046-s2" d="M82,18L82,91" />
-  <path id="custom:02046-s3" d="M82,91L72,91" />
-  <path id="custom:02046-s4" d="M82,54C71,49 67,42 65,34" />
+  <path id="custom:02046-s1" d="M49,21 L59,21" />
+  <path id="custom:02046-s2" d="M59,21 L59,94" />
+  <path id="custom:02046-s3" d="M59,94 L49,94" />
+  <path id="custom:02046-s4" d="M59,57 C48,52 44,45 42,37" />
 </svg>

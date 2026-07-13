@@ -1,7 +1,9 @@
 from __future__ import annotations
 
+import ctypes
 import json
 import runpy
+import sys
 import tempfile
 import time
 import tkinter as tk
@@ -19,6 +21,9 @@ from mouse_writer_pro import WritingCancelled
 ROOT = Path(__file__).resolve().parents[1]
 UI_NAMESPACE = runpy.run_path(ROOT / "mouse_writer_ui.pyw", run_name="mouse_writer_ui_test")
 JapaneseWriterApp = UI_NAMESPACE["JapaneseWriterApp"]
+screen_geometry = UI_NAMESPACE["_screen_geometry"]
+ScreenRect = UI_NAMESPACE["_ScreenRect"]
+USER32 = UI_NAMESPACE["_USER32"]
 
 
 class JapaneseWriterUiTests(unittest.TestCase):
@@ -67,6 +72,8 @@ class JapaneseWriterUiTests(unittest.TestCase):
         help_text = self.app.help_text.get("1.0", "end-1c")
         self.assertIn("起始座標", help_text)
         self.assertIn("末端座標", help_text)
+        self.assertIn("十字線", help_text)
+        self.assertIn("預計書寫矩形", help_text)
         self.assertIn("顏文字", help_text)
         self.assertIn("特殊符號", help_text)
         self.assertIn("左上角", help_text)
@@ -94,6 +101,18 @@ class JapaneseWriterUiTests(unittest.TestCase):
             deiconify.assert_called_once_with()
             state.assert_called_once_with("zoomed")
             lift.assert_called_once_with()
+
+    def test_coordinate_detection_withdraws_main_window(self) -> None:
+        with (
+            patch.object(self.root, "state", return_value="zoomed"),
+            patch.object(self.root, "withdraw") as withdraw,
+            patch.object(self.root, "iconify") as iconify,
+        ):
+            self.app._hide_for_coordinate_detection()
+
+        self.assertEqual(self.app.window_state_before_operation, "zoomed")
+        withdraw.assert_called_once_with()
+        iconify.assert_not_called()
 
     def test_environment_fields_are_numeric_spinboxes(self) -> None:
         self.assertEqual(len(self.app.numeric_inputs), 3)
@@ -261,6 +280,134 @@ class JapaneseWriterUiTests(unittest.TestCase):
         self.app._coordinate_detected("end", 900, 700)
         self.assertEqual((self.app.start_x.get(), self.app.start_y.get()), ("-100", "70"))
         self.assertEqual((self.app.end_x.get(), self.app.end_y.get()), ("900", "700"))
+
+    def test_coordinate_overlay_tracks_pointer_on_negative_monitor(self) -> None:
+        overlay_globals = JapaneseWriterApp._refresh_detection_crosshair.__globals__
+        with patch.dict(
+            overlay_globals,
+            {
+                "_cursor_position": lambda: (-500, 300),
+                "_monitor_bounds_for_point": lambda _x, _y: (-1920, 0, 0, 1080),
+            },
+        ):
+            self.app._show_detection_overlay("偵測起始座標", "start")
+            self.root.update_idletasks()
+            self.assertEqual(self.app.detection_monitor_bounds, (-1920, 0, 0, 1080))
+            self.assertEqual(screen_geometry((-1920, 0, 0, 1080)), "1920x1080-1920+0")
+            self.assertTrue(
+                {"crosshair-horizontal", "crosshair-vertical", "crosshair-center", "crosshair-label"}
+                <= self.app.detection_overlay.parts.keys()
+            )
+            horizontal = self.app.detection_overlay.parts["crosshair-horizontal"]
+            vertical = self.app.detection_overlay.parts["crosshair-vertical"]
+            self.assertEqual(horizontal["rect"], (-1920, 299, 0, 301))
+            self.assertEqual(vertical["rect"], (-501, 0, -499, 1080))
+            overlay_text = str(self.app.detection_overlay.parts["crosshair-label"]["text"])
+            self.assertIn("X=-500", overlay_text)
+            self.assertIn("Y=300", overlay_text)
+            self.assertIn("3", overlay_text)
+            self.assertTrue(
+                all(
+                    (part["rect"][2] - part["rect"][0]) < 1920
+                    or (part["rect"][3] - part["rect"][1]) < 1080
+                    for part in self.app.detection_overlay.parts.values()
+                )
+            )
+            self.app._close_detection_overlay()
+
+        self.assertFalse(self.app.detection_active)
+        self.assertEqual(self.app.detection_overlay.handles, {})
+        self.assertEqual(self.app.detection_overlay.parts, {})
+        self.assertIsNone(self.app.detection_after_id)
+
+    @unittest.skipUnless(sys.platform == "win32", "Windows coordinate binding regression")
+    def test_coordinate_binding_does_not_break_pyautogui_position(self) -> None:
+        import pyautogui
+
+        position = pyautogui.position()
+        self.assertIsInstance(position.x, int)
+        self.assertIsInstance(position.y, int)
+
+    @unittest.skipUnless(sys.platform == "win32", "Windows native overlay regression")
+    def test_coordinate_guides_are_ownerless_native_windows_with_exact_bounds(self) -> None:
+        overlay_globals = JapaneseWriterApp._refresh_detection_crosshair.__globals__
+        with patch.dict(
+            overlay_globals,
+            {
+                "_cursor_position": lambda: (500, 300),
+                "_monitor_bounds_for_point": lambda _x, _y: (0, 0, 2560, 1440),
+            },
+        ):
+            try:
+                self.app._show_detection_overlay("偵測起始座標", "start")
+                total_area = 0
+                for key, hwnd in self.app.detection_overlay.handles.items():
+                    self.assertFalse(USER32.GetWindow(hwnd, 4), key)
+                    native_rect = ScreenRect()
+                    self.assertTrue(USER32.GetWindowRect(hwnd, ctypes.byref(native_rect)), key)
+                    actual = (native_rect.left, native_rect.top, native_rect.right, native_rect.bottom)
+                    expected = self.app.detection_overlay.parts[key]["rect"]
+                    self.assertEqual(actual, expected, key)
+                    total_area += (actual[2] - actual[0]) * (actual[3] - actual[1])
+                self.assertLess(total_area, 2560 * 1440 * 0.02)
+            finally:
+                self.app._close_detection_overlay()
+
+    def test_end_coordinate_overlay_shows_start_reference_and_rectangle(self) -> None:
+        self.app.start_x.set("-1800")
+        self.app.start_y.set("100")
+        overlay_globals = JapaneseWriterApp._refresh_detection_crosshair.__globals__
+        with patch.dict(
+            overlay_globals,
+            {
+                "_cursor_position": lambda: (-500, 300),
+                "_monitor_bounds_for_point": lambda _x, _y: (-1920, 0, 0, 1080),
+            },
+        ):
+            self.app._show_detection_overlay("偵測末端座標", "end")
+            self.root.update_idletasks()
+            expected = {
+                "start-horizontal",
+                "start-vertical",
+                "start-center",
+                "start-label",
+                "rectangle-top",
+                "rectangle-bottom",
+                "rectangle-left",
+                "rectangle-right",
+            }
+            self.assertTrue(expected <= self.app.detection_overlay.parts.keys())
+            start_text = str(self.app.detection_overlay.parts["start-label"]["text"])
+            self.assertIn("X=-1800", start_text)
+            self.assertIn("Y=100", start_text)
+            self.app._close_detection_overlay()
+
+    def test_start_reference_remains_visible_on_another_monitor(self) -> None:
+        self.app.start_x.set("-1800")
+        self.app.start_y.set("100")
+
+        def monitor_bounds(x: int, _y: int) -> tuple[int, int, int, int]:
+            return (-1920, 0, 0, 1080) if x < 0 else (0, 0, 2560, 1440)
+
+        overlay_globals = JapaneseWriterApp._refresh_detection_crosshair.__globals__
+        with patch.dict(
+            overlay_globals,
+            {
+                "_cursor_position": lambda: (500, 300),
+                "_monitor_bounds_for_point": monitor_bounds,
+            },
+        ):
+            self.app._show_detection_overlay("偵測末端座標", "end")
+            self.root.update_idletasks()
+            self.assertTrue(
+                {"start-horizontal", "start-vertical", "start-center", "start-label"}
+                <= self.app.detection_overlay.parts.keys()
+            )
+            self.assertFalse(any(key.startswith("rectangle-") for key in self.app.detection_overlay.parts))
+            self.app._close_detection_overlay()
+
+        self.assertEqual(self.app.detection_overlay.handles, {})
+        self.assertEqual(self.app.detection_overlay.parts, {})
 
     def test_escape_cancel_keeps_existing_coordinates(self) -> None:
         before = (self.app.start_x.get(), self.app.start_y.get())

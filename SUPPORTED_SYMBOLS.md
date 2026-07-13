@@ -1,8 +1,11 @@
 # Supported Centerline Symbols
 
-V2.6.1 supports these centerline symbols for users who want to assemble kaomoji and line drawings manually.
+V2.6.2 supports these centerline symbols for users who want to assemble kaomoji and line drawings manually.
 
 Total additional centerline symbols: 430
+
+This list is generated from `data/symbol_manifest.json`; edit the manifest and run `python scripts/manage_symbol_catalog.py generate-docs`.
+For the complete addition and review procedure, see [Special-symbol development workflow](SYMBOL_DEVELOPMENT.md).
 
 ## Accent / small mark
 
@@ -80,15 +83,12 @@ All 128 Unicode Box Drawing characters are supported with direct code-point SVG 
 Each of these 89 characters has its own direct code-point SVG. Filled geometric shapes use an outer boundary plus sparse diagonal hatching. Brackets rotate in vertical layout; arrows preserve their semantic direction.
 
 ```text
-☆ ★ ⚝ ⭐ ⭑ ⭒
-○ ● ◯ ◦
-■ ▪ ▫ ◻ ◼ ◽ ◾
-◆ ◈ ♢ ♦
-△ ▲ ▼ ▷ ▶ ◁ ◀ ▴ ▵ ▸ ▹ ▾ ▿ ◂ ◃
-✓ ✔ ✕ ✖ ✗ ✘
-← ↑ → ↓ ↔ ↕ ↖ ↗ ↘ ↙ ⇐ ⇑ ⇒ ⇓ ⇔ ⇕
-⁅ ⁆ ❨ ❩ ❪ ❫ ❬ ❭ ❰ ❱ ❲ ❳ ❴ ❵
-± × ÷ ≤ ≥ ∞ √ ∏ ∫ ∂ ∆ ∈ ∉ ∋ ∅ ⊕ ⊗
+±×÷⁅⁆←↑→↓↔↕↖↗↘↙⇐
+⇑⇒⇓⇔⇕∂∅∆∈∉∋∏√∞∫≤
+≥⊕⊗■▪▫▲△▴▵▶▷▸▹▼▾
+▿◀◁◂◃◆◈○●◦◯◻◼◽◾★
+☆♢♦⚝✓✔✕✖✗✘❨❩❪❫❬❭
+❰❱❲❳❴❵⭐⭑⭒
 ```
 
 ## Representative supported kaomoji

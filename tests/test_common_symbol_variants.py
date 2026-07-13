@@ -14,6 +14,7 @@ from mouse_writer_pro import (
     LayoutSettings,
     Orientation,
     STROKE_ALIASES,
+    SYMBOL_CATALOG,
     SUPPORTED_SYMBOLS,
     VERTICAL_COMMON_BRACKETS,
     build_layout,
@@ -26,17 +27,7 @@ from mouse_writer_pro import (
 
 ROOT = Path(__file__).resolve().parents[1]
 CUSTOM_DIR = ROOT / "data/custom_strokes"
-EXPECTED = frozenset(
-    "☆★⚝⭐⭑⭒"
-    "○●◯◦"
-    "■▪▫◻◼◽◾"
-    "◆◈♢♦"
-    "△▲▼▷▶◁◀▴▵▸▹▾▿◂◃"
-    "✓✔✕✖✗✘"
-    "←↑→↓↔↕↖↗↘↙⇐⇑⇒⇓⇔⇕"
-    "⁅⁆❨❩❪❫❬❭❰❱❲❳❴❵"
-    "±×÷≤≥∞√∏∫∂∆∈∉∋∅⊕⊗"
-)
+EXPECTED = SYMBOL_CATALOG.group_chars("common_variant")
 ARROWS = frozenset("←↑→↓↔↕↖↗↘↙⇐⇑⇒⇓⇔⇕")
 
 

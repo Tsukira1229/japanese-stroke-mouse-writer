@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Project-authored centerline stroke data for U+2B52. -->
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 109 109">
-  <path id="custom:02b52-s1" d="M54.5,24 L62.14,44.48 L83.98,45.42 L66.86,59.02 L72.72,80.08 L54.5,68 L36.28,80.08 L42.14,59.02 L25.02,45.42 L46.86,44.48 L54.5,24" />
+  <path id="custom:02b52-s1" d="M54.5,40 L58,49 L68,49 L60.5,56 L63.5,67 L54.5,61 L45.5,67 L48.5,56 L41,49 L51,49 L54.5,40" />
 </svg>

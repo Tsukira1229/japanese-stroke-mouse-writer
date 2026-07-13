@@ -4,4 +4,10 @@
   <path id="custom:025db-s1" d="M19,64 L19,97 L90,97 L90,64" />
   <path id="custom:025db-s2" d="M28,64 C28,82 39,92 54,92 C69,92 81,82 81,64" />
   <path id="custom:025db-s3" d="M37,64 C37,76 44,83 54,83 C64,83 72,76 72,64" />
+  <path id="custom:025db-s4" d="M20,72 L28,72" />
+  <path id="custom:025db-s5" d="M81,72 L89,72" />
+  <path id="custom:025db-s6" d="M20,81 L31,81" />
+  <path id="custom:025db-s7" d="M77,81 L89,81" />
+  <path id="custom:025db-s8" d="M20,90 L39,90" />
+  <path id="custom:025db-s9" d="M69,90 L89,90" />
 </svg>

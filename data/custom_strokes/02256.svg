@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Reviewed centerline stroke data for U+2256. -->
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 109 109">
-  <path id="custom:02256-s1" d="M33.12,59.87 L75.88,59.87" />
-  <path id="custom:02256-s2" d="M61.14,59.87 L62.23,67.51 L61.14,75.34" />
-  <path id="custom:02256-s3" d="M47.68,60.05 L46.40,67.15 L47.49,75.52" />
-  <path id="custom:02256-s4" d="M32.94,75.52 L76.06,75.52" />
+  <path id="custom:02256-s1" d="M28,49 L45,49" />
+  <path id="custom:02256-s2" d="M54.5,46 C60,46 64,50 64,55 C64,60 60,64 54.5,64 C49,64 45,60 45,55 C45,50 49,46 54.5,46" />
+  <path id="custom:02256-s3" d="M64,49 L81,49" />
+  <path id="custom:02256-s4" d="M28,62 L81,62" />
 </svg>

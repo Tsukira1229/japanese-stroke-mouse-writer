@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="color-scheme" content="light">
-  <title>Japanese Stroke Mouse Writer V2.6.1 - Complete Guide</title>
+  <title>Japanese Stroke Mouse Writer V2.6.2 - Complete Guide</title>
   <style>:root {
   color-scheme: light;
   --background: #fff8fb;
@@ -105,7 +105,7 @@ h1:hover .headerlink, h2:hover .headerlink { color: var(--accent); }
 </head>
 <body>
   <header class="topbar">
-    <a class="brand" href="#content">Japanese Stroke Mouse Writer V2.6.1</a>
+    <a class="brand" href="#content">Japanese Stroke Mouse Writer V2.6.2</a>
     <nav class="languages" aria-label="Languages">
       <a href="complete-guide.html">繁體中文</a>
 <a href="complete-guide.en.html" aria-current="page">English</a>
@@ -131,7 +131,7 @@ h1:hover .headerlink, h2:hover .headerlink { color: var(--accent); }
 
     </nav>
     <main id="content">
-      <h1 id="japanese-stroke-mouse-writer-v261-complete-guide">Japanese Stroke Mouse Writer V2.6.1 Complete Guide</h1>
+      <h1 id="japanese-stroke-mouse-writer-v262-complete-guide">Japanese Stroke Mouse Writer V2.6.2 Complete Guide</h1>
 <p>This guide starts with the first launch and explains how to define the writing area, verify the preview, and run the program safely.</p>
 <h2 id="1-launch-and-prepare-the-canvas">1. Launch and Prepare the Canvas</h2>
 <ol>
@@ -151,9 +151,9 @@ h1:hover .headerlink, h2:hover .headerlink { color: var(--accent); }
 </ul>
 <p>Coordinate detection is recommended:</p>
 <ol>
-<li>Click <strong>Detect start coordinates</strong>. The main window minimizes and shows a three-second countdown.</li>
-<li>Move the pointer to the matching upper corner of the target canvas and hold it still.</li>
-<li>Click <strong>Detect end coordinates</strong>, then move the pointer to the matching lower corner.</li>
+<li>Click <strong>Detect start coordinates</strong>. The main window minimizes, and the pointer's current monitor shows a crosshair, live X/Y coordinates, and a three-second countdown.</li>
+<li>Move the crosshair intersection to the matching upper corner of the target canvas and hold it still. Moving the pointer to another monitor moves the crosshair there automatically.</li>
+<li>Click <strong>Detect end coordinates</strong>, then move the pointer to the matching lower corner. The captured start remains marked. When both points are on the same monitor, the expected writing rectangle is shown live; otherwise, the start monitor retains its start crosshair and coordinates.</li>
 <li>When the program returns, verify the captured X and Y values. Coordinates may also be entered manually.</li>
 </ol>
 <p>Press <code>ESC</code> during detection to cancel without replacing the previous values. The rectangle must fit at least one character cell; invalid range or direction is reported before preview.</p>
@@ -207,7 +207,7 @@ h1:hover .headerlink, h2:hover .headerlink { color: var(--accent); }
 <li><strong>Output is offset</strong>: detect the coordinates again and do not move the canvas, window, or zoom after the countdown.</li>
 <li><strong>Kaomoji proportions look wrong</strong>: adjust character gap and verify the intended halfwidth or fullwidth symbols.</li>
 </ul>
-      <p class="footer">Japanese Stroke Mouse Writer V2.6.1 - Offline documentation</p>
+      <p class="footer">Japanese Stroke Mouse Writer V2.6.2 - Offline documentation</p>
     </main>
   </div>
 </body>

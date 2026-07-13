@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+import ctypes
 import math
 import queue
 import re
@@ -12,6 +13,7 @@ import threading
 import time
 import tkinter as tk
 from collections.abc import Callable
+from ctypes import wintypes
 from pathlib import Path
 from tkinter import messagebox, simpledialog, ttk
 
@@ -59,6 +61,324 @@ from settings_store import DEFAULT_SETTINGS_PATH, Preset, SettingsStore
 
 
 NUMERIC_TRANSLATION = str.maketrans("０１２３４５６７８９。．，,", "0123456789....")
+
+
+class _ScreenPoint(ctypes.Structure):
+    _fields_ = (("x", wintypes.LONG), ("y", wintypes.LONG))
+
+
+class _ScreenRect(ctypes.Structure):
+    _fields_ = (
+        ("left", wintypes.LONG),
+        ("top", wintypes.LONG),
+        ("right", wintypes.LONG),
+        ("bottom", wintypes.LONG),
+    )
+
+
+class _MonitorInfo(ctypes.Structure):
+    _fields_ = (
+        ("cbSize", wintypes.DWORD),
+        ("rcMonitor", _ScreenRect),
+        ("rcWork", _ScreenRect),
+        ("dwFlags", wintypes.DWORD),
+    )
+
+
+class _PaintStruct(ctypes.Structure):
+    _fields_ = (
+        ("hdc", wintypes.HDC),
+        ("fErase", wintypes.BOOL),
+        ("rcPaint", _ScreenRect),
+        ("fRestore", wintypes.BOOL),
+        ("fIncUpdate", wintypes.BOOL),
+        ("rgbReserved", wintypes.BYTE * 32),
+    )
+
+
+_LRESULT = ctypes.c_ssize_t
+_WNDPROC = ctypes.WINFUNCTYPE(
+    _LRESULT,
+    wintypes.HWND,
+    wintypes.UINT,
+    wintypes.WPARAM,
+    wintypes.LPARAM,
+)
+
+
+class _WindowClass(ctypes.Structure):
+    _fields_ = (
+        ("style", wintypes.UINT),
+        ("lpfnWndProc", _WNDPROC),
+        ("cbClsExtra", ctypes.c_int),
+        ("cbWndExtra", ctypes.c_int),
+        ("hInstance", wintypes.HINSTANCE),
+        ("hIcon", wintypes.HICON),
+        ("hCursor", wintypes.HANDLE),
+        ("hbrBackground", wintypes.HBRUSH),
+        ("lpszMenuName", wintypes.LPCWSTR),
+        ("lpszClassName", wintypes.LPCWSTR),
+    )
+
+
+_USER32 = ctypes.WinDLL("user32", use_last_error=True) if sys.platform == "win32" else None
+_GDI32 = ctypes.WinDLL("gdi32", use_last_error=True) if sys.platform == "win32" else None
+_KERNEL32 = ctypes.WinDLL("kernel32", use_last_error=True) if sys.platform == "win32" else None
+_NATIVE_OVERLAY_STATES: dict[int, dict[str, object]] = {}
+if _USER32 is not None:
+    _USER32.GetCursorPos.argtypes = (ctypes.POINTER(_ScreenPoint),)
+    _USER32.GetCursorPos.restype = wintypes.BOOL
+    _USER32.GetWindow.argtypes = (wintypes.HWND, wintypes.UINT)
+    _USER32.GetWindow.restype = wintypes.HWND
+    _USER32.GetWindowRect.argtypes = (wintypes.HWND, ctypes.POINTER(_ScreenRect))
+    _USER32.GetWindowRect.restype = wintypes.BOOL
+    _USER32.MonitorFromPoint.argtypes = (_ScreenPoint, wintypes.DWORD)
+    _USER32.MonitorFromPoint.restype = wintypes.HANDLE
+    _USER32.GetMonitorInfoW.argtypes = (wintypes.HANDLE, ctypes.POINTER(_MonitorInfo))
+    _USER32.GetMonitorInfoW.restype = wintypes.BOOL
+    _USER32.RegisterClassW.argtypes = (ctypes.POINTER(_WindowClass),)
+    _USER32.RegisterClassW.restype = wintypes.WORD
+    _USER32.CreateWindowExW.argtypes = (
+        wintypes.DWORD,
+        wintypes.LPCWSTR,
+        wintypes.LPCWSTR,
+        wintypes.DWORD,
+        ctypes.c_int,
+        ctypes.c_int,
+        ctypes.c_int,
+        ctypes.c_int,
+        wintypes.HWND,
+        wintypes.HANDLE,
+        wintypes.HINSTANCE,
+        wintypes.LPVOID,
+    )
+    _USER32.CreateWindowExW.restype = wintypes.HWND
+    _USER32.SetWindowPos.argtypes = (
+        wintypes.HWND,
+        wintypes.HWND,
+        ctypes.c_int,
+        ctypes.c_int,
+        ctypes.c_int,
+        ctypes.c_int,
+        wintypes.UINT,
+    )
+    _USER32.SetWindowPos.restype = wintypes.BOOL
+    _USER32.ShowWindow.argtypes = (wintypes.HWND, ctypes.c_int)
+    _USER32.ShowWindow.restype = wintypes.BOOL
+    _USER32.DestroyWindow.argtypes = (wintypes.HWND,)
+    _USER32.DestroyWindow.restype = wintypes.BOOL
+    _USER32.InvalidateRect.argtypes = (wintypes.HWND, ctypes.c_void_p, wintypes.BOOL)
+    _USER32.InvalidateRect.restype = wintypes.BOOL
+    _USER32.UpdateWindow.argtypes = (wintypes.HWND,)
+    _USER32.UpdateWindow.restype = wintypes.BOOL
+    _USER32.BeginPaint.argtypes = (wintypes.HWND, ctypes.POINTER(_PaintStruct))
+    _USER32.BeginPaint.restype = wintypes.HDC
+    _USER32.EndPaint.argtypes = (wintypes.HWND, ctypes.POINTER(_PaintStruct))
+    _USER32.EndPaint.restype = wintypes.BOOL
+    _USER32.GetClientRect.argtypes = (wintypes.HWND, ctypes.POINTER(_ScreenRect))
+    _USER32.GetClientRect.restype = wintypes.BOOL
+    _USER32.FillRect.argtypes = (wintypes.HDC, ctypes.POINTER(_ScreenRect), wintypes.HBRUSH)
+    _USER32.FillRect.restype = ctypes.c_int
+    _USER32.DrawTextW.argtypes = (
+        wintypes.HDC,
+        wintypes.LPCWSTR,
+        ctypes.c_int,
+        ctypes.POINTER(_ScreenRect),
+        wintypes.UINT,
+    )
+    _USER32.DrawTextW.restype = ctypes.c_int
+    _USER32.DefWindowProcW.argtypes = (wintypes.HWND, wintypes.UINT, wintypes.WPARAM, wintypes.LPARAM)
+    _USER32.DefWindowProcW.restype = _LRESULT
+if _GDI32 is not None:
+    _GDI32.CreateSolidBrush.argtypes = (wintypes.DWORD,)
+    _GDI32.CreateSolidBrush.restype = wintypes.HBRUSH
+    _GDI32.DeleteObject.argtypes = (wintypes.HGDIOBJ,)
+    _GDI32.DeleteObject.restype = wintypes.BOOL
+    _GDI32.SetBkMode.argtypes = (wintypes.HDC, ctypes.c_int)
+    _GDI32.SetBkMode.restype = ctypes.c_int
+    _GDI32.SetTextColor.argtypes = (wintypes.HDC, wintypes.DWORD)
+    _GDI32.SetTextColor.restype = wintypes.DWORD
+    _GDI32.GetStockObject.argtypes = (ctypes.c_int,)
+    _GDI32.GetStockObject.restype = wintypes.HGDIOBJ
+    _GDI32.SelectObject.argtypes = (wintypes.HDC, wintypes.HGDIOBJ)
+    _GDI32.SelectObject.restype = wintypes.HGDIOBJ
+if _KERNEL32 is not None:
+    _KERNEL32.GetModuleHandleW.argtypes = (wintypes.LPCWSTR,)
+    _KERNEL32.GetModuleHandleW.restype = wintypes.HMODULE
+
+
+def _colorref(color: str) -> int:
+    red = int(color[1:3], 16)
+    green = int(color[3:5], 16)
+    blue = int(color[5:7], 16)
+    return red | (green << 8) | (blue << 16)
+
+
+@_WNDPROC
+def _native_overlay_wndproc(hwnd: int, message: int, wparam: int, lparam: int) -> int:
+    if _USER32 is None or _GDI32 is None:
+        return 0
+    if message == 0x000F:  # WM_PAINT
+        paint = _PaintStruct()
+        hdc = _USER32.BeginPaint(hwnd, ctypes.byref(paint))
+        try:
+            rect = _ScreenRect()
+            _USER32.GetClientRect(hwnd, ctypes.byref(rect))
+            state = _NATIVE_OVERLAY_STATES.get(int(hwnd), {})
+            brush = _GDI32.CreateSolidBrush(int(state.get("background", 0)))
+            try:
+                _USER32.FillRect(hdc, ctypes.byref(rect), brush)
+            finally:
+                _GDI32.DeleteObject(brush)
+            text = str(state.get("text", ""))
+            if text:
+                _GDI32.SetBkMode(hdc, 1)
+                _GDI32.SetTextColor(hdc, int(state.get("foreground", 0)))
+                previous_font = _GDI32.SelectObject(hdc, _GDI32.GetStockObject(17))
+                try:
+                    _USER32.DrawTextW(hdc, text, -1, ctypes.byref(rect), 0x0001 | 0x0004 | 0x0010 | 0x0800)
+                finally:
+                    _GDI32.SelectObject(hdc, previous_font)
+        finally:
+            _USER32.EndPaint(hwnd, ctypes.byref(paint))
+        return 0
+    if message == 0x0014:  # WM_ERASEBKGND
+        return 1
+    return _USER32.DefWindowProcW(hwnd, message, wparam, lparam)
+
+
+class _NativeOverlayManager:
+    CLASS_NAME = "JapaneseStrokeMouseWriterGuide"
+    _registered = False
+
+    def __init__(self) -> None:
+        if _USER32 is None or _GDI32 is None or _KERNEL32 is None:
+            raise OSError("Native coordinate guides require Windows")
+        self.handles: dict[str, int] = {}
+        self.parts: dict[str, dict[str, object]] = {}
+        self._register_class()
+
+    @classmethod
+    def _register_class(cls) -> None:
+        if cls._registered:
+            return
+        instance = _KERNEL32.GetModuleHandleW(None)
+        window_class = _WindowClass(
+            style=0,
+            lpfnWndProc=_native_overlay_wndproc,
+            cbClsExtra=0,
+            cbWndExtra=0,
+            hInstance=instance,
+            hIcon=None,
+            hCursor=None,
+            hbrBackground=None,
+            lpszMenuName=None,
+            lpszClassName=cls.CLASS_NAME,
+        )
+        atom = _USER32.RegisterClassW(ctypes.byref(window_class))
+        if not atom and ctypes.get_last_error() != 1410:
+            raise ctypes.WinError(ctypes.get_last_error())
+        cls._registered = True
+
+    def place(
+        self,
+        key: str,
+        rect: tuple[int, int, int, int],
+        background: str,
+        *,
+        text: str = "",
+        foreground: str | None = None,
+    ) -> None:
+        hwnd = self.handles.get(key)
+        if not hwnd:
+            instance = _KERNEL32.GetModuleHandleW(None)
+            hwnd = _USER32.CreateWindowExW(
+                0x00000020 | 0x00000080 | 0x08000000,
+                self.CLASS_NAME,
+                "",
+                0x80000000,
+                0,
+                0,
+                1,
+                1,
+                None,
+                None,
+                instance,
+                None,
+            )
+            if not hwnd:
+                raise ctypes.WinError(ctypes.get_last_error())
+            self.handles[key] = int(hwnd)
+        left, top, right, bottom = rect
+        state = {
+            "rect": rect,
+            "background": _colorref(background),
+            "foreground": _colorref(foreground or background),
+            "text": text,
+        }
+        self.parts[key] = state
+        _NATIVE_OVERLAY_STATES[int(hwnd)] = state
+        if not _USER32.SetWindowPos(
+            hwnd,
+            -1,
+            left,
+            top,
+            max(1, right - left),
+            max(1, bottom - top),
+            0x0010 | 0x0040,
+        ):
+            raise ctypes.WinError(ctypes.get_last_error())
+        _USER32.InvalidateRect(hwnd, None, True)
+        _USER32.UpdateWindow(hwnd)
+
+    def hide_inactive(self, active: set[str]) -> None:
+        for key, hwnd in self.handles.items():
+            if key not in active:
+                _USER32.ShowWindow(hwnd, 0)
+
+    def clear(self) -> None:
+        for hwnd in self.handles.values():
+            _NATIVE_OVERLAY_STATES.pop(int(hwnd), None)
+            _USER32.DestroyWindow(hwnd)
+        self.handles.clear()
+        self.parts.clear()
+
+
+def _cursor_position() -> tuple[int, int]:
+    if _USER32 is not None:
+        point = _ScreenPoint()
+        if _USER32.GetCursorPos(ctypes.byref(point)):
+            return point.x, point.y
+    import pyautogui
+
+    position = pyautogui.position()
+    return int(position.x), int(position.y)
+
+
+def _monitor_bounds_for_point(x: int, y: int) -> tuple[int, int, int, int]:
+    if _USER32 is not None:
+        monitor = _USER32.MonitorFromPoint(_ScreenPoint(x, y), 2)
+        info = _MonitorInfo(cbSize=ctypes.sizeof(_MonitorInfo))
+        if monitor and _USER32.GetMonitorInfoW(monitor, ctypes.byref(info)):
+            rect = info.rcMonitor
+            return rect.left, rect.top, rect.right, rect.bottom
+        left = _USER32.GetSystemMetrics(76)
+        top = _USER32.GetSystemMetrics(77)
+        return (
+            left,
+            top,
+            left + _USER32.GetSystemMetrics(78),
+            top + _USER32.GetSystemMetrics(79),
+        )
+    import pyautogui
+
+    size = pyautogui.size()
+    return 0, 0, int(size.width), int(size.height)
+
+
+def _screen_geometry(bounds: tuple[int, int, int, int]) -> str:
+    left, top, right, bottom = bounds
+    return f"{right - left}x{bottom - top}{left:+d}{top:+d}"
 
 
 class Tooltip:
@@ -175,8 +495,14 @@ class JapaneseWriterApp:
         self.environment_after_id: str | None = None
         self.ui_poll_after_id: str | None = None
         self.initial_preview_after_id: str | None = None
-        self.countdown_overlay: tk.Toplevel | None = None
-        self.countdown_label: ttk.Label | None = None
+        self.detection_overlay = _NativeOverlayManager()
+        self.detection_active = False
+        self.detection_after_id: str | None = None
+        self.detection_monitor_bounds: tuple[int, int, int, int] | None = None
+        self.detection_start_position: tuple[int, int] | None = None
+        self.detection_title = ""
+        self.detection_target = "start"
+        self.detection_remaining = 3
         self.window_state_before_operation = "zoomed"
         self.maximize_after_id: str | None = None
         self.ui_events: queue.Queue[
@@ -222,6 +548,15 @@ class JapaneseWriterApp:
         except tk.TclError:
             self.window_state_before_operation = "normal"
         self.root.iconify()
+
+    def _hide_for_coordinate_detection(self) -> None:
+        try:
+            self.window_state_before_operation = self.root.state()
+        except tk.TclError:
+            self.window_state_before_operation = "normal"
+        # A minimized Tk owner can be remapped when its topmost guide windows
+        # appear. Withdrawing it keeps the target application fully visible.
+        self.root.withdraw()
 
     def _restore_main_window(self) -> None:
         self.root.deiconify()
@@ -1322,35 +1657,184 @@ class JapaneseWriterApp:
         except (ValueError, KeyError, PermissionError) as exc:
             messagebox.showerror(self.t("cannot_delete"), exception_text(exc, self.language), parent=self.root)
 
-    def _show_detection_overlay(self, title: str) -> None:
-        overlay = tk.Toplevel(self.root)
-        overlay.title(title)
-        overlay.attributes("-topmost", True)
-        overlay.resizable(False, False)
-        overlay.configure(background=self.SURFACE)
-        self.countdown_label = tk.Label(
-            overlay,
-            text=f"{title}\n3",
-            foreground=self.PRIMARY,
-            background=self.SURFACE,
-            font=("Microsoft JhengHei UI", 16, "bold"),
-            anchor="center",
-            padx=20,
-            pady=20,
+    def _show_detection_overlay(self, title: str, target: str) -> None:
+        self.detection_title = title
+        self.detection_target = target
+        self.detection_remaining = 3
+        self.detection_monitor_bounds = None
+        self.detection_start_position = self._existing_start_position() if target == "end" else None
+        self.detection_active = True
+        self._refresh_detection_crosshair()
+
+    def _place_overlay_bar(
+        self,
+        key: str,
+        x: int,
+        y: int,
+        width: int,
+        height: int,
+        color: str,
+        active: set[str],
+    ) -> None:
+        self.detection_overlay.place(
+            key,
+            (x, y, x + max(1, width), y + max(1, height)),
+            color,
         )
-        self.countdown_label.pack(fill="both", expand=True)
-        overlay.geometry("260x120+30+30")
-        self.countdown_overlay = overlay
+        active.add(key)
+
+    def _place_overlay_label(
+        self,
+        key: str,
+        text: str,
+        x: int,
+        y: int,
+        bounds: tuple[int, int, int, int],
+        foreground: str,
+        background: str,
+        active: set[str],
+        *,
+        anchor_right: bool = False,
+        anchor_up: bool = False,
+    ) -> None:
+        lines = text.splitlines() or [""]
+        width = min(420, max(110, max(len(line) for line in lines) * 11 + 24))
+        height = len(lines) * 20 + 12
+        left, top, right, bottom = bounds
+        label_x = x - width if anchor_right else x
+        label_y = y - height if anchor_up else y
+        label_x = min(max(label_x, left), max(left, right - width))
+        label_y = min(max(label_y, top), max(top, bottom - height))
+        self.detection_overlay.place(
+            key,
+            (label_x, label_y, label_x + width, label_y + height),
+            background,
+            text=text,
+            foreground=foreground,
+        )
+        active.add(key)
+
+    def _hide_inactive_overlay_parts(self, active: set[str]) -> None:
+        self.detection_overlay.hide_inactive(active)
+
+    def _existing_start_position(self) -> tuple[int, int] | None:
+        try:
+            return int(self.start_x.get()), int(self.start_y.get())
+        except ValueError:
+            return None
+
+    def _draw_start_reference(
+        self,
+        bounds: tuple[int, int, int, int],
+        pointer: tuple[int, int] | None,
+        active: set[str],
+    ) -> None:
+        if self.detection_start_position is None:
+            return
+        left, top, right, bottom = bounds
+        start_x, start_y = self.detection_start_position
+        if not (left <= start_x < right and top <= start_y < bottom):
+            return
+        color = self.ON_SODA
+
+        if pointer is not None:
+            pointer_x, pointer_y = pointer
+            rectangle_left = min(start_x, pointer_x)
+            rectangle_top = min(start_y, pointer_y)
+            rectangle_right = max(start_x, pointer_x)
+            rectangle_bottom = max(start_y, pointer_y)
+            self._place_overlay_bar(
+                "rectangle-top", rectangle_left, rectangle_top, rectangle_right - rectangle_left, 2, color, active
+            )
+            self._place_overlay_bar(
+                "rectangle-bottom", rectangle_left, rectangle_bottom - 1, rectangle_right - rectangle_left, 2, color, active
+            )
+            self._place_overlay_bar(
+                "rectangle-left", rectangle_left, rectangle_top, 2, rectangle_bottom - rectangle_top, color, active
+            )
+            self._place_overlay_bar(
+                "rectangle-right", rectangle_right - 1, rectangle_top, 2, rectangle_bottom - rectangle_top, color, active
+            )
+        self._place_overlay_bar("start-horizontal", start_x - 18, start_y - 1, 36, 2, color, active)
+        self._place_overlay_bar("start-vertical", start_x - 1, start_y - 18, 2, 36, color, active)
+        self._place_overlay_bar("start-center", start_x - 4, start_y - 4, 8, 8, color, active)
+        self._place_overlay_label(
+            "start-label",
+            text=f"{self.t('start_short')}  X={start_x}  Y={start_y}",
+            x=start_x + (18 if start_x <= right - 220 else -18),
+            y=start_y + (18 if start_y < top + 70 else -18),
+            bounds=bounds,
+            foreground=color,
+            background=self.SODA,
+            active=active,
+            anchor_right=start_x > right - 220,
+            anchor_up=start_y >= top + 70,
+        )
+
+    def _refresh_detection_crosshair(self) -> None:
+        if not self.detection_active:
+            self.detection_after_id = None
+            return
+        try:
+            pointer_x, pointer_y = _cursor_position()
+            bounds = _monitor_bounds_for_point(pointer_x, pointer_y)
+            if bounds != self.detection_monitor_bounds:
+                self.detection_monitor_bounds = bounds
+            left, top, right, bottom = bounds
+            width = right - left
+            height = bottom - top
+            line_color = self.ON_SODA if self.detection_target == "start" else self.ON_GRAPE
+            label_fill = self.SODA if self.detection_target == "start" else self.GRAPE
+            active: set[str] = set()
+
+            if self.detection_target == "end":
+                start_bounds = (
+                    _monitor_bounds_for_point(*self.detection_start_position)
+                    if self.detection_start_position is not None
+                    else bounds
+                )
+                pointer = (pointer_x, pointer_y) if start_bounds == bounds else None
+                self._draw_start_reference(start_bounds, pointer, active)
+            self._place_overlay_bar("crosshair-horizontal", left, pointer_y - 1, width, 2, line_color, active)
+            self._place_overlay_bar("crosshair-vertical", pointer_x - 1, top, 2, height, line_color, active)
+            self._place_overlay_bar("crosshair-center", pointer_x - 4, pointer_y - 4, 8, 8, line_color, active)
+
+            text = f"{self.detection_title}\nX={pointer_x}  Y={pointer_y}  |  {self.detection_remaining}"
+            anchor_right = pointer_x > right - 250
+            anchor_up = pointer_y > bottom - 90
+            self._place_overlay_label(
+                "crosshair-label",
+                text=text,
+                x=pointer_x + (-18 if anchor_right else 18),
+                y=pointer_y + (-18 if anchor_up else 18),
+                bounds=bounds,
+                foreground=line_color,
+                background=label_fill,
+                active=active,
+                anchor_right=anchor_right,
+                anchor_up=anchor_up,
+            )
+            self._hide_inactive_overlay_parts(active)
+            self.detection_after_id = self.root.after(33, self._refresh_detection_crosshair)
+        except (OSError, tk.TclError):
+            if self.detection_active:
+                self.detection_after_id = self.root.after(50, self._refresh_detection_crosshair)
 
     def _update_detection_overlay(self, title: str, remaining: int) -> None:
-        if self.countdown_label:
-            self.countdown_label.configure(text=f"{title}\n{remaining}")
+        self.detection_title = title
+        self.detection_remaining = remaining
 
     def _close_detection_overlay(self) -> None:
-        if self.countdown_overlay:
-            self.countdown_overlay.destroy()
-        self.countdown_overlay = None
-        self.countdown_label = None
+        self.detection_active = False
+        if self.detection_after_id:
+            try:
+                self.root.after_cancel(self.detection_after_id)
+            except tk.TclError:
+                pass
+        self.detection_after_id = None
+        self.detection_overlay.clear()
+        self.detection_monitor_bounds = None
+        self.detection_start_position = None
 
     def detect_coordinate(self, target: str) -> None:
         if self.busy:
@@ -1359,20 +1843,22 @@ class JapaneseWriterApp:
         title = self.t("detect", target=target_label)
         self.set_busy(True, "detecting", target=target_label)
         self.stop_event.clear()
-        self._show_detection_overlay(title)
-        self._minimize_for_operation()
+        self._hide_for_coordinate_detection()
+        try:
+            self._show_detection_overlay(title, target)
+        except BaseException as exc:
+            self._restore_after_operation(exc)
+            return
 
         def should_stop() -> bool:
             return self.stop_event.is_set() or escape_pressed()
 
         def worker() -> None:
             try:
-                import pyautogui
-
                 for remaining in range(3, 0, -1):
                     self._post_ui(self._update_detection_overlay, title, remaining)
                     interruptible_sleep(1, should_stop)
-                x, y = pyautogui.position()
+                x, y = _cursor_position()
                 self._post_ui(self._coordinate_detected, target, x, y)
             except BaseException as exc:
                 self._post_ui(self._restore_after_operation, exc)
@@ -1531,6 +2017,14 @@ def run_self_test(settings_path: Path = DEFAULT_SETTINGS_PATH) -> int:
     )
     if not emoticon.paths:
         raise RuntimeError("顏文字符號中心線排版測試失敗。")
+    if sys.platform == "win32":
+        import pyautogui
+
+        native_position = _cursor_position()
+        pyautogui_position = pyautogui.position()
+        position_values = (*native_position, pyautogui_position.x, pyautogui_position.y)
+        if not all(isinstance(value, int) for value in position_values):
+            raise RuntimeError("Windows 座標讀取相容性測試失敗。")
     SettingsStore(settings_path).ensure_writable()
     print(f"Japanese Stroke Mouse Writer {APP_VERSION} self-test passed")
     return 0

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Project-authored centerline stroke data for U+25FB. -->
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 109 109">
-  <path id="custom:025fb-s1" d="M17,17 L92,17 L92,92 L17,92 L17,17" />
+  <path id="custom:025fb-s1" d="M37,25 L73,25 L73,71 L37,71 L37,25" />
 </svg>

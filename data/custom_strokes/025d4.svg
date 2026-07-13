@@ -4,4 +4,9 @@
   <path id="custom:025d4-s1" d="M54,14 C77,14 95,32 95,55 C95,78 77,96 54,96 C31,96 13,78 13,55 C13,32 31,14 54,14" />
   <path id="custom:025d4-s2" d="M54,14 L54,55" />
   <path id="custom:025d4-s3" d="M54,55 L95,55" />
+  <path id="custom:025d4-s4" d="M58,21 L70,21" />
+  <path id="custom:025d4-s5" d="M58,29 L79,29" />
+  <path id="custom:025d4-s6" d="M58,37 L86,37" />
+  <path id="custom:025d4-s7" d="M58,45 L91,45" />
+  <path id="custom:025d4-s8" d="M58,52 L94,52" />
 </svg>

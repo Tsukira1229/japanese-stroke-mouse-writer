@@ -83,7 +83,7 @@ class DocumentationTests(unittest.TestCase):
     def test_all_documents_use_current_version(self) -> None:
         for document in (*DOCS, *HTML_GUIDES):
             text = document.read_text(encoding="utf-8")
-            self.assertIn("V2.6.1", text)
+            self.assertIn("V2.6.2", text)
             self.assertNotIn("2.6.0-preview", text.lower())
             self.assertNotIn("V2.4.1", text)
             self.assertNotIn("V2.4.0", text)
@@ -159,7 +159,7 @@ class DocumentationTests(unittest.TestCase):
     def test_readmes_document_current_portable_folder(self) -> None:
         for document in DOCS[:3]:
             text = document.read_text(encoding="utf-8")
-            self.assertIn("JapaneseStrokeMouseWriter-v2.6.1-win-x64-portable", text)
+            self.assertIn("JapaneseStrokeMouseWriter-v2.6.2-win-x64-portable", text)
             self.assertNotIn("JapaneseStrokeMouseWriter-v2.4.1-win-x64-portable", text)
 
     def test_portable_build_includes_html_guides(self) -> None:

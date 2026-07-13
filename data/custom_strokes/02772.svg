@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Project-authored centerline stroke data for U+2772. -->
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 109 109">
-  <path id="custom:02772-s1" d="M68,14 L31,23 L24,54.5 L31,86 L68,95" />
+  <path id="custom:02772-s1" d="M63,20 L54,34 L54,75 L63,89" />
 </svg>
