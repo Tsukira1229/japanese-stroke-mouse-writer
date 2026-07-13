@@ -1,5 +1,14 @@
 # Changelog
 
+## V2.6.2 - 2026-07-13
+
+- Adds live crosshair guides, coordinates, and a three-second countdown while detecting start and end positions.
+- Keeps the captured start position visible during end-coordinate detection and shows the planned writing rectangle when both points are on the same monitor.
+- Replaces the opaque coordinate overlay with narrow native Windows guides so the target canvas remains visible during alignment.
+- Fixes the coordinate-detection type error and the white or black full-screen overlay seen on some Windows systems.
+- Synchronizes the validated special-symbol manifest with the corrected centerline SVG resources included in the portable package.
+- Remains unsigned; Windows SmartScreen may show an unknown-publisher warning.
+
 ## V2.6.1 - 2026-07-13
 
 - Adds standalone Traditional Chinese, English, and Japanese HTML complete guides that can be opened offline without a Markdown reader.

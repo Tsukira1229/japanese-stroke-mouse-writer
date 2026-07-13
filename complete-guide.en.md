@@ -1,4 +1,4 @@
-# Japanese Stroke Mouse Writer V2.6.1 Complete Guide
+# Japanese Stroke Mouse Writer V2.6.2 Complete Guide
 
 This guide starts with the first launch and explains how to define the writing area, verify the preview, and run the program safely.
 

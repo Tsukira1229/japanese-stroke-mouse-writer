@@ -1,4 +1,4 @@
-# Japanese Stroke Mouse Writer V2.6.1 完整步驟
+# Japanese Stroke Mouse Writer V2.6.2 完整步驟
 
 本指南從第一次開啟程式開始，說明如何設定書寫範圍、確認預覽並安全執行。
 
