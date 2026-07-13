@@ -8,6 +8,7 @@ import tempfile
 import unittest
 import xml.etree.ElementTree as ET
 from pathlib import Path
+from unittest.mock import patch
 
 from PIL import Image
 
@@ -139,6 +140,13 @@ class SymbolCatalogTests(unittest.TestCase):
             self.assertIn("cards/001-u00a8.png", checklist)
             self.assertIn("Pending", checklist)
             self.assertTrue(card.is_file())
+
+    def test_comparison_link_falls_back_to_file_uri_across_drives(self) -> None:
+        generator = load_script("generate_symbol_comparisons_cross_drive", GENERATOR_PATH)
+        target = ROOT / "data" / "custom_strokes" / "000a8.svg"
+        with patch.object(generator.os.path, "relpath", side_effect=ValueError):
+            link = generator.markdown_link_path(target, Path(tempfile.gettempdir()))
+        self.assertTrue(link.startswith("file:///"), link)
 
 
 if __name__ == "__main__":

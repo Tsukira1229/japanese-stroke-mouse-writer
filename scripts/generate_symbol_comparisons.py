@@ -3,6 +3,7 @@ from __future__ import annotations
 import argparse
 import json
 import math
+import os
 import re
 import sys
 from dataclasses import dataclass
@@ -222,6 +223,13 @@ def make_overview(cards: list[Path], output: Path, columns: int = 8) -> None:
     overview.save(output)
 
 
+def markdown_link_path(target: Path, base: Path) -> str:
+    try:
+        return Path(os.path.relpath(target, start=base)).as_posix()
+    except ValueError:
+        return target.resolve().as_uri()
+
+
 def write_checklist(
     records: list[dict[str, object]],
     cards: list[Path],
@@ -239,7 +247,7 @@ def write_checklist(
     ]
     for number, (record, card, font_name) in enumerate(zip(records, cards, fonts), start=1):
         relative_card = card.relative_to(output.parent).as_posix()
-        relative_svg = (ROOT / str(record["svg"])).relative_to(output.parent, walk_up=True).as_posix()
+        relative_svg = markdown_link_path(ROOT / str(record["svg"]), output.parent)
         lines.extend(
             [
                 f"## {number:03d}. {record['symbol']} — {record['codepoint']}",
