@@ -1,1 +1,2 @@
 pyinstaller==6.21.0
+Markdown==3.8.2

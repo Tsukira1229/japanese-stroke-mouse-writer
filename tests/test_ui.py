@@ -68,7 +68,7 @@ class JapaneseWriterUiTests(unittest.TestCase):
         self.assertIn("起始座標", help_text)
         self.assertIn("末端座標", help_text)
         self.assertIn("顏文字", help_text)
-        self.assertIn("中心線符號", help_text)
+        self.assertIn("特殊符號", help_text)
         self.assertIn("左上角", help_text)
         self.assertIn("右上角", help_text)
         self.assertIn("ESC", help_text)

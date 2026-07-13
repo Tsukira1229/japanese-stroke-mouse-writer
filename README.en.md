@@ -1,4 +1,4 @@
-# Japanese Stroke Mouse Writer V2.6.0
+# Japanese Stroke Mouse Writer V2.6.1
 
 A portable Windows 10/11 x64 mouse-writing tool. It converts Japanese text, alphanumeric characters, and supported symbols into centerline strokes, then writes them in Paint or another mouse-driven canvas.
 
@@ -6,7 +6,7 @@ A portable Windows 10/11 x64 mouse-writing tool. It converts Japanese text, alph
 
 ## Installation
 
-1. Place the complete `JapaneseStrokeMouseWriter-v2.6.0-win-x64-portable` folder in a writable location such as Documents or Desktop.
+1. Place the complete `JapaneseStrokeMouseWriter-v2.6.1-win-x64-portable` folder in a writable location such as Documents or Desktop.
 2. Do not move the EXE alone. Keep `_internal`, `user_data`, and all bundled files in their original relative locations.
 3. Run `JapaneseStrokeMouseWriter.exe`. Python and administrator privileges are not required.
 4. If Windows SmartScreen shows an unknown-publisher warning, verify that the files came from this project before choosing **More info** and **Run anyway**. The program is currently unsigned.
@@ -22,7 +22,7 @@ Settings are stored in `user_data/settings.json` inside the program folder. Regi
 5. Click **Update preview** and confirm that every black writing path is inside the rectangle.
 6. Click **Start writing**, then switch to the target canvas during the countdown.
 
-See the [Complete Guide](complete-guide.en.md) for detailed instructions and coordinate directions.
+Open the offline [HTML Complete Guide](complete-guide.en.html) for detailed instructions and coordinate directions. A [Markdown version](complete-guide.en.md) is also available on GitHub.
 
 ## Features
 
@@ -42,9 +42,12 @@ Printable ASCII punctuation and fullwidth counterparts are supported, including 
 
 All 128 Unicode Box Drawing characters in `U+2500–U+257F` are supported. Set character gap and line gap to `0 px` to connect adjacent cells such as `┏━┷━┓`.
 
-Geometry, star, check, arrow, bracket, and mathematical symbols load by their own Unicode code points, including `☆★`, `○●`, `△▲`, `◇◆`, `□■`, and `✓✔`. See [Supported Centerline Symbols](SUPPORTED_SYMBOLS.md) for the complete list.
+The program supports some commonly used special symbols, including geometry, stars, checks, arrows, brackets, and mathematics: `☆★`, `○●`, `△▲`, `◇◆`, `□■`, and `✓✔`. Not every special symbol is available. See [Supported Centerline Symbols](SUPPORTED_SYMBOLS.md) for the complete list; unsupported characters are reported before writing starts.
 
-Color emoji, keycap emoji, ZWJ sequences, and unlisted pictorial symbols are unsupported and are reported before the mouse moves.
+## Roadmap
+
+- Add selectable writing fonts so users can choose different writing styles.
+- Continue expanding special symbols that work well as centerline strokes.
 
 ## Emergency Stop
 

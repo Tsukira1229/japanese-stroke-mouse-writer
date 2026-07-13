@@ -1,0 +1,214 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <title>Japanese Stroke Mouse Writer V2.6.1 - 完全ガイド</title>
+  <style>:root {
+  color-scheme: light;
+  --background: #fff8fb;
+  --surface: #ffffff;
+  --surface-alt: #f4faff;
+  --text: #3a3342;
+  --muted: #746b7c;
+  --border: #e8dde8;
+  --accent: #c83f75;
+  --accent-soft: #fde8f0;
+  --link: #306f9f;
+  --code: #f5eff6;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0;
+  background: var(--background);
+  color: var(--text);
+  font-family: "Segoe UI", "Microsoft JhengHei", "Yu Gothic UI", sans-serif;
+  font-size: 16px;
+  line-height: 1.75;
+}
+a { color: var(--link); }
+a:hover { text-decoration-thickness: 2px; }
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+  min-height: 58px;
+  padding: 10px clamp(18px, 4vw, 48px);
+  background: rgba(255, 255, 255, 0.96);
+  border-bottom: 1px solid var(--border);
+}
+.brand { color: var(--text); font-weight: 700; text-decoration: none; }
+.languages { display: flex; flex-wrap: wrap; gap: 14px; font-size: 14px; }
+.languages a[aria-current="page"] { color: var(--accent); font-weight: 700; }
+.layout {
+  display: grid;
+  grid-template-columns: minmax(180px, 230px) minmax(0, 820px);
+  justify-content: center;
+  gap: clamp(28px, 5vw, 64px);
+  padding: 38px clamp(18px, 5vw, 64px) 80px;
+}
+.toc {
+  position: sticky;
+  top: 88px;
+  align-self: start;
+  max-height: calc(100vh - 110px);
+  overflow: auto;
+  padding: 18px;
+  background: var(--surface-alt);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+.toc-title { margin: 0 0 8px; color: var(--muted); font-size: 13px; font-weight: 700; }
+.toc ul { margin: 0; padding-left: 18px; }
+.toc li { margin: 5px 0; }
+.toc a { color: var(--text); font-size: 14px; text-decoration: none; }
+main {
+  min-width: 0;
+  padding: clamp(24px, 5vw, 52px);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  box-shadow: 0 12px 36px rgba(72, 48, 77, 0.08);
+}
+h1, h2 { line-height: 1.35; }
+h1 { margin-top: 0; font-size: clamp(28px, 4vw, 40px); }
+h2 { margin-top: 2.2em; padding-bottom: 8px; border-bottom: 2px solid var(--accent-soft); font-size: 23px; }
+li + li { margin-top: 6px; }
+code {
+  padding: 2px 6px;
+  background: var(--code);
+  border-radius: 4px;
+  font-family: Consolas, "Cascadia Mono", monospace;
+  overflow-wrap: anywhere;
+}
+.headerlink { margin-left: 8px; color: var(--border); text-decoration: none; }
+h1:hover .headerlink, h2:hover .headerlink { color: var(--accent); }
+.footer { margin-top: 44px; padding-top: 20px; color: var(--muted); border-top: 1px solid var(--border); font-size: 14px; }
+@media (max-width: 820px) {
+  .topbar { position: static; align-items: flex-start; flex-direction: column; gap: 4px; }
+  .layout { display: block; padding-top: 20px; }
+  .toc { position: static; max-height: none; margin-bottom: 20px; }
+  main { padding: 24px 20px; }
+}
+@media print {
+  .topbar, .toc { display: none; }
+  body { background: #fff; }
+  .layout { display: block; padding: 0; }
+  main { border: 0; box-shadow: none; padding: 0; }
+}</style>
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="#content">Japanese Stroke Mouse Writer V2.6.1</a>
+    <nav class="languages" aria-label="Languages">
+      <a href="complete-guide.html">繁體中文</a>
+<a href="complete-guide.en.html">English</a>
+<a href="complete-guide.ja.html" aria-current="page">日本語</a>
+    </nav>
+  </header>
+  <div class="layout">
+    <nav class="toc" aria-label="ページ目次">
+      <p class="toc-title">ページ目次</p>
+      <div class="toc">
+<ul>
+<li><a href="#1">1. 起動してキャンバスを準備する</a></li>
+<li><a href="#2">2. 書き込む内容を入力する</a></li>
+<li><a href="#3">3. 開始座標と終了座標を設定する</a></li>
+<li><a href="#4">4. 一般設定を調整する</a></li>
+<li><a href="#5">5. 環境設定を調整する</a></li>
+<li><a href="#6">6. 対応文字を確認する</a></li>
+<li><a href="#7">7. プレビューを更新する</a></li>
+<li><a href="#8">8. 書き込みと緊急停止</a></li>
+<li><a href="#9">9. よくある問題</a></li>
+</ul>
+</div>
+
+    </nav>
+    <main id="content">
+      <h1 id="japanese-stroke-mouse-writer-v261">Japanese Stroke Mouse Writer V2.6.1 完全ガイド</h1>
+<p>初回起動から、書き込み範囲の設定、プレビュー確認、安全な実行までを順番に説明します。</p>
+<h2 id="1">1. 起動してキャンバスを準備する</h2>
+<ol>
+<li><code>JapaneseStrokeMouseWriter.exe</code> を実行します。ウィンドウは最大化して開きます。初期言語は Windows に合わせて選択され、「環境設定」で変更できます。</li>
+<li>Paint など、マウスで描画できる対象アプリを開きます。</li>
+<li>対象アプリでペンまたは鉛筆ツールを選び、色と太さを設定します。</li>
+<li>キャンバスが十分に広く、書き込み位置をダイアログや別ウィンドウが覆っていないことを確認します。</li>
+</ol>
+<h2 id="2">2. 書き込む内容を入力する</h2>
+<p>「内容とプレビュー」に文字を入力または貼り付けます。スペース、Tab、改行、連続改行は保持されます。手動改行がない文字列は、書き込み範囲の主方向の端で自動的に折り返します。</p>
+<p><code>(^O^)</code>、<code>(≧▽≦)</code>、<code>m(_ _)m</code>、<code>(/ω＼)</code>、<code>(╯°□°)╯︵ ┻━┻</code> などの顔文字も直接入力できます。顔文字は各対応文字の中心線を順番に配置するため、記号、半角／全角、文字間隔によって形が変わります。</p>
+<h2 id="3">3. 開始座標と終了座標を設定する</h2>
+<p>開始座標と終了座標で書き込み範囲を指定します。座標は Windows デスクトップ全体のマウス X/Y 位置で、マルチモニターでは負数になる場合があります。</p>
+<ul>
+<li>横書きまたは縦書き、右向き：開始は左上、終了は右下です。</li>
+<li>横書きまたは縦書き、左向き：開始は右上、終了は左下です。</li>
+</ul>
+<p>座標検出の使用を推奨します。</p>
+<ol>
+<li>「開始座標を検出」を押します。メイン画面が最小化し、3秒のカウントダウンが表示されます。</li>
+<li>対象キャンバスの対応する上側の角へマウスを移動し、そのまま待ちます。</li>
+<li>「終了座標を検出」を押し、対応する下側の角へマウスを移動します。</li>
+<li>画面が戻ったら X/Y を確認します。座標は手入力もできます。</li>
+</ol>
+<p>検出中に <code>ESC</code> を押すと、以前の値を残したままキャンセルします。範囲は少なくとも1文字分必要で、方向や広さが不正な場合はプレビュー前に通知されます。</p>
+<h2 id="4">4. 一般設定を調整する</h2>
+<ul>
+<li><strong>文字サイズ</strong>：全角1マスの幅と高さ。単位は px です。</li>
+<li><strong>文字間隔</strong>：隣接文字の間隔。半角同士は設定値の半分、それ以外は完全な値を使います。</li>
+<li><strong>行間隔</strong>：横書きの行間、または縦書きの列間です。</li>
+<li><strong>方向</strong>：横書きは左右へ、縦書きは下へ文字を配置します。</li>
+<li><strong>流れ</strong>：右向きまたは左向き。開始座標に使用する側も決まります。</li>
+</ul>
+<p>半角文字は <code>0.5</code> マス、全角／幅広文字は <code>1</code> マス、Tab は半角スペース4つ分です。<code>ｶﾞ</code>、<code>ﾊﾟ</code> など正しい半角カタカナの組み合わせは1つの半角文字として扱います。</p>
+<p>縦書きでは英数字、括弧、長音記号が時計回りに回転します。<code>、。</code> はマスの右上へ移動し、矢印と罫線素片は元の方向を維持します。</p>
+<p>「プリセット」では、設定の追加、読み込み、上書き、名前変更、削除ができます。保存対象は文字サイズ、文字間隔、行間隔、方向、流れだけで、文字と座標は保存しません。</p>
+<h2 id="5">5. 環境設定を調整する</h2>
+<ul>
+<li><strong>言語</strong>：日本語、繁體中文、简体中文、English。</li>
+<li><strong>外観テーマ</strong>：ライト、ダーク、Windows に合わせる設定を選択できます。初回はライトテーマです。</li>
+<li><strong>開始カウントダウン</strong>：開始後に対象画面へ切り替える秒数。範囲は <code>0–30</code> 秒です。</li>
+<li><strong>曲線精細度</strong>：範囲は <code>0.1–20</code>。小さいほど滑らかですが、点が増えて書き込み時間が長くなります。</li>
+<li><strong>取樣點停頓／Sample delay</strong>：各曲線点で待つ時間。範囲は <code>1–1000</code> ms です。線が切れる場合は少しずつ増やします。</li>
+</ul>
+<p>環境設定は自動保存されます。言語や外観を切り替えても、入力文字、座標、選択中のタブ、ウィンドウ状態を保持します。通常は初期値から始め、曲線が粗い場合や線が切れる場合だけ調整してください。</p>
+<h2 id="6">6. 対応文字を確認する</h2>
+<p>日本語の仮名、KanjiVG に収録された漢字、<code>A–Z</code>、<code>a–z</code>、<code>0–9</code>、全角英数字、半角カタカナ、一般記号に対応します。</p>
+<p>半角／全角記号は <code>#＃</code>、<code>(（</code>、<code>)）</code>、<code>[［</code>、<code>]］</code>、<code>@＠</code>、<code>~～</code>、<code>、､</code>、<code>。｡</code>、<code>・･</code>、<code>ーｰ</code>、<code>「」</code>、<code>【】</code>、<code>｢｣</code> を含みます。このほか、一般的な幾何、星、チェック、矢印、括弧、数学、罫線記号の一部に対応します。完全な一覧は<a href="SUPPORTED_SYMBOLS.md">対応中心線記号</a>を参照してください。</p>
+<p>すべての特殊記号が使用できるわけではありません。未対応の特殊記号が含まれる場合は、書き込み開始前に最初の未対応文字を通知します。</p>
+<p>罫線では文字間隔と行間隔を <code>0 px</code> にすると、<code>┏━┷━┓</code>、<code>┃　　┃</code>、<code>┗━━━┛</code> の端点を接続できます。</p>
+<h2 id="7">7. プレビューを更新する</h2>
+<p>「プレビュー更新」を押します。薄いマスは各文字の占有範囲、黒い線は実際にマウスへ送る書き込み経路です。</p>
+<p>開始前に次を確認します。</p>
+<ul>
+<li>すべての内容が書き込み範囲内にある。</li>
+<li>スペース、改行、自動折り返しが想定どおりである。</li>
+<li>塗りつぶし記号の外側形状と疎な斜線が用途に合っている。</li>
+<li>未対応文字や範囲不足の警告がない。</li>
+</ul>
+<h2 id="8">8. 書き込みと緊急停止</h2>
+<ol>
+<li>「書き始める」を押します。</li>
+<li>カウントダウン中に対象キャンバスへ切り替えます。その後は対象ウィンドウを動かしたり、表示倍率を変えたりしないでください。</li>
+<li>カウント終了後、プレビューした経路を開始座標から書き込みます。</li>
+</ol>
+<p>座標検出、開始カウントダウン、書き込み中は <code>ESC</code> で停止できます。書き込み中にマウスを画面の隅へ素早く移動しても安全停止します。完了、キャンセル、エラーのいずれでもマウス左ボタンを解放します。</p>
+<h2 id="9">9. よくある問題</h2>
+<ul>
+<li><strong>SmartScreen が発行元不明と表示する</strong>：現在のプログラムは未署名です。本プロジェクトから取得した完全なフォルダーだけを実行してください。</li>
+<li><strong>設定を保存できない</strong>：プログラムフォルダー全体をドキュメントやデスクトップなど書き込み可能な場所へ移動します。</li>
+<li><strong>線が切れる</strong>：Sample delay を増やし、不安定または速すぎる対象ブラシを避けます。</li>
+<li><strong>曲線が粗い</strong>：曲線精細度を下げます。小さい値ほど書き込み時間が長くなります。</li>
+<li><strong>書き込み位置がずれる</strong>：座標を再検出し、カウントダウン後にキャンバス、ウィンドウ、表示倍率を変更しないでください。</li>
+<li><strong>顔文字の比率が合わない</strong>：文字間隔を調整し、使用する半角／全角記号を確認します。</li>
+</ul>
+      <p class="footer">Japanese Stroke Mouse Writer V2.6.1 - Offline documentation</p>
+    </main>
+  </div>
+</body>
+</html>
