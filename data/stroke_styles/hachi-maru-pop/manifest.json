@@ -1,0 +1,71 @@
+{
+  "schema_version": 2,
+  "id": "hachi-maru-pop",
+  "display_order": 20,
+  "labels": {
+    "zh-Hant": "Hachi Maru Pop",
+    "zh-Hans": "Hachi Maru Pop",
+    "ja": "Hachi Maru Pop",
+    "en": "Hachi Maru Pop"
+  },
+  "strokes_archive": "strokes.zip",
+  "strokes_archive_sha256": "69f92d37a0a3711ccd0cf1ae9d28be02a5246c6f1749cc2a11c453da0b21f065",
+  "fallback_style": "kanjivg",
+  "supports_horizontal": true,
+  "supports_vertical": true,
+  "source": {
+    "font_name": "Hachi Maru Pop Regular",
+    "font_version": "Version 1.300",
+    "repository": "https://github.com/noriokanisawa/HachiMaruPop",
+    "commit": "252adbcc5e3722bd514c424c4a4395127f18d73c",
+    "sha256": "78408910c8f1a2f174a279cbc1484b48b71780039eba3fe1be2bfcc5d4df3f98",
+    "copyright": "Copyright 2020 The Hachi Maru Pop Project Authors (https://github.com/noriokanisawa/HachiMaruPop)",
+    "filename": "HachiMaruPop-Regular.ttf"
+  },
+  "license": {
+    "id": "OFL-1.1",
+    "file": "OFL.txt",
+    "derivative_data_license": "OFL-1.1"
+  },
+  "conversion": {
+    "converter": "build/glyph-proof-full-three-fonts/generate_full_three_fonts.py",
+    "generated_at": "2026-07-16",
+    "catalog": "kanjivg-20250816",
+    "catalog_codepoints": 6702,
+    "eligible_glyphs": 6609,
+    "approved_prior_glyphs": 821,
+    "bulk_generated_glyphs": 5788,
+    "fallback_glyphs": 93,
+    "source_geometry": "source font outlines only",
+    "runtime_stroke_order_layer": "KanjiVG order and direction advisory, stored separately",
+    "view_box": "0 0 109 109",
+    "path_commands": [
+      "M",
+      "L"
+    ],
+    "quality_policy": "Previously approved geometry is retained; new glyphs use the approved natural-stroke workflow; missing source glyphs fall back to KanjiVG.",
+    "generated_glyphs": 6609,
+    "promotion_converter": "scripts/promote_full_three_font_style_packs.py",
+    "promoted_at": "2026-07-17",
+    "promoted_from": "build/glyph-proof-full-three-fonts/hachi-maru-pop",
+    "geometry_changed_during_promotion": false
+  },
+  "quality": {
+    "status": "formal-with-limited-human-review",
+    "catalog_characters": 6702,
+    "previously_approved_characters": 821,
+    "newly_human_approved_characters": 42,
+    "human_approved_characters_total": 863,
+    "priority_review_characters": 1300,
+    "pending_priority_review_characters": 1258,
+    "deferred_path_excess_characters": 165,
+    "image_reconstruction_r1_overrides_included": false,
+    "runtime_policy": "Use the promoted skeleton when available; only the existing missing-glyph or low-confidence projection rules fall back to KanjiVG.",
+    "usage_notice_locations": [
+      "localization.py help_content",
+      "complete-guide.md",
+      "complete-guide.en.md",
+      "complete-guide.ja.md"
+    ]
+  }
+}

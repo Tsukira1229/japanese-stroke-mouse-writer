@@ -153,12 +153,12 @@ def render(guide: Guide) -> str:
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="color-scheme" content="light">
-  <title>Japanese Stroke Mouse Writer V2.6.2 - {guide.title}</title>
+  <title>Japanese Stroke Mouse Writer V2.7.0 - {guide.title}</title>
   <style>{STYLE}</style>
 </head>
 <body>
   <header class="topbar">
-    <a class="brand" href="#content">Japanese Stroke Mouse Writer V2.6.2</a>
+    <a class="brand" href="#content">Japanese Stroke Mouse Writer V2.7.0</a>
     <nav class="languages" aria-label="Languages">
       {language_links(guide.target)}
     </nav>
@@ -170,7 +170,7 @@ def render(guide: Guide) -> str:
     </nav>
     <main id="content">
       {body}
-      <p class="footer">Japanese Stroke Mouse Writer V2.6.2 - Offline documentation</p>
+      <p class="footer">Japanese Stroke Mouse Writer V2.7.0 - Offline documentation</p>
     </main>
   </div>
 </body>

@@ -1,0 +1,71 @@
+{
+  "schema_version": 2,
+  "id": "yomogi",
+  "display_order": 30,
+  "labels": {
+    "zh-Hant": "Yomogi",
+    "zh-Hans": "Yomogi",
+    "ja": "Yomogi",
+    "en": "Yomogi"
+  },
+  "strokes_archive": "strokes.zip",
+  "strokes_archive_sha256": "073f83a6f6351f3d1c7400cd4253473a5ec21a22d787ca0fa98156781205812d",
+  "fallback_style": "kanjivg",
+  "supports_horizontal": true,
+  "supports_vertical": true,
+  "source": {
+    "font_name": "Yomogi Regular",
+    "font_version": "Version 3.100",
+    "repository": "https://github.com/satsuyako/YomogiFont",
+    "commit": "2dcc1a21e9ee7cb66606d0be9099752504efe559",
+    "sha256": "3424e34bb951e89bf5dd2554a65d8964335ea3c0560f8d1ea9aa3591ef73cba9",
+    "copyright": "Copyright 2020 The Yomogi Project Authors (https://github.com/satsuyako/YomogiFont), all rights reserved.",
+    "filename": "Yomogi-Regular.ttf"
+  },
+  "license": {
+    "id": "OFL-1.1",
+    "file": "OFL.txt",
+    "derivative_data_license": "OFL-1.1"
+  },
+  "conversion": {
+    "converter": "build/glyph-proof-full-three-fonts/generate_full_three_fonts.py",
+    "generated_at": "2026-07-16",
+    "catalog": "kanjivg-20250816",
+    "catalog_codepoints": 6702,
+    "eligible_glyphs": 6606,
+    "approved_prior_glyphs": 821,
+    "bulk_generated_glyphs": 5785,
+    "fallback_glyphs": 96,
+    "source_geometry": "source font outlines only",
+    "runtime_stroke_order_layer": "KanjiVG order and direction advisory, stored separately",
+    "view_box": "0 0 109 109",
+    "path_commands": [
+      "M",
+      "L"
+    ],
+    "quality_policy": "Previously approved geometry is retained; new glyphs use the approved natural-stroke workflow; missing source glyphs fall back to KanjiVG.",
+    "generated_glyphs": 6606,
+    "promotion_converter": "scripts/promote_full_three_font_style_packs.py",
+    "promoted_at": "2026-07-17",
+    "promoted_from": "build/glyph-proof-full-three-fonts/yomogi",
+    "geometry_changed_during_promotion": false
+  },
+  "quality": {
+    "status": "formal-with-limited-human-review",
+    "catalog_characters": 6702,
+    "previously_approved_characters": 821,
+    "newly_human_approved_characters": 42,
+    "human_approved_characters_total": 863,
+    "priority_review_characters": 1300,
+    "pending_priority_review_characters": 1258,
+    "deferred_path_excess_characters": 165,
+    "image_reconstruction_r1_overrides_included": false,
+    "runtime_policy": "Use the promoted skeleton when available; only the existing missing-glyph or low-confidence projection rules fall back to KanjiVG.",
+    "usage_notice_locations": [
+      "localization.py help_content",
+      "complete-guide.md",
+      "complete-guide.en.md",
+      "complete-guide.ja.md"
+    ]
+  }
+}

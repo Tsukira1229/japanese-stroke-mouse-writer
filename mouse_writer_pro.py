@@ -9,20 +9,23 @@ import sys
 import time
 import unicodedata
 import xml.etree.ElementTree as ET
+import zipfile
 from collections.abc import Callable, Iterable
 from ctypes import wintypes
 from dataclasses import dataclass, field
 from enum import Enum
+from functools import lru_cache
 from pathlib import Path
 
 from localization import Language, LocalizedOSError, LocalizedValueError, tr
+from stroke_styles import DEFAULT_STROKE_STYLE_ID, discover_stroke_styles, style_by_id
 from symbol_catalog import load_symbol_catalog
 
 Point = tuple[float, float]
 PathList = list[list[Point]]
 PathBounds = tuple[float, float, float, float]
 
-APP_VERSION = "2.6.2"
+APP_VERSION = "2.7.0"
 SCRIPT_DIR = Path(__file__).resolve().parent
 BUNDLE_DIR = Path(getattr(sys, "_MEIPASS", SCRIPT_DIR))
 EXECUTABLE_DIR = Path(sys.executable).resolve().parent if getattr(sys, "frozen", False) else SCRIPT_DIR
@@ -112,6 +115,7 @@ class GeneralSettings:
     line_gap: float = 24.0
     orientation: Orientation = Orientation.HORIZONTAL
     flow: FlowDirection = FlowDirection.RIGHT
+    stroke_style: str = DEFAULT_STROKE_STYLE_ID
 
 
 @dataclass(frozen=True)
@@ -310,6 +314,27 @@ def stroke_file_for_char(
     return kanjivg_file_for_char(resolved, kanjivg_dir)
 
 
+@lru_cache(maxsize=8)
+def _open_stroke_style_archive(archive_path: Path) -> zipfile.ZipFile:
+    return zipfile.ZipFile(archive_path)
+
+
+def stroke_style_svg_for_char(char: str, stroke_style: str) -> bytes | None:
+    """Read an OFL font skeleton without replacing base stroke-order data."""
+    resolved = STROKE_ALIASES.get(char, char)
+    style = style_by_id(BUNDLE_DIR, stroke_style)
+    filename = f"{ord(resolved):05x}.svg"
+    if style.strokes_dir is not None:
+        style_path = style.strokes_dir / filename
+        return style_path.read_bytes() if style_path.exists() else None
+    if style.strokes_archive is not None:
+        try:
+            return _open_stroke_style_archive(style.strokes_archive).read(f"strokes/{filename}")
+        except (KeyError, OSError, zipfile.BadZipFile):
+            return None
+    return None
+
+
 def is_japanese_writing_char(char: str) -> bool:
     codepoint = ord(char)
     return (
@@ -360,11 +385,87 @@ def sample_svg_path(path_data: str, sample_spacing: float) -> list[Point]:
     return points
 
 
+def project_strokes_to_style(
+    strokes: PathList,
+    style_skeleton: PathList,
+    max_projection_distance: float = 10.0,
+    minimum_projected_ratio: float = 0.55,
+) -> PathList:
+    """Fit ordered base strokes to an independent font skeleton at runtime.
+
+    The bundled style resource remains an OFL-only derivative of its source
+    font. KanjiVG/project-authored stroke order is loaded separately and the
+    two layers are combined only for the current drawing operation.
+    """
+    if not strokes or not style_skeleton:
+        return strokes
+    source_min_x, source_min_y, source_max_x, source_max_y = bounds(strokes)
+    target_min_x, target_min_y, target_max_x, target_max_y = bounds(style_skeleton)
+    source_width = max(source_max_x - source_min_x, 1.0)
+    source_height = max(source_max_y - source_min_y, 1.0)
+    target_width = max(target_max_x - target_min_x, 1.0)
+    target_height = max(target_max_y - target_min_y, 1.0)
+    target_points = [point for path in style_skeleton for point in path]
+    if len(target_points) < 2:
+        return strokes
+
+    cell_size = max(1.0, max_projection_distance / 2)
+    grid: dict[tuple[int, int], list[Point]] = {}
+    for point in target_points:
+        key = (int(point[0] // cell_size), int(point[1] // cell_size))
+        grid.setdefault(key, []).append(point)
+    search_cells = int(max_projection_distance // cell_size) + 1
+    maximum_squared = max_projection_distance * max_projection_distance
+    projected_count = 0
+    total_count = 0
+    projected: PathList = []
+
+    for stroke in strokes:
+        adjusted: list[Point] = []
+        for x, y in stroke:
+            mapped_x = target_min_x + (x - source_min_x) / source_width * target_width
+            mapped_y = target_min_y + (y - source_min_y) / source_height * target_height
+            grid_x = int(mapped_x // cell_size)
+            grid_y = int(mapped_y // cell_size)
+            nearest: Point | None = None
+            nearest_squared = maximum_squared + 1.0
+            for offset_y in range(-search_cells, search_cells + 1):
+                for offset_x in range(-search_cells, search_cells + 1):
+                    for candidate in grid.get((grid_x + offset_x, grid_y + offset_y), ()):
+                        separation = (candidate[0] - mapped_x) ** 2 + (candidate[1] - mapped_y) ** 2
+                        if separation < nearest_squared:
+                            nearest = candidate
+                            nearest_squared = separation
+            if nearest is not None and nearest_squared <= maximum_squared:
+                adjusted.append(nearest)
+                projected_count += 1
+            else:
+                adjusted.append((mapped_x, mapped_y))
+            total_count += 1
+        if len(adjusted) > 4:
+            smoothed = adjusted.copy()
+            for index in range(1, len(adjusted) - 1):
+                previous = adjusted[index - 1]
+                current = adjusted[index]
+                following = adjusted[index + 1]
+                smoothed[index] = (
+                    (previous[0] + 2 * current[0] + following[0]) / 4,
+                    (previous[1] + 2 * current[1] + following[1]) / 4,
+                )
+            adjusted = smoothed
+        projected.append(adjusted)
+
+    if projected_count / max(1, total_count) < minimum_projected_ratio:
+        return strokes
+    return projected
+
+
 def load_kanjivg_strokes(
     char: str,
     kanjivg_dir: Path,
     sample_spacing: float,
     custom_stroke_dir: Path = DEFAULT_CUSTOM_STROKE_DIR,
+    stroke_style: str = DEFAULT_STROKE_STYLE_ID,
 ) -> PathList | None:
     svg_path = stroke_file_for_char(char, kanjivg_dir, custom_stroke_dir)
     if not svg_path.exists():
@@ -380,6 +481,20 @@ def load_kanjivg_strokes(
         sampled = sample_svg_path(path_data, sample_spacing)
         if len(sampled) >= 2:
             strokes.append(sampled)
+    style_svg = stroke_style_svg_for_char(char, stroke_style)
+    if style_svg is not None:
+        style_root = ET.fromstring(style_svg)
+        style_skeleton: PathList = []
+        for element in style_root.iter():
+            if not element.tag.endswith("path"):
+                continue
+            path_data = element.attrib.get("d")
+            if not path_data:
+                continue
+            sampled = sample_svg_path(path_data, sample_spacing)
+            if len(sampled) >= 2:
+                style_skeleton.append(sampled)
+        strokes = project_strokes_to_style(strokes, style_skeleton)
     return strokes
 
 
@@ -653,7 +768,12 @@ def build_layout(
                     index=token.source_index + 1,
                     char=token.text,
                 )
-            strokes = load_kanjivg_strokes(token.resource_char, kanjivg_dir, environment.sample_spacing)
+            strokes = load_kanjivg_strokes(
+                token.resource_char,
+                kanjivg_dir,
+                environment.sample_spacing,
+                stroke_style=general.stroke_style,
+            )
             if not strokes:
                 raise UnsupportedCharacterError(
                     "missing_character",
@@ -830,7 +950,6 @@ class WindowsSendInputMouse:
     def left_up(self) -> None:
         self.send(self.MOUSEEVENTF_LEFTUP)
 
-
 def escape_pressed() -> bool:
     if sys.platform != "win32":
         return False
@@ -963,6 +1082,11 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
     parser.add_argument("--line-gap", type=float, default=24)
     parser.add_argument("--orientation", choices=[item.value for item in Orientation], default="horizontal")
     parser.add_argument("--flow", choices=[item.value for item in FlowDirection], default="right")
+    parser.add_argument(
+        "--stroke-style",
+        choices=[style.id for style in discover_stroke_styles(BUNDLE_DIR)],
+        default=DEFAULT_STROKE_STYLE_ID,
+    )
     parser.add_argument("--point-step", type=int, default=1)
     parser.add_argument("--sample-spacing", type=float, default=2.0)
     parser.add_argument("--no-preserve-aspect", action="store_true")
@@ -985,6 +1109,7 @@ def main(argv: list[str] | None = None) -> int:
         line_gap=args.line_gap,
         orientation=Orientation(args.orientation),
         flow=FlowDirection(args.flow),
+        stroke_style=args.stroke_style,
     )
     environment = EnvironmentSettings(
         countdown=max(0, args.countdown),

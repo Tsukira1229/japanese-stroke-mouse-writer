@@ -45,6 +45,8 @@ ZH_HANT = {
 3. 調整排版
 「一般設定」可調整字體大小、字距、行距、水平或垂直排列，以及向右或向左流向。半形字元彼此相鄰時使用一半字距；只要任一側為全形字元就使用完整字距。空格與 Tab 亦遵循此規則。文字到達主方向邊界時會自動換行或換欄；副方向空間不足時會在移動滑鼠前停止並顯示錯誤。垂直排列會自動旋轉英數字、括號與長音符號。
 
+筆跡風格使用須知：Zen Kurenaido、Hachi Maru Pop 與 Yomogi 是由 OFL 字型輪廓自動轉換的單線中心線，未逐字完成人工校對。部分字元可能出現線條偏移、斷裂、合併、形狀近似而非完整重現，或因缺字／低可信投影退回 KanjiVG。筆順與筆畫數仍由 KanjiVG 或專案自製筆跡控制。請先查看預覽；這些風格不適合作為標準字形、書法或筆順教學依據，也不建議未檢查即大量自動輸出。
+
 4. 調整書寫環境
 「環境設定」可切換語言，並調整開始倒數、曲線精細度與取樣點停頓。曲線精細度越小越平滑但耗時越長；若筆畫斷線，可增加取樣點停頓。
 
@@ -69,6 +71,7 @@ ZH_HANT = {
     "line_gap_px": "行距（px）",
     "orientation": "排列方向",
     "flow": "流向",
+    "stroke_style": "筆跡風格",
     "horizontal": "水平",
     "vertical": "垂直",
     "right": "向右",
@@ -193,6 +196,8 @@ After clicking a detection button, the main window is minimized. The pointer's c
 3. Adjust the layout
 General settings control font size, character gap, line gap, horizontal or vertical orientation, and right or left flow. Adjacent halfwidth characters use half the configured gap; a pair containing any fullwidth character uses the full gap. Spaces and Tab follow the same rule. Text wraps at the main-axis boundary. If the secondary axis has no room, writing stops before the pointer moves and an error is shown. Vertical layout automatically rotates letters, numbers, brackets, and long marks.
 
+Stroke-style notice: Zen Kurenaido, Hachi Maru Pop, and Yomogi are single-line centerlines converted automatically from OFL font outlines and have not been reviewed character by character. Some characters may contain shifted, broken, or merged lines, may only approximate the original outline, or may fall back to KanjiVG when a glyph is missing or projection confidence is low. Stroke count and order still come from KanjiVG or project-authored base strokes. Check the preview first. These styles are not references for standard glyph forms, calligraphy, or stroke-order teaching, and should not be used for unattended bulk output without inspection.
+
 4. Adjust the writing environment
 Environment settings control language, start countdown, curve detail, and sample delay. Smaller curve-detail values are smoother but take longer. Increase sample delay if strokes break.
 
@@ -203,7 +208,7 @@ Click Update preview first and confirm that all content is inside the rectangle.
 Press ESC during coordinate detection, the start countdown, or writing. During writing, moving the pointer quickly to any screen corner also triggers the failsafe. The program releases the left mouse button automatically after a stop or error.""",
     "start_coordinates": "Start coordinates", "end_coordinates": "End coordinates", "detect": "Detect {target}", "update_preview": "Update preview", "start_writing": "Start writing",
     "actual_preview": "Layout preview", "preview_hint": "Light cells show placement; black paths are the actual strokes.", "preview_empty": "Check the text, coordinates, and layout settings",
-    "text_layout": "Text and layout", "font_size_px": "Font size (px)", "char_gap_px": "Character gap (px)", "line_gap_px": "Line gap (px)", "orientation": "Orientation", "flow": "Flow",
+    "text_layout": "Text and layout", "font_size_px": "Font size (px)", "char_gap_px": "Character gap (px)", "line_gap_px": "Line gap (px)", "orientation": "Orientation", "flow": "Flow", "stroke_style": "Stroke style",
     "horizontal": "Horizontal", "vertical": "Vertical", "right": "Right", "left": "Left", "presets": "Presets", "preset_add": "Add", "preset_overwrite": "Overwrite",
     "preset_rename": "Rename", "preset_delete": "Delete", "preset_hint": "Presets save font size, character gap, line gap, orientation, and flow only.",
     "writing_environment": "Writing environment", "language": "Language", "appearance": "Appearance", "appearance_system": "Follow system", "appearance_light": "Light theme", "appearance_dark": "Dark theme", "appearance_hint": "The light theme is used by default; you can choose the dark theme or follow Windows.", "countdown_seconds": "Start countdown (seconds)", "curve_detail": "Curve detail", "point_delay_ms": "Sample delay (ms)",
@@ -246,6 +251,8 @@ ZH_HANS = {**ZH_HANT,
 3. 调整排版
 “常规设置”可调整字体大小、字距、行距、水平或垂直排列，以及向右或向左流向。半形字符彼此相邻时使用一半字距；只要任一侧为全形字符就使用完整字距。空格与 Tab 也遵循此规则。文字到达主方向边界时会自动换行或换列；副方向空间不足时会在移动鼠标前停止并显示错误。垂直排列会自动旋转英文字母、数字、括号和长音符号。
 
+笔迹风格使用须知：Zen Kurenaido、Hachi Maru Pop 与 Yomogi 是由 OFL 字体轮廓自动转换的单线中心线，尚未逐字完成人工校对。部分字符可能出现线条偏移、断裂、合并、形状仅近似原字体，或因缺字／低可信投影退回 KanjiVG。笔顺与笔画数仍由 KanjiVG 或项目自制笔迹控制。请先查看预览；这些风格不适合作为标准字形、书法或笔顺教学依据，也不建议未经检查便大量自动输出。
+
 4. 调整书写环境
 “环境设置”可切换语言，并调整开始倒计时、曲线精细度与采样点停顿。曲线精细度越小越平滑但耗时越长；若笔画断线，可增加采样点停顿。
 
@@ -257,7 +264,7 @@ ZH_HANS = {**ZH_HANT,
     "writing_text": "书写文字",
     "canvas_coordinates": "画布坐标", "start_coordinates": "起始坐标", "end_coordinates": "末端坐标", "detect": "检测{target}", "update_preview": "更新预览", "start_writing": "开始书写",
     "actual_preview": "实际排版预览", "preview_hint": "浅色字格仅供定位；实际输出为黑色笔顺路径。", "preview_empty": "请确认文字、坐标与排版设置", "text_layout": "文字与排版",
-    "font_size_px": "字体大小（px）", "char_gap_px": "字距（px）", "line_gap_px": "行距（px）", "orientation": "排列方向", "flow": "流向", "horizontal": "水平", "vertical": "垂直", "right": "向右", "left": "向左",
+    "font_size_px": "字体大小（px）", "char_gap_px": "字距（px）", "line_gap_px": "行距（px）", "orientation": "排列方向", "flow": "流向", "stroke_style": "笔迹风格", "horizontal": "水平", "vertical": "垂直", "right": "向右", "left": "向左",
     "presets": "自定义选项", "preset_add": "新增", "preset_overwrite": "覆盖", "preset_rename": "重命名", "preset_delete": "删除", "preset_hint": "自定义选项只保存字体大小、字距、行距、排列方向与流向。",
     "writing_environment": "书写环境", "language": "语言", "appearance": "外观主题", "appearance_system": "跟随系统", "appearance_light": "亮色主题", "appearance_dark": "暗色主题", "appearance_hint": "默认使用亮色主题，也可改为暗色主题或跟随 Windows。", "countdown_seconds": "开始倒计时（秒）", "curve_detail": "曲线精细度", "point_delay_ms": "采样点停顿（毫秒）",
     "countdown_hint": "倒计时：按下开始后保留的窗口切换时间。", "curve_hint": "曲线精细度：范围 0.1–20；数值越小越细致，但书写时间越长。", "delay_hint": "采样点停顿：范围 1–1000 毫秒；若笔画断线可适度提高。",
@@ -295,6 +302,8 @@ JA = {**EN,
 3. レイアウトを調整する
 「一般設定」では文字サイズ、文字間隔、行間隔、横書きまたは縦書き、右方向または左方向を設定します。半角文字同士は半分の文字間隔を使用し、どちらかが全角文字なら完全な文字間隔を使用します。スペースと Tab にも同じ規則を適用します。主方向の境界に達すると自動で改行または改列します。副方向の空間が不足する場合は、マウスを動かす前に停止してエラーを表示します。縦書きでは英数字、括弧、長音記号を自動回転します。
 
+筆跡スタイルの注意事項：Zen Kurenaido、Hachi Maru Pop、Yomogi は、OFL フォントのアウトラインから自動変換した単線の中心線データであり、全字を1字ずつ人工確認したものではありません。一部の文字では線のずれ、途切れ、結合、元の字形の近似、または字形欠落／低信頼の投影による KanjiVG へのフォールバックが発生する場合があります。画数と筆順は引き続き KanjiVG またはプロジェクト作成の基本筆跡が制御します。必ず先にプレビューを確認してください。標準字形、書道、筆順教育の基準には使用せず、未確認のまま大量自動出力しないでください。
+
 4. 書き込み環境を調整する
 「環境設定」では言語、開始カウントダウン、曲線精度、サンプル待機を設定します。曲線精度は小さいほど滑らかですが時間がかかります。線が途切れる場合はサンプル待機を増やしてください。
 
@@ -306,7 +315,7 @@ JA = {**EN,
     "writing_text": "書く文字",
     "canvas_coordinates": "キャンバス座標", "start_coordinates": "開始座標", "end_coordinates": "終了座標", "detect": "{target}を検出", "update_preview": "プレビュー更新", "start_writing": "書き始める",
     "actual_preview": "レイアウトプレビュー", "preview_hint": "薄い枠は配置位置、黒い線が実際の筆順です。", "preview_empty": "文字、座標、レイアウト設定を確認してください", "text_layout": "文字とレイアウト",
-    "font_size_px": "文字サイズ（px）", "char_gap_px": "文字間隔（px）", "line_gap_px": "行間隔（px）", "orientation": "配置方向", "flow": "進行方向", "horizontal": "横書き", "vertical": "縦書き", "right": "右へ", "left": "左へ",
+    "font_size_px": "文字サイズ（px）", "char_gap_px": "文字間隔（px）", "line_gap_px": "行間隔（px）", "orientation": "配置方向", "flow": "進行方向", "stroke_style": "筆跡スタイル", "horizontal": "横書き", "vertical": "縦書き", "right": "右へ", "left": "左へ",
     "presets": "プリセット", "preset_add": "追加", "preset_overwrite": "上書き", "preset_rename": "名前変更", "preset_delete": "削除", "preset_hint": "プリセットには文字サイズ、文字間隔、行間隔、配置方向、進行方向のみ保存されます。",
     "writing_environment": "書き込み環境", "language": "言語", "appearance": "外観テーマ", "appearance_system": "システムに合わせる", "appearance_light": "ライトテーマ", "appearance_dark": "ダークテーマ", "appearance_hint": "初期設定ではライトテーマを使用します。ダークテーマまたは Windows に合わせる設定も選択できます。", "countdown_seconds": "開始カウントダウン（秒）", "curve_detail": "曲線精度", "point_delay_ms": "サンプル待機（ミリ秒）",
     "countdown_hint": "カウントダウン：開始後に対象画面へ切り替える時間です。", "curve_hint": "曲線精度：0.1～20。小さいほど滑らかですが時間がかかります。", "delay_hint": "サンプル待機：1～1000 ミリ秒。線が途切れる場合は増やしてください。",

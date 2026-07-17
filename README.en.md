@@ -1,4 +1,4 @@
-# Japanese Stroke Mouse Writer V2.6.2
+# Japanese Stroke Mouse Writer V2.7.0
 
 A portable Windows 10/11 x64 mouse-writing tool. It converts Japanese text, alphanumeric characters, and supported symbols into centerline strokes, then writes them in Paint or another mouse-driven canvas.
 
@@ -6,7 +6,7 @@ A portable Windows 10/11 x64 mouse-writing tool. It converts Japanese text, alph
 
 ## Installation
 
-1. Place the complete `JapaneseStrokeMouseWriter-v2.6.2-win-x64-portable` folder in a writable location such as Documents or Desktop.
+1. Place the complete `JapaneseStrokeMouseWriter-v2.7.0-win-x64-portable` folder in a writable location such as Documents or Desktop.
 2. Do not move the EXE alone. Keep `_internal`, `user_data`, and all bundled files in their original relative locations.
 3. Run `JapaneseStrokeMouseWriter.exe`. Python and administrator privileges are not required.
 4. If Windows SmartScreen shows an unknown-publisher warning, verify that the files came from this project before choosing **More info** and **Run anyway**. The program is currently unsigned.
@@ -18,7 +18,7 @@ Settings are stored in `user_data/settings.json` inside the program folder. Regi
 1. Open Paint or another target canvas and select its pen or pencil tool.
 2. Enter text in **Content & Preview**.
 3. Use **Detect start coordinates** and **Detect end coordinates** to define the writable rectangle.
-4. Adjust font size, character gap, line gap, orientation, and flow in **General Settings**.
+4. Select a stroke style and adjust font size, character gap, line gap, orientation, and flow in **General Settings**.
 5. Click **Update preview** and confirm that every black writing path is inside the rectangle.
 6. Click **Start writing**, then switch to the target canvas during the countdown.
 
@@ -27,10 +27,11 @@ Open the offline [HTML Complete Guide](complete-guide.en.html) for detailed inst
 ## Features
 
 - Writes Japanese kana, kanji, alphanumeric characters, halfwidth katakana, and symbols using KanjiVG or project-authored centerline SVG data.
+- Offers KanjiVG Original plus Zen Kurenaido, Hachi Maru Pop, and Yomogi. Each font-style pack is generated solely from a pinned OFL font outline and contains no KanjiVG geometry.
 - Preserves spaces, Tab, explicit and repeated line breaks, and wraps automatically at the writable boundary.
 - Supports horizontal, vertical, right, and left layouts. Preview and mouse output use the same path data.
 - Halfwidth characters occupy `0.5` cell; fullwidth and wide characters occupy `1` cell. Adjacent halfwidth characters use half the character gap; other pairs use the full gap.
-- Saves font size, character gap, line gap, orientation, and flow as multiple named presets.
+- Saves font size, character gap, line gap, orientation, flow, and stroke style as multiple named presets.
 - Provides light, dark, and Windows-following appearance modes. New users start with the light theme, and switching appearance preserves current input and session state.
 - Accepts manually assembled Kaomoji such as `(^O^)`, `(≧▽≦)`, `m(_ _)m`, `(/ω＼)`, and `(╯°□°)╯︵ ┻━┻`. Each supported character is written with centerline strokes.
 
@@ -46,7 +47,7 @@ The program supports some commonly used special symbols, including geometry, sta
 
 ## Roadmap
 
-- Add selectable writing fonts so users can choose different writing styles.
+- Add more commercially usable OFL writing styles under the same license and quality rules.
 - Continue expanding special symbols that work well as centerline strokes.
 
 ## Emergency Stop
@@ -55,4 +56,4 @@ Press `ESC` during coordinate detection, the start countdown, or writing. During
 
 ## License
 
-Project code and project-authored centerline SVG files use the MIT License. KanjiVG data uses CC BY-SA 3.0. See [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
+Project code and project-authored centerline SVG files use the MIT License. KanjiVG data uses CC BY-SA 3.0. The three font-style packs use their bundled SIL OFL 1.1 texts; each pack records original copyright, source version, commit, SHA-256, and conversion details. See the [font-style policy](FONT_STYLE_POLICY.md) and [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).

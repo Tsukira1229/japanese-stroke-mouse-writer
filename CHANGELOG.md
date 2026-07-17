@@ -1,5 +1,15 @@
 # Changelog
 
+## V2.7.0 - 2026-07-17
+
+- Adds selectable KanjiVG Original, Zen Kurenaido, Hachi Maru Pop, and Yomogi stroke styles in horizontal and vertical layouts.
+- Keeps font-style packs as OFL-only skeleton derivatives and combines the separate KanjiVG/project-authored stroke-order layer only at runtime.
+- Retains the base stroke count, order, and direction; missing or low-confidence style projections fall back to the KanjiVG/original path.
+- Records each source font's original copyright, OFL text, pinned source commit, source version, SHA-256, converter and promotion records, glyph totals, fallback totals, and deterministic archive SHA-256.
+- Documents that the three automatically converted centerline styles have limited character-by-character human review and must be checked in preview before use.
+- Stores the selected stroke style in named presets while preserving compatibility with existing V2.6 settings.
+- Remains unsigned; Windows SmartScreen may show an unknown-publisher warning.
+
 ## V2.6.2 - 2026-07-13
 
 - Adds live crosshair guides, coordinates, and a three-second countdown while detecting start and end positions.

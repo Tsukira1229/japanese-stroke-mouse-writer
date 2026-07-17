@@ -50,7 +50,7 @@ class SymbolCatalogTests(unittest.TestCase):
 
     def test_manifest_is_the_exact_runtime_source(self) -> None:
         self.assertEqual(self.payload["schema_version"], 1)
-        self.assertEqual(self.payload["catalog_version"], "2.6.2")
+        self.assertEqual(self.payload["catalog_version"], "2.7.0")
         self.assertEqual(len(self.records), 430)
         groups: dict[str, set[str]] = {}
         for record in self.records:

@@ -58,6 +58,7 @@ from mouse_writer_pro import (
     path_stats,
 )
 from settings_store import DEFAULT_SETTINGS_PATH, Preset, SettingsStore
+from stroke_styles import DEFAULT_STROKE_STYLE_ID, discover_stroke_styles
 
 
 NUMERIC_TRANSLATION = str.maketrans("０１２３４５６７８９。．，,", "0123456789....")
@@ -573,6 +574,9 @@ class JapaneseWriterApp:
     def _flow_labels(self) -> dict[str, FlowDirection]:
         return {self.t("right"): FlowDirection.RIGHT, self.t("left"): FlowDirection.LEFT}
 
+    def _stroke_style_labels(self) -> dict[str, str]:
+        return {style.label(self.language): style.id for style in discover_stroke_styles(BUNDLE_DIR)}
+
     def _appearance_labels(self) -> dict[str, AppearanceMode]:
         return {
             self.t("appearance_system"): AppearanceMode.SYSTEM,
@@ -773,6 +777,13 @@ class JapaneseWriterApp:
         self.line_gap = tk.StringVar(value="24")
         self.orientation = tk.StringVar(value=self.t("horizontal"))
         self.flow = tk.StringVar(value=self.t("right"))
+        self.stroke_style = tk.StringVar(
+            value=next(
+                label
+                for label, style_id in self._stroke_style_labels().items()
+                if style_id == DEFAULT_STROKE_STYLE_ID
+            )
+        )
         self.countdown = tk.StringVar(value="5")
         self.sample_spacing = tk.StringVar(value="2.0")
         self.point_delay_ms = tk.StringVar(value="8")
@@ -795,7 +806,7 @@ class JapaneseWriterApp:
         ttk.Label(header, text=self.t("app_title"), style="Title.TLabel").pack(side="left")
         ttk.Label(
             header,
-            text=f"V{APP_VERSION} Portable  ·  KanjiVG",
+            text=f"V{APP_VERSION} Portable  ·  KanjiVG + OFL styles",
             style="Subtitle.TLabel",
         ).pack(side="left", padx=(14, 0), pady=(8, 0))
 
@@ -985,6 +996,14 @@ class JapaneseWriterApp:
         )
         self.flow_segments = self._segmented_field(
             settings, 5, 0, self.t("flow"), self.flow, list(self._flow_labels())
+        )
+        self.stroke_style_combo = self._combo_field(
+            settings,
+            5,
+            1,
+            self.t("stroke_style"),
+            self.stroke_style,
+            list(self._stroke_style_labels()),
         )
 
         presets = ttk.Frame(tab, style="Surface.TFrame", padding=(30, 0, 0, 0))
@@ -1235,6 +1254,7 @@ class JapaneseWriterApp:
             self.line_gap,
             self.orientation,
             self.flow,
+            self.stroke_style,
             self.sample_spacing,
         )
         for variable in preview_variables:
@@ -1253,10 +1273,14 @@ class JapaneseWriterApp:
         if state.language is not self.language:
             orientation = self._orientation_labels()[self.orientation.get()]
             flow = self._flow_labels()[self.flow.get()]
+            stroke_style = self._stroke_style_labels().get(self.stroke_style.get(), DEFAULT_STROKE_STYLE_ID)
             self.language = state.language
             self.language_selection.set(dict(LANGUAGE_OPTIONS)[self.language])
             self.orientation.set(next(label for label, value in self._orientation_labels().items() if value is orientation))
             self.flow.set(next(label for label, value in self._flow_labels().items() if value is flow))
+            self.stroke_style.set(
+                next(label for label, value in self._stroke_style_labels().items() if value == stroke_style)
+            )
             rebuild = True
         if state.appearance_mode is not self.appearance_mode:
             self.appearance_mode = state.appearance_mode
@@ -1287,12 +1311,16 @@ class JapaneseWriterApp:
             return
         orientation = self._orientation_labels()[self.orientation.get()]
         flow = self._flow_labels()[self.flow.get()]
+        stroke_style = self._stroke_style_labels().get(self.stroke_style.get(), DEFAULT_STROKE_STYLE_ID)
         self.language = selected
         self.appearance_selection.set(
             next(label for label, value in self._appearance_labels().items() if value is self.appearance_mode)
         )
         self.orientation.set(next(label for label, value in self._orientation_labels().items() if value is orientation))
         self.flow.set(next(label for label, value in self._flow_labels().items() if value is flow))
+        self.stroke_style.set(
+            next(label for label, value in self._stroke_style_labels().items() if value == stroke_style)
+        )
         try:
             self.store.set_language(selected)
         except PermissionError as exc:
@@ -1379,6 +1407,7 @@ class JapaneseWriterApp:
             line_gap=self._float(self.line_gap, self.t("line_gap"), 0, 1000),
             orientation=self._orientation_labels()[self.orientation.get()],
             flow=self._flow_labels()[self.flow.get()],
+            stroke_style=self._stroke_style_labels().get(self.stroke_style.get(), DEFAULT_STROKE_STYLE_ID),
         )
 
     def read_environment(self) -> EnvironmentSettings:
@@ -1588,6 +1617,21 @@ class JapaneseWriterApp:
         self.line_gap.set(str(general.line_gap))
         self.orientation.set(next(label for label, value in self._orientation_labels().items() if value is general.orientation))
         self.flow.set(next(label for label, value in self._flow_labels().items() if value is general.flow))
+        style_id = general.stroke_style
+        self.stroke_style.set(
+            next(
+                (
+                    label
+                    for label, value in self._stroke_style_labels().items()
+                    if value == style_id
+                ),
+                next(
+                    label
+                    for label, value in self._stroke_style_labels().items()
+                    if value == DEFAULT_STROKE_STYLE_ID
+                ),
+            )
+        )
 
     def refresh_preset_list(self, selected_id: str | None = None) -> None:
         self.preset_name_to_id = {preset.name: preset.id for preset in self.store.state.presets}
@@ -2017,6 +2061,35 @@ def run_self_test(settings_path: Path = DEFAULT_SETTINGS_PATH) -> int:
     )
     if not emoticon.paths:
         raise RuntimeError("顏文字符號中心線排版測試失敗。")
+    styles = discover_stroke_styles(BUNDLE_DIR)
+    if {style.id for style in styles} != {
+        DEFAULT_STROKE_STYLE_ID,
+        "zen-kurenaido",
+        "hachi-maru-pop",
+        "yomogi",
+    }:
+        raise RuntimeError("正式筆跡風格包不完整。")
+    for style in styles:
+        if style.id == DEFAULT_STROKE_STYLE_ID:
+            continue
+        for orientation in Orientation:
+            styled = build_layout(
+                "あ永語日",
+                DEFAULT_KANJIVG_DIR,
+                LayoutSettings(
+                    start_x=10,
+                    start_y=10,
+                    end_x=2000,
+                    end_y=2000,
+                    general=GeneralSettings(
+                        font_size=50,
+                        orientation=orientation,
+                        stroke_style=style.id,
+                    ),
+                ),
+            )
+            if not styled.paths:
+                raise RuntimeError(f"筆跡風格排版測試失敗：{style.id} / {orientation.value}")
     if sys.platform == "win32":
         import pyautogui
 
