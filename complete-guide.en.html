@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="color-scheme" content="light">
-  <title>Japanese Stroke Mouse Writer V2.7.0 - Complete Guide</title>
+  <title>Japanese Stroke Mouse Writer V2.6.2 - Complete Guide</title>
   <style>:root {
   color-scheme: light;
   --background: #fff8fb;
@@ -105,7 +105,7 @@ h1:hover .headerlink, h2:hover .headerlink { color: var(--accent); }
 </head>
 <body>
   <header class="topbar">
-    <a class="brand" href="#content">Japanese Stroke Mouse Writer V2.7.0</a>
+    <a class="brand" href="#content">Japanese Stroke Mouse Writer V2.6.2</a>
     <nav class="languages" aria-label="Languages">
       <a href="complete-guide.html">繁體中文</a>
 <a href="complete-guide.en.html" aria-current="page">English</a>
@@ -131,7 +131,7 @@ h1:hover .headerlink, h2:hover .headerlink { color: var(--accent); }
 
     </nav>
     <main id="content">
-      <h1 id="japanese-stroke-mouse-writer-v270-complete-guide">Japanese Stroke Mouse Writer V2.7.0 Complete Guide</h1>
+      <h1 id="japanese-stroke-mouse-writer-v262-complete-guide">Japanese Stroke Mouse Writer V2.6.2 Complete Guide</h1>
 <p>This guide starts with the first launch and explains how to define the writing area, verify the preview, and run the program safely.</p>
 <h2 id="1-launch-and-prepare-the-canvas">1. Launch and Prepare the Canvas</h2>
 <ol>
@@ -159,7 +159,6 @@ h1:hover .headerlink, h2:hover .headerlink { color: var(--accent); }
 <p>Press <code>ESC</code> during detection to cancel without replacing the previous values. The rectangle must fit at least one character cell; invalid range or direction is reported before preview.</p>
 <h2 id="4-adjust-general-settings">4. Adjust General Settings</h2>
 <ul>
-<li><strong>Stroke style</strong>: choose KanjiVG Original, Zen Kurenaido, Hachi Maru Pop, or Yomogi. Font styles retain the base stroke order and automatically fall back to KanjiVG for missing glyphs or low-confidence projections.</li>
 <li><strong>Font size</strong>: width and height of one fullwidth cell in px.</li>
 <li><strong>Character gap</strong>: distance between adjacent characters. Two halfwidth characters use half this value; other pairs use the full value.</li>
 <li><strong>Line gap</strong>: row spacing in horizontal layout or column spacing in vertical layout.</li>
@@ -168,11 +167,7 @@ h1:hover .headerlink, h2:hover .headerlink { color: var(--accent); }
 </ul>
 <p>Halfwidth characters occupy <code>0.5</code> cell, fullwidth and wide characters occupy <code>1</code> cell, and Tab equals four halfwidth spaces. Valid halfwidth katakana combinations such as <code>ｶﾞ</code> and <code>ﾊﾟ</code> occupy one half-cell.</p>
 <p>In vertical layout, alphanumeric characters, brackets, and long marks rotate clockwise. <code>、。</code> move to the upper-right of their cells. Arrows and box-drawing characters preserve their direction.</p>
-<p><strong>Presets</strong> can add, load, overwrite, rename, or delete named settings. A preset stores only stroke style, font size, character gap, line gap, orientation, and flow; it does not store text or coordinates.</p>
-<p>Font-style packs are centerline skeletons generated from the original font outline, with KanjiVG stroke order applied at runtime. They are approximations for single-line mouse writing, not complete reproductions of the outline fonts.</p>
-<h3 id="stroke-style-notice">Stroke-style notice</h3>
-<p>The Zen Kurenaido, Hachi Maru Pop, and Yomogi centerlines were converted automatically from OFL font outlines and have not been reviewed character by character. Some characters may contain shifted, broken, or merged lines, may only approximate the original font shape, or may fall back to KanjiVG when the source font lacks a glyph or runtime projection confidence is low. Stroke count and order still come from KanjiVG or project-authored base strokes; they are not inferred from the source font.</p>
-<p>Check the actual layout preview before using these styles. They are intended for general single-line mouse writing and visual variation, not as references for standard glyph forms, calligraphy, or stroke-order teaching. Do not use them for unattended bulk output without checking the preview. Switch back to KanjiVG Original when a character is unsuitable.</p>
+<p><strong>Presets</strong> can add, load, overwrite, rename, or delete named settings. A preset stores only font size, character gap, line gap, orientation, and flow; it does not store text or coordinates.</p>
 <h2 id="5-adjust-environment-settings">5. Adjust Environment Settings</h2>
 <ul>
 <li><strong>Language</strong>: Japanese, Traditional Chinese, Simplified Chinese, or English.</li>
@@ -212,7 +207,7 @@ h1:hover .headerlink, h2:hover .headerlink { color: var(--accent); }
 <li><strong>Output is offset</strong>: detect the coordinates again and do not move the canvas, window, or zoom after the countdown.</li>
 <li><strong>Kaomoji proportions look wrong</strong>: adjust character gap and verify the intended halfwidth or fullwidth symbols.</li>
 </ul>
-      <p class="footer">Japanese Stroke Mouse Writer V2.7.0 - Offline documentation</p>
+      <p class="footer">Japanese Stroke Mouse Writer V2.6.2 - Offline documentation</p>
     </main>
   </div>
 </body>

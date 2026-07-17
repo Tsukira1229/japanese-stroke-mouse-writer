@@ -8,7 +8,7 @@ from PyInstaller.utils.hooks import collect_data_files
 root = Path(SPECPATH)
 package_name = os.environ.get(
     "JSMW_PACKAGE_NAME",
-    "JapaneseStrokeMouseWriter-v2.7.0-win-x64-portable",
+    "JapaneseStrokeMouseWriter-v2.6.2-win-x64-portable",
 )
 
 a = Analysis(

@@ -29,7 +29,6 @@ class SettingsStoreTests(unittest.TestCase):
             line_gap=16,
             orientation=Orientation.VERTICAL,
             flow=FlowDirection.LEFT,
-            stroke_style="zen-kurenaido",
         )
         preset = self.store.add_preset("直書", general)
         self.assertEqual(self.store.select_preset(preset.id).general, general)
@@ -65,21 +64,6 @@ class SettingsStoreTests(unittest.TestCase):
         self.assertIs(loaded.appearance_mode, AppearanceMode.DARK)
         self.assertEqual(payload["appearance_mode"], "dark")
         self.assertEqual(payload["schema_version"], 1)
-
-    def test_removed_formal_style_in_existing_preset_falls_back_to_kanjivg(self) -> None:
-        self.path.write_text(
-            json.dumps({
-                "schema_version": 1,
-                "presets": [{
-                    "id": "legacy",
-                    "name": "legacy style",
-                    "general": {"stroke_style": "hina-mincho-centerline"},
-                }],
-            }),
-            encoding="utf-8",
-        )
-        loaded = SettingsStore(self.path).load()
-        self.assertEqual(loaded.presets[0].general.stroke_style, "kanjivg")
 
     def test_explicit_system_appearance_remains_supported(self) -> None:
         self.store.set_appearance_mode(AppearanceMode.SYSTEM)

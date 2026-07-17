@@ -54,21 +54,6 @@ class JapaneseWriterUiTests(unittest.TestCase):
             any(isinstance(child, ttk.Scrollbar) for child in self.app.text_input.master.winfo_children())
         )
 
-    def test_formal_three_font_styles_are_selectable(self) -> None:
-        labels = self.app._stroke_style_labels()
-        self.assertEqual(
-            set(labels.values()),
-            {
-                "kanjivg",
-                "zen-kurenaido",
-                "hachi-maru-pop",
-                "yomogi",
-            },
-        )
-        selected = next(label for label, style_id in labels.items() if style_id == "zen-kurenaido")
-        self.app.stroke_style.set(selected)
-        self.assertEqual(self.app.read_general().stroke_style, "zen-kurenaido")
-
     def test_new_session_defaults_to_light_theme(self) -> None:
         self.assertFalse(self.app.palette.dark)
         self.assertEqual(self.app.appearance_selection.get(), self.app.t("appearance_light"))
@@ -88,8 +73,6 @@ class JapaneseWriterUiTests(unittest.TestCase):
         self.assertIn("起始座標", help_text)
         self.assertIn("末端座標", help_text)
         self.assertIn("十字線", help_text)
-        self.assertIn("Zen Kurenaido", help_text)
-        self.assertIn("未逐字完成人工校對", help_text)
         self.assertIn("預計書寫矩形", help_text)
         self.assertIn("顏文字", help_text)
         self.assertIn("特殊符號", help_text)

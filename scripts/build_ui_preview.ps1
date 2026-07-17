@@ -4,7 +4,7 @@ param(
 
 $ErrorActionPreference = "Stop"
 $Root = (Resolve-Path (Join-Path $PSScriptRoot "..")).Path
-$PackageName = "JapaneseStrokeMouseWriter-v2.7.0-preview.1-win-x64-portable"
+$PackageName = "JapaneseStrokeMouseWriter-v2.6.2-preview.1-win-x64-portable"
 $OutputRoot = Join-Path $Root "build\ui-preview"
 $PackageDir = Join-Path $OutputRoot $PackageName
 $WorkDir = Join-Path $Root "build\ui-preview-work"

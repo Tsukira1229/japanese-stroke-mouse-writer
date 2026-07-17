@@ -19,14 +19,12 @@ from localization import (
     language_from_code,
 )
 from mouse_writer_pro import (
-    BUNDLE_DIR,
     EXECUTABLE_DIR,
     EnvironmentSettings,
     FlowDirection,
     GeneralSettings,
     Orientation,
 )
-from stroke_styles import DEFAULT_STROKE_STYLE_ID, normalize_stroke_style_id
 
 SCHEMA_VERSION = 1
 DEFAULT_SETTINGS_PATH = EXECUTABLE_DIR / "user_data/settings.json"
@@ -55,7 +53,6 @@ def general_to_dict(settings: GeneralSettings) -> dict[str, object]:
         "line_gap": settings.line_gap,
         "orientation": settings.orientation.value,
         "flow": settings.flow.value,
-        "stroke_style": settings.stroke_style,
     }
 
 
@@ -66,10 +63,6 @@ def general_from_dict(data: dict[str, object]) -> GeneralSettings:
         line_gap=float(data.get("line_gap", 24)),
         orientation=Orientation(str(data.get("orientation", "horizontal"))),
         flow=FlowDirection(str(data.get("flow", "right"))),
-        stroke_style=normalize_stroke_style_id(
-            BUNDLE_DIR,
-            str(data.get("stroke_style", DEFAULT_STROKE_STYLE_ID)),
-        ),
     )
 
 

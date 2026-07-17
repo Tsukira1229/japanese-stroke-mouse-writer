@@ -1,4 +1,4 @@
-# Japanese Stroke Mouse Writer V2.7.0 Complete Guide
+# Japanese Stroke Mouse Writer V2.6.2 Complete Guide
 
 This guide starts with the first launch and explains how to define the writing area, verify the preview, and run the program safely.
 
@@ -33,7 +33,6 @@ Press `ESC` during detection to cancel without replacing the previous values. Th
 
 ## 4. Adjust General Settings
 
-- **Stroke style**: choose KanjiVG Original, Zen Kurenaido, Hachi Maru Pop, or Yomogi. Font styles retain the base stroke order and automatically fall back to KanjiVG for missing glyphs or low-confidence projections.
 - **Font size**: width and height of one fullwidth cell in px.
 - **Character gap**: distance between adjacent characters. Two halfwidth characters use half this value; other pairs use the full value.
 - **Line gap**: row spacing in horizontal layout or column spacing in vertical layout.
@@ -44,15 +43,7 @@ Halfwidth characters occupy `0.5` cell, fullwidth and wide characters occupy `1`
 
 In vertical layout, alphanumeric characters, brackets, and long marks rotate clockwise. `、。` move to the upper-right of their cells. Arrows and box-drawing characters preserve their direction.
 
-**Presets** can add, load, overwrite, rename, or delete named settings. A preset stores only stroke style, font size, character gap, line gap, orientation, and flow; it does not store text or coordinates.
-
-Font-style packs are centerline skeletons generated from the original font outline, with KanjiVG stroke order applied at runtime. They are approximations for single-line mouse writing, not complete reproductions of the outline fonts.
-
-### Stroke-style notice
-
-The Zen Kurenaido, Hachi Maru Pop, and Yomogi centerlines were converted automatically from OFL font outlines and have not been reviewed character by character. Some characters may contain shifted, broken, or merged lines, may only approximate the original font shape, or may fall back to KanjiVG when the source font lacks a glyph or runtime projection confidence is low. Stroke count and order still come from KanjiVG or project-authored base strokes; they are not inferred from the source font.
-
-Check the actual layout preview before using these styles. They are intended for general single-line mouse writing and visual variation, not as references for standard glyph forms, calligraphy, or stroke-order teaching. Do not use them for unattended bulk output without checking the preview. Switch back to KanjiVG Original when a character is unsuitable.
+**Presets** can add, load, overwrite, rename, or delete named settings. A preset stores only font size, character gap, line gap, orientation, and flow; it does not store text or coordinates.
 
 ## 5. Adjust Environment Settings
 

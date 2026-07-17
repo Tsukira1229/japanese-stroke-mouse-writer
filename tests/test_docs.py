@@ -25,7 +25,6 @@ POLICY_DOCS = (
     ROOT / "PRIVACY.md",
     ROOT / "SECURITY.md",
     ROOT / "THIRD_PARTY_NOTICES.md",
-    ROOT / "FONT_STYLE_POLICY.md",
 )
 
 
@@ -75,13 +74,16 @@ class DocumentationTests(unittest.TestCase):
             self.assertIn("ｶﾞ", text)
             self.assertTrue("顏文字" in text or "Kaomoji" in text or "顔文字" in text)
             self.assertTrue("中心線" in text or "centerline" in text)
+            self.assertNotIn("輪廓", text)
+            self.assertNotIn("outline", text.lower())
+            self.assertNotIn("アウトライン", text)
             for pair in symbol_pairs:
                 self.assertIn(pair, text)
 
     def test_all_documents_use_current_version(self) -> None:
         for document in (*DOCS, *HTML_GUIDES):
             text = document.read_text(encoding="utf-8")
-            self.assertIn("V2.7.0", text)
+            self.assertIn("V2.6.2", text)
             self.assertNotIn("2.6.0-preview", text.lower())
             self.assertNotIn("V2.4.1", text)
             self.assertNotIn("V2.4.0", text)
@@ -110,6 +112,8 @@ class DocumentationTests(unittest.TestCase):
             "Free code signing provided by",
             "核准後",
             "承認後",
+            "font contours",
+            "font outline",
             "built-in kaomoji categories",
         )
         for document in (*DOCS, *POLICY_DOCS):
@@ -137,20 +141,9 @@ class DocumentationTests(unittest.TestCase):
 
     def test_readmes_document_future_font_and_symbol_expansion(self) -> None:
         expectations = {
-            "README.md": ("OFL 書寫風格", "特殊符號"),
-            "README.en.md": ("OFL writing styles", "special symbols"),
-            "README.ja.md": ("OFL 書字スタイル", "特殊記号"),
-        }
-        for filename, phrases in expectations.items():
-            text = (ROOT / filename).read_text(encoding="utf-8")
-            for phrase in phrases:
-                self.assertIn(phrase, text)
-
-    def test_complete_guides_disclose_limited_font_style_review(self) -> None:
-        expectations = {
-            "complete-guide.md": ("Zen Kurenaido", "未逐字完成人工校對", "KanjiVG"),
-            "complete-guide.en.md": ("Zen Kurenaido", "not been reviewed character by character", "KanjiVG"),
-            "complete-guide.ja.md": ("Zen Kurenaido", "全字を1字ずつ人工確認", "KanjiVG"),
+            "README.md": ("文字字型選擇", "特殊符號"),
+            "README.en.md": ("selectable writing fonts", "special symbols"),
+            "README.ja.md": ("書き込み用フォント", "特殊記号"),
         }
         for filename, phrases in expectations.items():
             text = (ROOT / filename).read_text(encoding="utf-8")
@@ -166,7 +159,7 @@ class DocumentationTests(unittest.TestCase):
     def test_readmes_document_current_portable_folder(self) -> None:
         for document in DOCS[:3]:
             text = document.read_text(encoding="utf-8")
-            self.assertIn("JapaneseStrokeMouseWriter-v2.7.0-win-x64-portable", text)
+            self.assertIn("JapaneseStrokeMouseWriter-v2.6.2-win-x64-portable", text)
             self.assertNotIn("JapaneseStrokeMouseWriter-v2.4.1-win-x64-portable", text)
 
     def test_portable_build_includes_html_guides(self) -> None:
