@@ -164,7 +164,7 @@ h1:hover .headerlink, h2:hover .headerlink { color: var(--accent); }
 <li><strong>Line gap</strong>: row spacing in horizontal layout or column spacing in vertical layout.</li>
 <li><strong>Orientation</strong>: horizontal places characters left or right; vertical places characters downward.</li>
 <li><strong>Flow</strong>: right or left, which also determines the side used by the start coordinate.</li>
-<li><strong>Writing style</strong>: KanjiVG Original follows the source stroke order. Yomogi Direct Centreline reproduces the font skeleton directly, and its path order is not traditional stroke order.</li>
+<li><strong>Writing style</strong>: KanjiVG Original follows the source stroke order. Yomogi, Zen Kurenaido, and Hachi Maru Pop Direct Centreline reproduce each font skeleton directly; path order is not traditional stroke order.</li>
 </ul>
 <p>Halfwidth characters occupy <code>0.5</code> cell, fullwidth and wide characters occupy <code>1</code> cell, and Tab equals four halfwidth spaces. Valid halfwidth katakana combinations such as <code>ｶﾞ</code> and <code>ﾊﾟ</code> occupy one half-cell.</p>
 <p>In vertical layout, alphanumeric characters, brackets, and long marks rotate clockwise. <code>、。</code> move to the upper-right of their cells. Arrows and box-drawing characters preserve their direction.</p>
@@ -180,7 +180,7 @@ h1:hover .headerlink, h2:hover .headerlink { color: var(--accent); }
 <p>Environment settings are saved automatically. Switching language or appearance preserves text, coordinates, the selected tab, and window state. Start with the defaults and adjust only when curves are rough or strokes break.</p>
 <h2 id="6-check-supported-input">6. Check Supported Input</h2>
 <p>Supported input includes Japanese kana, kanji available in KanjiVG, <code>A–Z</code>, <code>a–z</code>, <code>0–9</code>, fullwidth alphanumerics, halfwidth katakana, and common symbols.</p>
-<p>Yomogi provides 6,608 direct-centreline glyphs, including the style-only kana <code>ゟ</code> and <code>ヿ</code> that have no KanjiVG baseline. The 96 catalog characters missing from the source or unable to pass the centreline gates fall back to KanjiVG.</p>
+<p>Yomogi provides 6,608 direct glyphs and 96 fallbacks, including the style-only kana <code>ゟ</code> and <code>ヿ</code>. Zen Kurenaido provides 6,591 direct glyphs and 111 fallbacks; Hachi Maru Pop provides 6,608 direct glyphs and 94 fallbacks. Fallback is limited to the source-missing or conversion-ineligible characters explicitly listed by each pack.</p>
 <p>Halfwidth/fullwidth pairs include <code>#＃</code>, <code>(（</code>, <code>)）</code>, <code>[［</code>, <code>]］</code>, <code>@＠</code>, <code>~～</code>, <code>、､</code>, <code>。｡</code>, <code>・･</code>, <code>ーｰ</code>, <code>「」</code>, <code>【】</code>, and <code>｢｣</code>. The program also supports some commonly used geometry, stars, checks, arrows, brackets, mathematics, and box-drawing symbols. See <a href="SUPPORTED_SYMBOLS.md">Supported Centerline Symbols</a> for the complete list.</p>
 <p>Not every special symbol is available. If the text contains an unsupported special symbol, the first unsupported character is reported before writing starts.</p>
 <p>For box drawing, set character gap and line gap to <code>0 px</code> to connect adjacent endpoints in <code>┏━┷━┓</code>, <code>┃　　┃</code>, and <code>┗━━━┛</code>.</p>

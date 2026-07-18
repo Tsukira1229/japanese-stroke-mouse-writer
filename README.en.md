@@ -18,7 +18,7 @@ Settings are stored in `user_data/settings.json` inside the program folder. Regi
 1. Open Paint or another target canvas and select its pen or pencil tool.
 2. Enter text in **Content & Preview**.
 3. Use **Detect start coordinates** and **Detect end coordinates** to define the writable rectangle.
-4. Select KanjiVG or Yomogi and adjust font size, character gap, line gap, orientation, and flow in **General Settings**.
+4. Select KanjiVG, Yomogi, Zen Kurenaido, or Hachi Maru Pop and adjust font size, character gap, line gap, orientation, and flow in **General Settings**.
 5. Click **Update preview** and confirm that every black writing path is inside the rectangle.
 6. Click **Start writing**, then switch to the target canvas during the countdown.
 
@@ -26,7 +26,7 @@ Open the offline [HTML Complete Guide](complete-guide.en.html) for detailed inst
 
 ## Features
 
-- Selects either KanjiVG Original or Yomogi Direct Centreline; preview and mouse output use the same direct path data.
+- Selects KanjiVG Original, Yomogi Direct Centreline, Zen Kurenaido Direct Centreline, or Hachi Maru Pop Direct Centreline; preview and mouse output use the same path data.
 - Preserves spaces, Tab, explicit and repeated line breaks, and wraps automatically at the writable boundary.
 - Supports horizontal, vertical, right, and left layouts. Preview and mouse output use the same path data.
 - Halfwidth characters occupy `0.5` cell; fullwidth and wide characters occupy `1` cell. Adjacent halfwidth characters use half the character gap; other pairs use the full gap.
@@ -38,7 +38,7 @@ Open the offline [HTML Complete Guide](complete-guide.en.html) for detailed inst
 
 Supported input includes Japanese kana, kanji available in KanjiVG, `A–Z`, `a–z`, `0–9`, fullwidth alphanumerics, and halfwidth katakana. Valid voiced and semi-voiced combinations such as `ｶﾞ` and `ﾊﾟ` are merged into one half-cell character.
 
-The Yomogi pack contains 6,608 direct-centreline SVGs: 6,606 KanjiVG-catalog characters plus the Yomogi-only kana `ゟ` and `ヿ`. The 96 catalog characters that cannot produce a valid Yomogi centreline explicitly fall back to KanjiVG. Yomogi prioritizes the final visual result; path order is not traditional stroke order.
+Yomogi contains 6,608 direct-centreline SVGs, with 96 catalog fallbacks, and includes the style-only kana `ゟ` and `ヿ`. Zen Kurenaido contains 6,591 direct SVGs and 111 fallbacks. Hachi Maru Pop contains 6,608 direct SVGs and 94 fallbacks. All three direct styles prioritize the final visual result; path order is not traditional stroke order.
 
 Printable ASCII punctuation and fullwidth counterparts are supported, including `#＃`, `(（`, `)）`, `[［`, `]］`, `@＠`, and `~～`. Japanese symbols include `、､`, `。｡`, `・･`, `ーｰ`, `「」`, `【】`, and `｢｣`.
 
@@ -56,4 +56,4 @@ Press `ESC` during coordinate detection, the start countdown, or writing. During
 
 ## License
 
-Project code and project-authored centerline SVG files use the MIT License. KanjiVG data uses CC BY-SA 3.0. The Yomogi font and its derived centreline data use the SIL Open Font License 1.1. See [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
+Project code and project-authored centerline SVG files use the MIT License. KanjiVG data uses CC BY-SA 3.0. Yomogi, Zen Kurenaido, Hachi Maru Pop, and their derived centreline data use the SIL Open Font License 1.1. See [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).

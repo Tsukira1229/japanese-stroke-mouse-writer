@@ -164,7 +164,7 @@ h1:hover .headerlink, h2:hover .headerlink { color: var(--accent); }
 <li><strong>行距</strong>：水平排版的行距或垂直排版的欄距。</li>
 <li><strong>排列方向</strong>：水平時逐字左右排列；垂直時逐字向下排列。</li>
 <li><strong>流向</strong>：向右或向左，並決定起始座標使用矩形哪一側。</li>
-<li><strong>書寫風格</strong>：KanjiVG原始筆跡遵循原資料筆順；Yomogi直繪中心線直接重現字型骨架，路徑順序不代表傳統筆順。</li>
+<li><strong>書寫風格</strong>：KanjiVG原始筆跡遵循原資料筆順；Yomogi、Zen Kurenaido與Hachi Maru Pop直繪中心線直接重現各字型骨架，路徑順序不代表傳統筆順。</li>
 </ul>
 <p>半形字元占 <code>0.5</code> 格，全形／寬字元占 <code>1</code> 格，Tab 等於四個半形空格。<code>ｶﾞ</code>、<code>ﾊﾟ</code> 等合法半形片假名組合占一個半格。</p>
 <p>垂直排版時，英數字、括號及長線會順時針旋轉；<code>、。</code> 會移到字格右上。箭頭與框線保留原方向。</p>
@@ -180,7 +180,7 @@ h1:hover .headerlink, h2:hover .headerlink { color: var(--accent); }
 <p>環境設定會自動保存。切換語言或外觀時，輸入文字、座標、目前頁籤及視窗狀態都會保留。一般情況可先使用預設值，只在曲線不夠平滑或筆畫斷線時調整。</p>
 <h2 id="6">6. 確認支援範圍</h2>
 <p>支援日文假名、KanjiVG 收錄的漢字、<code>A–Z</code>、<code>a–z</code>、<code>0–9</code>、全形英數、半形片假名與常用符號。</p>
-<p>Yomogi風格提供6,608個直繪字元，其中包含<code>ゟ</code>與<code>ヿ</code>兩個無KanjiVG對照的專屬假名。96個來源缺字或無法通過中心線門檻的目錄字元會回退KanjiVG。</p>
+<p>Yomogi提供6,608個直繪字元與96個回退字元，並包含<code>ゟ</code>、<code>ヿ</code>兩個無KanjiVG對照的專屬假名。Zen Kurenaido提供6,591個直繪字元與111個回退字元；Hachi Maru Pop提供6,608個直繪字元與94個回退字元。回退僅限各風格包明確列出的來源缺字或未通過轉換門檻字元。</p>
 <p>半形／全形符號包括 <code>#＃</code>、<code>(（</code>、<code>)）</code>、<code>[［</code>、<code>]］</code>、<code>@＠</code>、<code>~～</code>、<code>、､</code>、<code>。｡</code>、<code>・･</code>、<code>ーｰ</code>、<code>「」</code>、<code>【】</code>、<code>｢｣</code>。程式另支援一部分常用的幾何、星形、勾叉、箭頭、括號、數學及框線符號，完整清單見 <a href="SUPPORTED_SYMBOLS.md">支援中心線符號</a>。</p>
 <p>特殊符號並非全部可用。若文字中含有未支援的特殊符號，程式會在開始書寫前指出第一個不支援字元。</p>
 <p>輸入框線時，將字距與行距設為 <code>0 px</code>，即可連接 <code>┏━┷━┓</code>、<code>┃　　┃</code>、<code>┗━━━┛</code> 等相鄰端點。</p>

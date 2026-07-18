@@ -24,6 +24,30 @@ This feature branch includes centreline SVG data derived solely from Yomogi Regu
 
 The Yomogi-derived centreline archive, original copyright, OFL text, conversion record, and fallback list are stored under `data/stroke_styles/yomogi`. KanjiVG geometry is not included in that OFL archive. At runtime, 96 explicitly listed catalog characters use the separately bundled KanjiVG resource.
 
+## Zen Kurenaido
+
+This feature branch includes centreline SVG data derived solely from Zen Kurenaido Regular 1.001 glyph shapes.
+
+- Project: https://github.com/googlefonts/zen-kurenaido
+- Pinned commit: `2edac135aa83e34640ec569d1d27520c3400e9b7`
+- Source SHA-256: `58b8d930d9fc10c8a5810c085bae378dacb98d0779073ee6d53d919f19ee6a4f`
+- Copyright: Copyright 2021 The Zen Kurenaido Project Authors (https://github.com/googlefonts/zen-kurenaido)
+- License: SIL Open Font License 1.1
+
+The derived archive, exact 389-glyph human-review lock, OFL text, source record, and 111-character fallback list are stored under `data/stroke_styles/zen-kurenaido`.
+
+## Hachi Maru Pop
+
+This feature branch includes centreline SVG data derived solely from Hachi Maru Pop Regular 1.300 glyph shapes.
+
+- Project: https://github.com/noriokanisawa/HachiMaruPop
+- Pinned commit: `252adbcc5e3722bd514c424c4a4395127f18d73c`
+- Source SHA-256: `78408910c8f1a2f174a279cbc1484b48b71780039eba3fe1be2bfcc5d4df3f98`
+- Copyright: Copyright 2020 The Hachi Maru Pop Project Authors (https://github.com/noriokanisawa/HachiMaruPop)
+- License: SIL Open Font License 1.1
+
+The derived archive, exact 389-glyph human-review lock, OFL text, source record, and 94-character fallback list are stored under `data/stroke_styles/hachi-maru-pop`. Hachi Maru Pop uses its corrected 390 px source render with Y=182 anchoring; boundary contact is rejected to prevent clipped glyphs such as `區`.
+
 ## Python dependencies
 
 The Portable build includes open-source Python and Python packages. Direct project dependencies include:
