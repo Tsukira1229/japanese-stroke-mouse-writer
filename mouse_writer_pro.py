@@ -9,13 +9,16 @@ import sys
 import time
 import unicodedata
 import xml.etree.ElementTree as ET
+import zipfile
 from collections.abc import Callable, Iterable
 from ctypes import wintypes
 from dataclasses import dataclass, field
 from enum import Enum
+from functools import lru_cache
 from pathlib import Path
 
 from localization import Language, LocalizedOSError, LocalizedValueError, tr
+from stroke_styles import DEFAULT_STROKE_STYLE_ID, StrokeStyle, discover_stroke_styles, style_by_id
 from symbol_catalog import load_symbol_catalog
 
 Point = tuple[float, float]
@@ -112,6 +115,7 @@ class GeneralSettings:
     line_gap: float = 24.0
     orientation: Orientation = Orientation.HORIZONTAL
     flow: FlowDirection = FlowDirection.RIGHT
+    stroke_style: str = DEFAULT_STROKE_STYLE_ID
 
 
 @dataclass(frozen=True)
@@ -182,12 +186,21 @@ class LayoutResult:
     paths: PathList = field(default_factory=list)
     placements: list[GlyphPlacement] = field(default_factory=list)
     kanjivg_chars: list[str] = field(default_factory=list)
+    style_fallback_chars: list[str] = field(default_factory=list)
     automatic_wraps: list[int] = field(default_factory=list)
     explicit_wraps: list[int] = field(default_factory=list)
     canvas_bounds: tuple[float, float, float, float] = (0.0, 0.0, 1.0, 1.0)
 
 
 BuildResult = LayoutResult
+
+
+@dataclass(frozen=True)
+class LoadedGlyph:
+    paths: PathList
+    source_bounds: PathBounds | None
+    actual_source: str
+    fallback_used: bool = False
 
 
 class LayoutError(LocalizedValueError):
@@ -199,6 +212,10 @@ class LayoutOverflowError(LayoutError):
 
 
 class UnsupportedCharacterError(LayoutError):
+    pass
+
+
+class StrokeStyleResourceError(LocalizedOSError):
     pass
 
 
@@ -310,6 +327,89 @@ def stroke_file_for_char(
     return kanjivg_file_for_char(resolved, kanjivg_dir)
 
 
+@lru_cache(maxsize=4)
+def _open_stroke_style_archive(archive_path: Path) -> zipfile.ZipFile:
+    return zipfile.ZipFile(archive_path)
+
+
+def stroke_style_svg_for_char(char: str, style: StrokeStyle) -> bytes | None:
+    resolved = STROKE_ALIASES.get(char, char)
+    filename = f"{ord(resolved):05x}.svg"
+    if style.strokes_dir is not None:
+        style_path = style.strokes_dir / filename
+        return style_path.read_bytes() if style_path.is_file() else None
+    if style.strokes_archive is not None:
+        try:
+            return _open_stroke_style_archive(style.strokes_archive).read(f"strokes/{filename}")
+        except KeyError:
+            return None
+        except (OSError, zipfile.BadZipFile) as exc:
+            raise StrokeStyleResourceError("stroke_style_resource", style=style.id, char=resolved) from exc
+    return None
+
+
+def _sample_svg_root(root: ET.Element, sample_spacing: float) -> PathList:
+    paths: PathList = []
+    for element in root.iter():
+        if not element.tag.endswith("path"):
+            continue
+        path_data = element.attrib.get("d")
+        if not path_data:
+            continue
+        sampled = sample_svg_path(path_data, sample_spacing)
+        if len(sampled) >= 2:
+            paths.append(sampled)
+    return paths
+
+
+def _load_base_glyph(
+    char: str,
+    kanjivg_dir: Path,
+    sample_spacing: float,
+    custom_stroke_dir: Path,
+    fallback_used: bool,
+) -> LoadedGlyph | None:
+    svg_path = stroke_file_for_char(char, kanjivg_dir, custom_stroke_dir)
+    if not svg_path.is_file():
+        return None
+    paths = _sample_svg_root(ET.parse(svg_path).getroot(), sample_spacing)
+    return LoadedGlyph(paths, None, DEFAULT_STROKE_STYLE_ID, fallback_used) if paths else None
+
+
+def load_glyph_paths(
+    char: str,
+    kanjivg_dir: Path,
+    sample_spacing: float,
+    custom_stroke_dir: Path = DEFAULT_CUSTOM_STROKE_DIR,
+    stroke_style: str = DEFAULT_STROKE_STYLE_ID,
+) -> LoadedGlyph | None:
+    """Load a direct style glyph, with explicit fallback only where allowed."""
+    resolved = STROKE_ALIASES.get(char, char)
+    style = style_by_id(BUNDLE_DIR, stroke_style)
+    if style.id == DEFAULT_STROKE_STYLE_ID:
+        return _load_base_glyph(resolved, kanjivg_dir, sample_spacing, custom_stroke_dir, False)
+    style_svg = stroke_style_svg_for_char(resolved, style)
+    if style_svg is not None:
+        root = ET.fromstring(style_svg)
+        if (
+            root.attrib.get("data-runtime-mode") != "direct"
+            or root.attrib.get("data-path-semantics") != "visual-centerline"
+            or root.attrib.get("viewBox") != "0 0 109 109"
+        ):
+            raise StrokeStyleResourceError("stroke_style_resource", style=style.id, char=resolved)
+        paths = _sample_svg_root(root, sample_spacing)
+        if not paths:
+            raise StrokeStyleResourceError("stroke_style_resource", style=style.id, char=resolved)
+        return LoadedGlyph(paths, style.view_box, style.id, False)
+    base_path = stroke_file_for_char(resolved, kanjivg_dir, custom_stroke_dir)
+    is_custom = base_path.parent.resolve() == custom_stroke_dir.resolve()
+    if ord(resolved) in style.fallback_codepoints or is_custom:
+        return _load_base_glyph(resolved, kanjivg_dir, sample_spacing, custom_stroke_dir, True)
+    if base_path.is_file() or ord(resolved) in style.style_only_codepoints:
+        raise StrokeStyleResourceError("stroke_style_resource", style=style.id, char=resolved)
+    return None
+
+
 def is_japanese_writing_char(char: str) -> bool:
     codepoint = ord(char)
     return (
@@ -365,22 +465,10 @@ def load_kanjivg_strokes(
     kanjivg_dir: Path,
     sample_spacing: float,
     custom_stroke_dir: Path = DEFAULT_CUSTOM_STROKE_DIR,
+    stroke_style: str = DEFAULT_STROKE_STYLE_ID,
 ) -> PathList | None:
-    svg_path = stroke_file_for_char(char, kanjivg_dir, custom_stroke_dir)
-    if not svg_path.exists():
-        return None
-    root = ET.parse(svg_path).getroot()
-    strokes: PathList = []
-    for element in root.iter():
-        if not element.tag.endswith("path"):
-            continue
-        path_data = element.attrib.get("d")
-        if not path_data:
-            continue
-        sampled = sample_svg_path(path_data, sample_spacing)
-        if len(sampled) >= 2:
-            strokes.append(sampled)
-    return strokes
+    loaded = load_glyph_paths(char, kanjivg_dir, sample_spacing, custom_stroke_dir, stroke_style)
+    return loaded.paths if loaded is not None else None
 
 
 def transform_kanjivg(
@@ -653,15 +741,23 @@ def build_layout(
                     index=token.source_index + 1,
                     char=token.text,
                 )
-            strokes = load_kanjivg_strokes(token.resource_char, kanjivg_dir, environment.sample_spacing)
-            if not strokes:
+            loaded = load_glyph_paths(
+                token.resource_char,
+                kanjivg_dir,
+                environment.sample_spacing,
+                stroke_style=general.stroke_style,
+            )
+            if not loaded or not loaded.paths:
                 raise UnsupportedCharacterError(
                     "missing_character",
                     index=token.source_index + 1,
                     char=token.text,
                 )
+            strokes = loaded.paths
+            if loaded.fallback_used:
+                result.style_fallback_chars.append(token.text)
             if general.orientation is Orientation.VERTICAL and token.text in VERTICAL_CORNER_PUNCTUATION:
-                strokes = move_paths_to_opposite_corner(strokes, KANJIVG_VIEWBOX)
+                strokes = move_paths_to_opposite_corner(strokes, loaded.source_bounds or KANJIVG_VIEWBOX)
             use_native_viewbox = token.span == 0.5 or token.resource_char in NATIVE_VIEWBOX_CHARS
             result.paths.extend(
                 transform_kanjivg(
@@ -672,7 +768,7 @@ def build_layout(
                     size if general.orientation is Orientation.HORIZONTAL else extent,
                     False if token.span == 0.5 else settings.preserve_aspect,
                     settings.point_step,
-                    KANJIVG_VIEWBOX if use_native_viewbox else None,
+                    loaded.source_bounds or (KANJIVG_VIEWBOX if use_native_viewbox else None),
                     rotation_degrees=rotation_degrees,
                 )
             )
@@ -963,6 +1059,11 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
     parser.add_argument("--line-gap", type=float, default=24)
     parser.add_argument("--orientation", choices=[item.value for item in Orientation], default="horizontal")
     parser.add_argument("--flow", choices=[item.value for item in FlowDirection], default="right")
+    parser.add_argument(
+        "--stroke-style",
+        choices=[style.id for style in discover_stroke_styles(BUNDLE_DIR)],
+        default=DEFAULT_STROKE_STYLE_ID,
+    )
     parser.add_argument("--point-step", type=int, default=1)
     parser.add_argument("--sample-spacing", type=float, default=2.0)
     parser.add_argument("--no-preserve-aspect", action="store_true")
@@ -985,6 +1086,7 @@ def main(argv: list[str] | None = None) -> int:
         line_gap=args.line_gap,
         orientation=Orientation(args.orientation),
         flow=FlowDirection(args.flow),
+        stroke_style=args.stroke_style,
     )
     environment = EnvironmentSettings(
         countdown=max(0, args.countdown),

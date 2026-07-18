@@ -9,6 +9,7 @@ from unittest.mock import patch
 from localization import Language
 from appearance import AppearanceMode
 from mouse_writer_pro import EnvironmentSettings, FlowDirection, GeneralSettings, Orientation
+from stroke_styles import DEFAULT_STROKE_STYLE_ID
 from settings_store import SettingsStore
 
 
@@ -38,6 +39,22 @@ class SettingsStoreTests(unittest.TestCase):
         self.assertEqual(updated.general.font_size, 90)
         self.store.delete_preset(preset.id)
         self.assertEqual(self.store.state.presets, [])
+
+    def test_yomogi_style_persists_in_named_preset(self) -> None:
+        preset = self.store.add_preset("直繪", GeneralSettings(stroke_style="yomogi"))
+        loaded = SettingsStore(self.path).load().presets[0]
+        self.assertEqual(loaded.id, preset.id)
+        self.assertEqual(loaded.general.stroke_style, "yomogi")
+
+    def test_legacy_or_unknown_style_safely_uses_kanjivg(self) -> None:
+        preset = self.store.add_preset("舊設定", GeneralSettings())
+        payload = json.loads(self.path.read_text(encoding="utf-8"))
+        payload["presets"][0]["general"].pop("stroke_style", None)
+        self.path.write_text(json.dumps(payload), encoding="utf-8")
+        self.assertEqual(SettingsStore(self.path).load().presets[0].general.stroke_style, DEFAULT_STROKE_STYLE_ID)
+        payload["presets"][0]["general"]["stroke_style"] = "removed-style"
+        self.path.write_text(json.dumps(payload), encoding="utf-8")
+        self.assertEqual(SettingsStore(self.path).load().presets[0].general.stroke_style, DEFAULT_STROKE_STYLE_ID)
 
     def test_duplicate_names_are_case_insensitive(self) -> None:
         self.store.add_preset("Sample", GeneralSettings())
