@@ -46,6 +46,13 @@ class SettingsStoreTests(unittest.TestCase):
         self.assertEqual(loaded.id, preset.id)
         self.assertEqual(loaded.general.stroke_style, "yomogi")
 
+    def test_all_direct_styles_persist_in_named_presets(self) -> None:
+        for style_id in ("zen-kurenaido", "hachi-maru-pop"):
+            with self.subTest(style=style_id):
+                preset = self.store.add_preset(style_id, GeneralSettings(stroke_style=style_id))
+                loaded = next(item for item in SettingsStore(self.path).load().presets if item.id == preset.id)
+                self.assertEqual(loaded.general.stroke_style, style_id)
+
     def test_legacy_or_unknown_style_safely_uses_kanjivg(self) -> None:
         preset = self.store.add_preset("舊設定", GeneralSettings())
         payload = json.loads(self.path.read_text(encoding="utf-8"))

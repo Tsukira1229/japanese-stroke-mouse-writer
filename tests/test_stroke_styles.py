@@ -31,13 +31,20 @@ from stroke_styles import DEFAULT_STROKE_STYLE_ID, discover_stroke_styles
 
 
 PACK_DIR = BUNDLE_DIR / "data" / "stroke_styles" / "yomogi"
+REVIEWED_PACKS = {
+    "zen-kurenaido": {"generated": 6591, "fallback": 111, "archive": "be8bc959480909f88a203f817ba546314ec49b4b9282d6252885923413c0b3c5"},
+    "hachi-maru-pop": {"generated": 6608, "fallback": 94, "archive": "f532cad5a310239553db7252e0abaeaed4fcbd7df116e477948e6709027e223e"},
+}
 NUMBER_RE = re.compile(r"[-+]?(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][-+]?\d+)?")
 
 
 class YomogiDirectStyleTests(unittest.TestCase):
     def test_formal_pack_provenance_and_counts(self) -> None:
         styles = discover_stroke_styles(BUNDLE_DIR)
-        self.assertEqual([style.id for style in styles], [DEFAULT_STROKE_STYLE_ID, "yomogi"])
+        self.assertEqual(
+            [style.id for style in styles],
+            [DEFAULT_STROKE_STYLE_ID, "yomogi", "zen-kurenaido", "hachi-maru-pop"],
+        )
         style = styles[1]
         self.assertEqual(style.runtime_mode, "direct")
         self.assertEqual(style.generated_glyphs, 6608)
@@ -166,6 +173,53 @@ class YomogiDirectStyleTests(unittest.TestCase):
                 with self.assertRaises(StrokeStyleResourceError):
                     load_glyph_paths("ゟ", DEFAULT_KANJIVG_DIR, 2.0, stroke_style="yomogi")
             core._open_stroke_style_archive.cache_clear()
+
+
+class ReviewedDirectStyleTests(unittest.TestCase):
+    def test_pack_counts_provenance_and_human_locks(self) -> None:
+        styles = {style.id: style for style in discover_stroke_styles(BUNDLE_DIR)}
+        for style_id, expected in REVIEWED_PACKS.items():
+            with self.subTest(style=style_id):
+                pack = BUNDLE_DIR / "data" / "stroke_styles" / style_id
+                style = styles[style_id]
+                self.assertEqual(style.generated_glyphs, expected["generated"])
+                self.assertEqual(len(style.fallback_codepoints), expected["fallback"])
+                self.assertEqual(style.view_box, (0.0, 0.0, 109.0, 109.0))
+                self.assertEqual(style.style_only_codepoints, frozenset())
+                self.assertEqual(hashlib.sha256((pack / "strokes.zip").read_bytes()).hexdigest(), expected["archive"])
+                manifest = json.loads((pack / "manifest.json").read_text(encoding="utf-8"))
+                self.assertEqual(manifest["conversion"]["approved_geometry_glyphs"], 389)
+                review = json.loads((pack / "HUMAN_REVIEW.json").read_text(encoding="utf-8"))
+                self.assertEqual(review["approved_glyphs"], 389)
+                self.assertIn("SIL Open Font License", (pack / "OFL.txt").read_text(encoding="utf-8"))
+                self.assertIn("Original copyright:", (pack / "SOURCE.md").read_text(encoding="utf-8"))
+
+    def test_runtime_direct_loading_fallback_and_layout(self) -> None:
+        for style_id in REVIEWED_PACKS:
+            with self.subTest(style=style_id):
+                loaded = load_glyph_paths("區", DEFAULT_KANJIVG_DIR, 2.0, stroke_style=style_id)
+                self.assertIsNotNone(loaded)
+                assert loaded is not None
+                self.assertEqual(loaded.actual_source, style_id)
+                self.assertFalse(loaded.fallback_used)
+                self.assertEqual(loaded.source_bounds, (0.0, 0.0, 109.0, 109.0))
+                result = build_layout(
+                    "區",
+                    DEFAULT_KANJIVG_DIR,
+                    LayoutSettings(start_x=0, start_y=0, general=GeneralSettings(font_size=109, stroke_style=style_id)),
+                    EnvironmentSettings(sample_spacing=2.0),
+                )
+                self.assertEqual(result.paths, loaded.paths)
+                fallback = json.loads(
+                    (BUNDLE_DIR / "data" / "stroke_styles" / style_id / "fallback.json").read_text(encoding="utf-8")
+                )
+                row = fallback[0]
+                char = chr(int(row["codepoint"][2:], 16))
+                styled = load_glyph_paths(char, DEFAULT_KANJIVG_DIR, 2.0, stroke_style=style_id)
+                self.assertIsNotNone(styled)
+                assert styled is not None
+                self.assertTrue(styled.fallback_used)
+                self.assertEqual(styled.actual_source, DEFAULT_STROKE_STYLE_ID)
 
 
 if __name__ == "__main__":

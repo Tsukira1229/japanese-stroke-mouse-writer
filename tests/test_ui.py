@@ -60,12 +60,13 @@ class JapaneseWriterUiTests(unittest.TestCase):
         self.assertEqual(self.app.t("appearance_light"), "亮色主題")
         self.assertEqual(self.app.t("appearance_dark"), "暗色主題")
 
-    def test_yomogi_direct_style_is_selectable(self) -> None:
+    def test_all_direct_styles_are_selectable(self) -> None:
         labels = self.app._stroke_style_labels()
-        self.assertEqual(set(labels.values()), {"kanjivg", "yomogi"})
-        selected = next(label for label, style_id in labels.items() if style_id == "yomogi")
-        self.app.stroke_style.set(selected)
-        self.assertEqual(self.app.read_general().stroke_style, "yomogi")
+        self.assertEqual(set(labels.values()), {"kanjivg", "yomogi", "zen-kurenaido", "hachi-maru-pop"})
+        for style_id in ("yomogi", "zen-kurenaido", "hachi-maru-pop"):
+            selected = next(label for label, value in labels.items() if value == style_id)
+            self.app.stroke_style.set(selected)
+            self.assertEqual(self.app.read_general().stroke_style, style_id)
 
     def test_emergency_hint_uses_previous_status_bar_style(self) -> None:
         self.assertIs(self.app.emergency_label.master, self.app.status_bar)
@@ -84,6 +85,8 @@ class JapaneseWriterUiTests(unittest.TestCase):
         self.assertIn("顏文字", help_text)
         self.assertIn("特殊符號", help_text)
         self.assertIn("Yomogi直繪中心線", help_text)
+        self.assertIn("Zen Kurenaido", help_text)
+        self.assertIn("Hachi Maru Pop", help_text)
         self.assertIn("不代表傳統筆順", help_text)
         self.assertIn("左上角", help_text)
         self.assertIn("右上角", help_text)

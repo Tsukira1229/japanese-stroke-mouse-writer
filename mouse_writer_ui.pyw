@@ -802,7 +802,7 @@ class JapaneseWriterApp:
         ttk.Label(header, text=self.t("app_title"), style="Title.TLabel").pack(side="left")
         ttk.Label(
             header,
-            text=f"V{APP_VERSION} Portable  ·  KanjiVG + Yomogi",
+            text=f"V{APP_VERSION} Portable  ·  KanjiVG + OFL Direct",
             style="Subtitle.TLabel",
         ).pack(side="left", padx=(14, 0), pady=(8, 0))
 
@@ -2038,22 +2038,24 @@ def run_self_test(settings_path: Path = DEFAULT_SETTINGS_PATH) -> int:
     if not emoticon.paths:
         raise RuntimeError("顏文字符號中心線排版測試失敗。")
     styles = discover_stroke_styles(BUNDLE_DIR)
-    if [style.id for style in styles] != [DEFAULT_STROKE_STYLE_ID, "yomogi"]:
-        raise RuntimeError("Yomogi直繪中心線風格包不完整。")
-    for orientation in Orientation:
-        styled = build_layout(
-            "あ龍區始撃慧孳淒ゟヿ",
-            DEFAULT_KANJIVG_DIR,
-            LayoutSettings(
-                start_x=10,
-                start_y=10,
-                end_x=5000,
-                end_y=5000,
-                general=GeneralSettings(font_size=50, orientation=orientation, stroke_style="yomogi"),
-            ),
-        )
-        if not styled.paths or styled.style_fallback_chars:
-            raise RuntimeError(f"Yomogi直繪排版測試失敗：{orientation.value}")
+    expected_styles = [DEFAULT_STROKE_STYLE_ID, "yomogi", "zen-kurenaido", "hachi-maru-pop"]
+    if [style.id for style in styles] != expected_styles:
+        raise RuntimeError("直繪中心線風格包不完整。")
+    for style in styles[1:]:
+        for orientation in Orientation:
+            styled = build_layout(
+                "あ龍區始得助",
+                DEFAULT_KANJIVG_DIR,
+                LayoutSettings(
+                    start_x=10,
+                    start_y=10,
+                    end_x=5000,
+                    end_y=5000,
+                    general=GeneralSettings(font_size=50, orientation=orientation, stroke_style=style.id),
+                ),
+            )
+            if not styled.paths or styled.style_fallback_chars:
+                raise RuntimeError(f"直繪排版測試失敗：{style.id}/{orientation.value}")
     if sys.platform == "win32":
         import pyautogui
 

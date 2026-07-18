@@ -44,7 +44,7 @@ ZH_HANT = {
 
 3. 調整排版
 「一般設定」可調整字體大小、字距、行距、水平或垂直排列，以及向右或向左流向。半形字元彼此相鄰時使用一半字距；只要任一側為全形字元就使用完整字距。空格與 Tab 亦遵循此規則。文字到達主方向邊界時會自動換行或換欄；副方向空間不足時會在移動滑鼠前停止並顯示錯誤。垂直排列會自動旋轉英數字、括號與長音符號。
-書寫風格可選擇KanjiVG原始筆跡或Yomogi直繪中心線。Yomogi以最終外觀為優先，路徑順序不代表傳統筆順；96個無法產生合格中心線的目錄字元會明確回退KanjiVG。
+書寫風格可選擇KanjiVG原始筆跡、Yomogi直繪中心線、Zen Kurenaido直繪中心線或Hachi Maru Pop直繪中心線。直繪風格以最終外觀為優先，路徑順序不代表傳統筆順；各風格無法產生合格中心線的字元會依其清單明確回退KanjiVG。
 
 4. 調整書寫環境
 「環境設定」可切換語言，並調整開始倒數、曲線精細度與取樣點停頓。曲線精細度越小越平滑但耗時越長；若筆畫斷線，可增加取樣點停頓。
@@ -164,7 +164,7 @@ ZH_HANT = {
     "layout_character_overflow": "第 {index} 個字元超出畫布範圍。",
     "unsupported_character": "第 {index} 個字元「{char}」不是支援的書寫字元。",
     "missing_character": "找不到第 {index} 個字元「{char}」的筆順資料。",
-    "stroke_style_resource": "Yomogi風格包中缺少預期字元「{char}」，資料可能已損毀。",
+    "stroke_style_resource": "書寫風格「{style}」缺少預期字元「{char}」，資料可能已損毀。",
     "escape_operation": "已按下 ESC，操作已停止。",
     "escape_writing": "已按下 ESC，書寫已停止。",
     "failsafe_stop": "滑鼠已移到安全停止角落，書寫已中止。",
@@ -195,7 +195,7 @@ After clicking a detection button, the main window is minimized. The pointer's c
 
 3. Adjust the layout
 General settings control font size, character gap, line gap, horizontal or vertical orientation, and right or left flow. Adjacent halfwidth characters use half the configured gap; a pair containing any fullwidth character uses the full gap. Spaces and Tab follow the same rule. Text wraps at the main-axis boundary. If the secondary axis has no room, writing stops before the pointer moves and an error is shown. Vertical layout automatically rotates letters, numbers, brackets, and long marks.
-Writing style selects KanjiVG Original or Yomogi Direct Centreline. Yomogi prioritizes the final visual result, so its path order is not traditional stroke order. The 96 catalog characters that cannot produce a valid Yomogi centreline explicitly fall back to KanjiVG.
+Writing style selects KanjiVG Original or the Yomogi, Zen Kurenaido, and Hachi Maru Pop direct-centreline styles. Direct styles prioritize the final visual result, so path order is not traditional stroke order. Characters that cannot produce a valid centreline explicitly fall back to KanjiVG according to each pack's list.
 
 4. Adjust the writing environment
 Environment settings control language, start countdown, curve detail, and sample delay. Smaller curve-detail values are smoother but take longer. Increase sample delay if strokes break.
@@ -227,7 +227,7 @@ Press ESC during coordinate detection, the start countdown, or writing. During w
     "layout_vertical_small": "The vertical range is smaller than half a character cell.", "layout_right_small": "For right flow, End X must be to the right and fit at least half a cell.", "layout_left_small": "For left flow, the horizontal range must fit at least half a cell.",
     "layout_text_empty": "Enter at least one supported writing character.", "layout_wrap_overflow": "Character {index} exceeds the canvas after wrapping.", "layout_primary_overflow": "Character {index} cannot fit in the canvas width or height.",
     "layout_wrap_still_overflow": "Character {index} still cannot fit after wrapping.", "layout_character_overflow": "Character {index} exceeds the canvas.", "unsupported_character": "Character {index}, “{char}”, is not a supported writing character.",
-    "missing_character": "No stroke data was found for character {index}, “{char}”.", "stroke_style_resource": "The expected character “{char}” is missing from the Yomogi style pack; the resource may be damaged.", "escape_operation": "ESC was pressed. The operation stopped.", "escape_writing": "ESC was pressed. Writing stopped.", "failsafe_stop": "The pointer reached a failsafe screen corner. Writing stopped.", "virtual_screen_error": "Cannot read the Windows virtual screen dimensions.", "send_input_error": "Windows SendInput mouse event failed (error {code}).",
+    "missing_character": "No stroke data was found for character {index}, “{char}”.", "stroke_style_resource": "The expected character “{char}” is missing from writing style “{style}”; the resource may be damaged.", "escape_operation": "ESC was pressed. The operation stopped.", "escape_writing": "ESC was pressed. Writing stopped.", "failsafe_stop": "The pointer reached a failsafe screen corner. Writing stopped.", "virtual_screen_error": "Cannot read the Windows virtual screen dimensions.", "send_input_error": "Windows SendInput mouse event failed (error {code}).",
     "screen_overflow": "Stroke coordinate ({x:.0f}, {y:.0f}) is outside the virtual screen ({min_x}, {min_y})–({max_x}, {max_y}).", "settings_schema": "Unsupported settings file version.",
     "preset_missing": "The selected preset was not found.", "preset_name_length": "Preset names must contain 1–40 characters.", "preset_duplicate": "A preset with this name already exists.",
     "portable_permission": "The Portable folder is not writable: {path}\nMove the entire program folder to Documents, Desktop, or another writable location.",
@@ -249,7 +249,7 @@ ZH_HANS = {**ZH_HANT,
 
 3. 调整排版
 “常规设置”可调整字体大小、字距、行距、水平或垂直排列，以及向右或向左流向。半形字符彼此相邻时使用一半字距；只要任一侧为全形字符就使用完整字距。空格与 Tab 也遵循此规则。文字到达主方向边界时会自动换行或换列；副方向空间不足时会在移动鼠标前停止并显示错误。垂直排列会自动旋转英文字母、数字、括号和长音符号。
-书写风格可选择KanjiVG原始笔迹或Yomogi直绘中心线。Yomogi以最终外观为优先，路径顺序不代表传统笔顺；96个无法生成合格中心线的目录字符会明确回退到KanjiVG。
+书写风格可选择KanjiVG原始笔迹、Yomogi、Zen Kurenaido或Hachi Maru Pop直绘中心线。直绘风格以最终外观为优先，路径顺序不代表传统笔顺；各风格无法生成合格中心线的字符会依据各自清单明确回退到KanjiVG。
 
 4. 调整书写环境
 “环境设置”可切换语言，并调整开始倒计时、曲线精细度与采样点停顿。曲线精细度越小越平滑但耗时越长；若笔画断线，可增加采样点停顿。
@@ -278,7 +278,7 @@ ZH_HANS = {**ZH_HANT,
     "layout_font_range": "字体大小必须介于 10 与 1000 px。", "layout_gap_negative": "字距与行距不可为负数。", "layout_end_pair": "末端 X 与 Y 坐标必须同时设置。", "layout_vertical_small": "起点与末端的垂直范围小于半个字格。",
     "layout_right_small": "向右排版时，末端 X 必须位于起点右侧且至少容纳半个字格。", "layout_left_small": "向左排版时，起点与末端的水平范围至少需要容纳半个字格。", "layout_text_empty": "请输入至少一个支持的书写字符。",
     "layout_wrap_overflow": "第 {index} 个字符换行后超出画布范围。", "layout_primary_overflow": "第 {index} 个字符无法放入当前画布宽度或高度。", "layout_wrap_still_overflow": "第 {index} 个字符换行后仍无法放入画布。", "layout_character_overflow": "第 {index} 个字符超出画布范围。",
-    "unsupported_character": "第 {index} 个字符“{char}”不是支持的书写字符。", "missing_character": "找不到第 {index} 个字符“{char}”的笔顺数据。", "stroke_style_resource": "Yomogi风格包中缺少预期字符“{char}”，资源可能已损坏。", "escape_operation": "已按下 ESC，操作已停止。", "escape_writing": "已按下 ESC，书写已停止。", "failsafe_stop": "鼠标已移到安全停止角落，书写已中止。", "virtual_screen_error": "无法获取 Windows 虚拟屏幕尺寸。", "send_input_error": "Windows SendInput 鼠标事件发送失败（错误码 {code}）。",
+    "unsupported_character": "第 {index} 个字符“{char}”不是支持的书写字符。", "missing_character": "找不到第 {index} 个字符“{char}”的笔顺数据。", "stroke_style_resource": "书写风格“{style}”中缺少预期字符“{char}”，资源可能已损坏。", "escape_operation": "已按下 ESC，操作已停止。", "escape_writing": "已按下 ESC，书写已停止。", "failsafe_stop": "鼠标已移到安全停止角落，书写已中止。", "virtual_screen_error": "无法获取 Windows 虚拟屏幕尺寸。", "send_input_error": "Windows SendInput 鼠标事件发送失败（错误码 {code}）。",
     "screen_overflow": "笔迹坐标 ({x:.0f}, {y:.0f}) 超出虚拟屏幕范围 ({min_x}, {min_y})–({max_x}, {max_y})。", "settings_schema": "不支持的设置文件版本。", "preset_missing": "找不到指定的自定义选项。", "preset_name_length": "自定义选项名称必须为 1 至 40 个字符。", "preset_duplicate": "已有相同名称的自定义选项。",
     "portable_permission": "Portable 文件夹无法写入：{path}\n请将整个程序文件夹移动到文档、桌面或其他可写入位置。",
 }
@@ -299,7 +299,7 @@ JA = {**EN,
 
 3. レイアウトを調整する
 「一般設定」では文字サイズ、文字間隔、行間隔、横書きまたは縦書き、右方向または左方向を設定します。半角文字同士は半分の文字間隔を使用し、どちらかが全角文字なら完全な文字間隔を使用します。スペースと Tab にも同じ規則を適用します。主方向の境界に達すると自動で改行または改列します。副方向の空間が不足する場合は、マウスを動かす前に停止してエラーを表示します。縦書きでは英数字、括弧、長音記号を自動回転します。
-書き込みスタイルはKanjiVGオリジナルまたはYomogi直接中心線を選択できます。Yomogiは最終的な外観を優先するため、パス順序は伝統的な筆順を示しません。有効な中心線を生成できない96文字はKanjiVGに明示的にフォールバックします。
+書き込みスタイルはKanjiVGオリジナル、Yomogi、Zen Kurenaido、Hachi Maru Popの直接中心線を選択できます。直接中心線は最終的な外観を優先するため、パス順序は伝統的な筆順を示しません。有効な中心線を生成できない文字は各パックの一覧に従ってKanjiVGへ明示的にフォールバックします。
 
 4. 書き込み環境を調整する
 「環境設定」では言語、開始カウントダウン、曲線精度、サンプル待機を設定します。曲線精度は小さいほど滑らかですが時間がかかります。線が途切れる場合はサンプル待機を増やしてください。
@@ -329,7 +329,7 @@ JA = {**EN,
     "layout_font_range": "文字サイズは 10～1000 px にしてください。", "layout_gap_negative": "文字間隔と行間隔に負の値は使用できません。", "layout_end_pair": "終了 X と Y は同時に設定してください。", "layout_vertical_small": "縦方向の範囲が半文字分より小さいです。",
     "layout_right_small": "右方向では終了 X を開始点より右に置き、半文字分以上確保してください。", "layout_left_small": "左方向では横幅を半文字分以上確保してください。", "layout_text_empty": "対応している書き込み文字を1文字以上入力してください。",
     "layout_wrap_overflow": "{index} 文字目は改行後にキャンバスを超えます。", "layout_primary_overflow": "{index} 文字目をキャンバスの幅または高さに配置できません。", "layout_wrap_still_overflow": "{index} 文字目は改行後も配置できません。", "layout_character_overflow": "{index} 文字目がキャンバスを超えます。",
-    "unsupported_character": "{index} 文字目の「{char}」は対応している書き込み文字ではありません。", "missing_character": "{index} 文字目の「{char}」に対応する筆順データがありません。", "stroke_style_resource": "Yomogiスタイルパックに必要な文字「{char}」がありません。データが破損している可能性があります。", "escape_operation": "ESC が押されたため操作を停止しました。", "escape_writing": "ESC が押されたため書き込みを停止しました。", "failsafe_stop": "マウスが安全停止用の画面の隅に移動したため書き込みを停止しました。", "virtual_screen_error": "Windows の仮想画面サイズを取得できません。", "send_input_error": "Windows SendInput のマウスイベント送信に失敗しました（エラー {code}）。",
+    "unsupported_character": "{index} 文字目の「{char}」は対応している書き込み文字ではありません。", "missing_character": "{index} 文字目の「{char}」に対応する筆順データがありません。", "stroke_style_resource": "書き込みスタイル「{style}」に必要な文字「{char}」がありません。データが破損している可能性があります。", "escape_operation": "ESC が押されたため操作を停止しました。", "escape_writing": "ESC が押されたため書き込みを停止しました。", "failsafe_stop": "マウスが安全停止用の画面の隅に移動したため書き込みを停止しました。", "virtual_screen_error": "Windows の仮想画面サイズを取得できません。", "send_input_error": "Windows SendInput のマウスイベント送信に失敗しました（エラー {code}）。",
     "settings_schema": "対応していない設定ファイルです。", "preset_missing": "指定したプリセットが見つかりません。", "preset_name_length": "プリセット名は1～40文字にしてください。", "preset_duplicate": "同じ名前のプリセットがあります。",
     "screen_overflow": "筆跡座標 ({x:.0f}, {y:.0f}) は仮想画面の範囲外です ({min_x}, {min_y})–({max_x}, {max_y})。",
     "portable_permission": "Portable フォルダーに書き込めません：{path}\nプログラムフォルダー全体を書き込み可能な場所へ移動してください。",
