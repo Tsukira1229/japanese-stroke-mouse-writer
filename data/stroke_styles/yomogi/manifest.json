@@ -1,0 +1,82 @@
+{
+  "schema_version": 3,
+  "id": "yomogi",
+  "display_order": 10,
+  "labels": {
+    "zh-Hant": "Yomogi直繪中心線",
+    "zh-Hans": "Yomogi直绘中心线",
+    "ja": "Yomogi直接中心線",
+    "en": "Yomogi Direct Centreline"
+  },
+  "runtime_mode": "direct",
+  "view_box": "0 0 109 109",
+  "path_semantics": "visual-centerline",
+  "order_semantics": "none",
+  "strokes_archive": "strokes.zip",
+  "strokes_archive_sha256": "64969ec274424e3f0f2a9cce9208c1a7d5102f878ebf4ce1c4cd31cdabec40c6",
+  "fallback_style": "kanjivg",
+  "fallback_codepoints_file": "fallback.json",
+  "supports_horizontal": true,
+  "supports_vertical": true,
+  "source": {
+    "font_name": "Yomogi Regular",
+    "font_version": "Version 3.100",
+    "repository": "https://github.com/satsuyako/YomogiFont",
+    "commit": "2dcc1a21e9ee7cb66606d0be9099752504efe559",
+    "sha256": "3424e34bb951e89bf5dd2554a65d8964335ea3c0560f8d1ea9aa3591ef73cba9",
+    "copyright": "Copyright 2020 The Yomogi Project Authors (https://github.com/satsuyako/YomogiFont), all rights reserved.",
+    "filename": "Yomogi-Regular.ttf"
+  },
+  "license": {
+    "id": "OFL-1.1",
+    "file": "OFL.txt",
+    "derivative_data_license": "OFL-1.1"
+  },
+  "conversion": {
+    "converter": "scripts/generate_yomogi_direct_style_pack.py",
+    "generated_at": "2026-07-18",
+    "catalog": "kanjivg-20250816",
+    "catalog_codepoints": 6702,
+    "style_only_codepoints": [
+      "U+309F",
+      "U+30FF"
+    ],
+    "catalog_eligible_glyphs": 6606,
+    "eligible_glyphs": 6608,
+    "approved_geometry_glyphs": 191,
+    "fallback_glyphs": 96,
+    "source_font_missing_glyphs": 87,
+    "conversion_ineligible_glyphs": 9,
+    "source_geometry": "Yomogi source font outlines only",
+    "runtime_mode": "direct",
+    "view_box": "0 0 109 109",
+    "path_commands": [
+      "M",
+      "L"
+    ]
+  },
+  "quality": {
+    "status": "formal-automatic-gates-with-191-human-approved",
+    "hard_gates": {
+      "minimum_coverage_1_5px": 0.99,
+      "missing_source_components": 0,
+      "all_within_outline_or_0_5": true
+    },
+    "aggregate": {
+      "catalog_codepoints": 6702,
+      "catalog_generated_glyphs": 6606,
+      "style_only_glyphs": 2,
+      "generated_glyphs": 6608,
+      "fallback_glyphs": 96,
+      "approved_geometry_glyphs": 191,
+      "flagged_glyphs": 19,
+      "hard_failure_glyphs": 0,
+      "missing_source_components": 0,
+      "minimum_coverage_1_5px": 0.993014,
+      "all_within_outline_or_0_5": true,
+      "total_paths": 70175,
+      "total_points": 255115
+    },
+    "usage_notice": "Visual centreline only; path order is not traditional stroke order. The 96 explicitly listed source-missing or conversion-ineligible glyphs fall back to KanjiVG."
+  }
+}

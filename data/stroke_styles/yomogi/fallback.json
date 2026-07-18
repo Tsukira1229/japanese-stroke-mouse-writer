@@ -1,0 +1,482 @@
+[
+  {
+    "character": "!",
+    "codepoint": "U+0021",
+    "reason": "source-component-loss"
+  },
+  {
+    "character": ".",
+    "codepoint": "U+002E",
+    "reason": "empty-centerline"
+  },
+  {
+    "character": ":",
+    "codepoint": "U+003A",
+    "reason": "empty-centerline"
+  },
+  {
+    "character": ";",
+    "codepoint": "U+003B",
+    "reason": "source-component-loss"
+  },
+  {
+    "character": "?",
+    "codepoint": "U+003F",
+    "reason": "source-component-loss"
+  },
+  {
+    "character": "i",
+    "codepoint": "U+0069",
+    "reason": "source-component-loss"
+  },
+  {
+    "character": "j",
+    "codepoint": "U+006A",
+    "reason": "source-component-loss"
+  },
+  {
+    "character": "⺉",
+    "codepoint": "U+2E89",
+    "reason": "source-font-missing"
+  },
+  {
+    "character": "⺌",
+    "codepoint": "U+2E8C",
+    "reason": "source-font-missing"
+  },
+  {
+    "character": "⺍",
+    "codepoint": "U+2E8D",
+    "reason": "source-font-missing"
+  },
+  {
+    "character": "⺕",
+    "codepoint": "U+2E95",
+    "reason": "source-font-missing"
+  },
+  {
+    "character": "⺗",
+    "codepoint": "U+2E97",
+    "reason": "source-font-missing"
+  },
+  {
+    "character": "⺡",
+    "codepoint": "U+2EA1",
+    "reason": "source-font-missing"
+  },
+  {
+    "character": "⺢",
+    "codepoint": "U+2EA2",
+    "reason": "source-font-missing"
+  },
+  {
+    "character": "⺤",
+    "codepoint": "U+2EA4",
+    "reason": "source-font-missing"
+  },
+  {
+    "character": "⺦",
+    "codepoint": "U+2EA6",
+    "reason": "source-font-missing"
+  },
+  {
+    "character": "⺨",
+    "codepoint": "U+2EA8",
+    "reason": "source-font-missing"
+  },
+  {
+    "character": "⺭",
+    "codepoint": "U+2EAD",
+    "reason": "source-font-missing"
+  },
+  {
+    "character": "⻃",
+    "codepoint": "U+2EC3",
+    "reason": "source-font-missing"
+  },
+  {
+    "character": "⻌",
+    "codepoint": "U+2ECC",
+    "reason": "source-font-missing"
+  },
+  {
+    "character": "⻏",
+    "codepoint": "U+2ECF",
+    "reason": "source-font-missing"
+  },
+  {
+    "character": "⻖",
+    "codepoint": "U+2ED6",
+    "reason": "source-font-missing"
+  },
+  {
+    "character": "々",
+    "codepoint": "U+3005",
+    "reason": "source-font-missing"
+  },
+  {
+    "character": "〆",
+    "codepoint": "U+3006",
+    "reason": "source-font-missing"
+  },
+  {
+    "character": "ゕ",
+    "codepoint": "U+3095",
+    "reason": "source-font-missing"
+  },
+  {
+    "character": "ゖ",
+    "codepoint": "U+3096",
+    "reason": "source-font-missing"
+  },
+  {
+    "character": "・",
+    "codepoint": "U+30FB",
+    "reason": "empty-centerline"
+  },
+  {
+    "character": "㐬",
+    "codepoint": "U+342C",
+    "reason": "source-font-missing"
+  },
+  {
+    "character": "㓁",
+    "codepoint": "U+34C1",
+    "reason": "source-font-missing"
+  },
+  {
+    "character": "㔾",
+    "codepoint": "U+353E",
+    "reason": "source-font-missing"
+  },
+  {
+    "character": "亻",
+    "codepoint": "U+4EBB",
+    "reason": "source-font-missing"
+  },
+  {
+    "character": "仝",
+    "codepoint": "U+4EDD",
+    "reason": "source-font-missing"
+  },
+  {
+    "character": "俱",
+    "codepoint": "U+4FF1",
+    "reason": "source-font-missing"
+  },
+  {
+    "character": "关",
+    "codepoint": "U+5173",
+    "reason": "source-font-missing"
+  },
+  {
+    "character": "刂",
+    "codepoint": "U+5202",
+    "reason": "source-font-missing"
+  },
+  {
+    "character": "吞",
+    "codepoint": "U+541E",
+    "reason": "source-font-missing"
+  },
+  {
+    "character": "喻",
+    "codepoint": "U+55BB",
+    "reason": "source-font-missing"
+  },
+  {
+    "character": "噓",
+    "codepoint": "U+5653",
+    "reason": "source-font-missing"
+  },
+  {
+    "character": "圣",
+    "codepoint": "U+5723",
+    "reason": "source-font-missing"
+  },
+  {
+    "character": "埵",
+    "codepoint": "U+57F5",
+    "reason": "source-font-missing"
+  },
+  {
+    "character": "埶",
+    "codepoint": "U+57F6",
+    "reason": "source-font-missing"
+  },
+  {
+    "character": "复",
+    "codepoint": "U+590D",
+    "reason": "source-font-missing"
+  },
+  {
+    "character": "尃",
+    "codepoint": "U+5C03",
+    "reason": "source-font-missing"
+  },
+  {
+    "character": "彐",
+    "codepoint": "U+5F50",
+    "reason": "source-font-missing"
+  },
+  {
+    "character": "忄",
+    "codepoint": "U+5FC4",
+    "reason": "source-font-missing"
+  },
+  {
+    "character": "戠",
+    "codepoint": "U+6220",
+    "reason": "source-font-missing"
+  },
+  {
+    "character": "扌",
+    "codepoint": "U+624C",
+    "reason": "source-font-missing"
+  },
+  {
+    "character": "摑",
+    "codepoint": "U+6451",
+    "reason": "source-font-missing"
+  },
+  {
+    "character": "斿",
+    "codepoint": "U+65BF",
+    "reason": "source-font-missing"
+  },
+  {
+    "character": "桼",
+    "codepoint": "U+687C",
+    "reason": "source-font-missing"
+  },
+  {
+    "character": "氵",
+    "codepoint": "U+6C35",
+    "reason": "source-font-missing"
+  },
+  {
+    "character": "氺",
+    "codepoint": "U+6C3A",
+    "reason": "source-font-missing"
+  },
+  {
+    "character": "瀆",
+    "codepoint": "U+7006",
+    "reason": "source-font-missing"
+  },
+  {
+    "character": "灬",
+    "codepoint": "U+706C",
+    "reason": "source-font-missing"
+  },
+  {
+    "character": "焰",
+    "codepoint": "U+7130",
+    "reason": "source-font-missing"
+  },
+  {
+    "character": "犭",
+    "codepoint": "U+72AD",
+    "reason": "source-font-missing"
+  },
+  {
+    "character": "畐",
+    "codepoint": "U+7550",
+    "reason": "source-font-missing"
+  },
+  {
+    "character": "疒",
+    "codepoint": "U+7592",
+    "reason": "source-font-missing"
+  },
+  {
+    "character": "礻",
+    "codepoint": "U+793B",
+    "reason": "source-font-missing"
+  },
+  {
+    "character": "禱",
+    "codepoint": "U+79B1",
+    "reason": "source-font-missing"
+  },
+  {
+    "character": "禸",
+    "codepoint": "U+79B8",
+    "reason": "source-font-missing"
+  },
+  {
+    "character": "离",
+    "codepoint": "U+79BB",
+    "reason": "source-font-missing"
+  },
+  {
+    "character": "簞",
+    "codepoint": "U+7C1E",
+    "reason": "source-font-missing"
+  },
+  {
+    "character": "繡",
+    "codepoint": "U+7E61",
+    "reason": "source-font-missing"
+  },
+  {
+    "character": "繫",
+    "codepoint": "U+7E6B",
+    "reason": "source-font-missing"
+  },
+  {
+    "character": "罒",
+    "codepoint": "U+7F52",
+    "reason": "source-font-missing"
+  },
+  {
+    "character": "罣",
+    "codepoint": "U+7F63",
+    "reason": "source-font-missing"
+  },
+  {
+    "character": "耂",
+    "codepoint": "U+8002",
+    "reason": "source-font-missing"
+  },
+  {
+    "character": "艹",
+    "codepoint": "U+8279",
+    "reason": "source-font-missing"
+  },
+  {
+    "character": "萊",
+    "codepoint": "U+840A",
+    "reason": "source-font-missing"
+  },
+  {
+    "character": "蔣",
+    "codepoint": "U+8523",
+    "reason": "source-font-missing"
+  },
+  {
+    "character": "蟬",
+    "codepoint": "U+87EC",
+    "reason": "source-font-missing"
+  },
+  {
+    "character": "衤",
+    "codepoint": "U+8864",
+    "reason": "source-font-missing"
+  },
+  {
+    "character": "辶",
+    "codepoint": "U+8FB6",
+    "reason": "source-font-missing"
+  },
+  {
+    "character": "醬",
+    "codepoint": "U+91AC",
+    "reason": "source-font-missing"
+  },
+  {
+    "character": "阝",
+    "codepoint": "U+961D",
+    "reason": "source-font-missing"
+  },
+  {
+    "character": "雩",
+    "codepoint": "U+96E9",
+    "reason": "source-font-missing"
+  },
+  {
+    "character": "顚",
+    "codepoint": "U+985A",
+    "reason": "source-font-missing"
+  },
+  {
+    "character": "飠",
+    "codepoint": "U+98E0",
+    "reason": "source-font-missing"
+  },
+  {
+    "character": "鷗",
+    "codepoint": "U+9DD7",
+    "reason": "source-font-missing"
+  },
+  {
+    "character": "黃",
+    "codepoint": "U+9EC3",
+    "reason": "source-font-missing"
+  },
+  {
+    "character": "冷",
+    "codepoint": "U+F92E",
+    "reason": "source-font-missing"
+  },
+  {
+    "character": "令",
+    "codepoint": "U+F9A8",
+    "reason": "source-font-missing"
+  },
+  {
+    "character": "嶺",
+    "codepoint": "U+F9AB",
+    "reason": "source-font-missing"
+  },
+  {
+    "character": "玲",
+    "codepoint": "U+F9AD",
+    "reason": "source-font-missing"
+  },
+  {
+    "character": "羚",
+    "codepoint": "U+F9AF",
+    "reason": "source-font-missing"
+  },
+  {
+    "character": "聆",
+    "codepoint": "U+F9B0",
+    "reason": "source-font-missing"
+  },
+  {
+    "character": "鈴",
+    "codepoint": "U+F9B1",
+    "reason": "source-font-missing"
+  },
+  {
+    "character": "零",
+    "codepoint": "U+F9B2",
+    "reason": "source-font-missing"
+  },
+  {
+    "character": "領",
+    "codepoint": "U+F9B4",
+    "reason": "source-font-missing"
+  },
+  {
+    "character": "！",
+    "codepoint": "U+FF01",
+    "reason": "source-component-loss"
+  },
+  {
+    "character": "𠂊",
+    "codepoint": "U+2008A",
+    "reason": "source-font-missing"
+  },
+  {
+    "character": "𠂤",
+    "codepoint": "U+200A4",
+    "reason": "source-font-missing"
+  },
+  {
+    "character": "𠆢",
+    "codepoint": "U+201A2",
+    "reason": "source-font-missing"
+  },
+  {
+    "character": "𦥑",
+    "codepoint": "U+26951",
+    "reason": "source-font-missing"
+  },
+  {
+    "character": "𧒑",
+    "codepoint": "U+27491",
+    "reason": "source-font-missing"
+  }
+]
