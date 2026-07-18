@@ -83,7 +83,7 @@ class DocumentationTests(unittest.TestCase):
     def test_all_documents_use_current_version(self) -> None:
         for document in (*DOCS, *HTML_GUIDES):
             text = document.read_text(encoding="utf-8")
-            self.assertIn("V2.6.2", text)
+            self.assertIn("V2.7.0", text)
             self.assertNotIn("2.6.0-preview", text.lower())
             self.assertNotIn("V2.4.1", text)
             self.assertNotIn("V2.4.0", text)
@@ -159,13 +159,21 @@ class DocumentationTests(unittest.TestCase):
     def test_readmes_document_current_portable_folder(self) -> None:
         for document in DOCS[:3]:
             text = document.read_text(encoding="utf-8")
-            self.assertIn("JapaneseStrokeMouseWriter-v2.6.2-win-x64-portable", text)
+            self.assertIn("JapaneseStrokeMouseWriter-v2.7.0-development-win-x64-portable", text)
             self.assertNotIn("JapaneseStrokeMouseWriter-v2.4.1-win-x64-portable", text)
 
     def test_portable_build_includes_html_guides(self) -> None:
         build_script = (ROOT / "scripts" / "build_portable.ps1").read_text(encoding="utf-8")
         self.assertIn('-Filter "*.html"', build_script)
         self.assertIn("generate_html_guides.py", build_script)
+
+    def test_v270_development_build_is_uncompressed_and_local(self) -> None:
+        build_script = (ROOT / "scripts" / "build_development_portable.ps1").read_text(encoding="utf-8")
+        self.assertIn("JapaneseStrokeMouseWriter-v2.7.0-development-win-x64-portable", build_script)
+        self.assertIn("build\\development-v2.7.0", build_script)
+        self.assertNotIn("CreateFromDirectory", build_script)
+        self.assertNotIn("Compress-Archive", build_script)
+        self.assertNotIn("gh release", build_script.lower())
 
 
 if __name__ == "__main__":

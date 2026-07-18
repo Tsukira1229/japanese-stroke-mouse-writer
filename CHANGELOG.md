@@ -1,12 +1,12 @@
 # Changelog
 
-## Unreleased - Yomogi direct-centreline integration
+## V2.7.0 Development - 2026-07-18
 
-- Adds a selectable Yomogi Direct Centreline style without changing the V2.6.2 version number.
+- Adds a selectable Yomogi Direct Centreline style as the internal V2.7.0 development build.
 - Uses 6,608 font-derived direct SVGs and never projects KanjiVG geometry onto the font skeleton.
 - Preserves 191 manually approved glyph geometries and reports 96 explicit KanjiVG fallbacks.
 - Keeps KanjiVG as the default for legacy settings and unknown style identifiers.
-- This branch is not merged, pushed, packaged as a release, or published.
+- This build is kept as an uncompressed internal development folder; no tag, GitHub Release, or outer ZIP is created.
 
 ## V2.6.2 - 2026-07-13
 

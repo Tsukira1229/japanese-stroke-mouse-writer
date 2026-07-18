@@ -4,9 +4,10 @@
 
 - Feature branch: `codex/yomogi-direct-centerline`
 - Base: `main` at `57466b8fe0b1d69090654f019511f16c181a300d` (V2.6.2 revert baseline)
-- Application version remains `2.6.2`.
+- Application version is now `2.7.0` for the internal development build.
 - This branch has not been merged, pushed, or published.
-- The locally built V2.6.2 portable archive is verification output only, not a release artifact.
+- The main task packages an uncompressed development folder at `build/development-v2.7.0/JapaneseStrokeMouseWriter-v2.7.0-development-win-x64-portable/`.
+- No outer ZIP, release checksum, tag, or GitHub Release is created.
 
 ## Feature commits
 
@@ -91,7 +92,7 @@ Results:
 ## Main-task checklist
 
 1. Review this branch and the three feature commits plus the handoff commit.
-2. Decide the future version number; do not reuse the withdrawn V2.7.0 release artifacts automatically.
-3. If accepted, merge and push from the main project task.
-4. Build the chosen release version again after changing versioned filenames and documentation.
-5. Publish only after the main task completes its release review.
+2. V2.7.0 is assigned to the uncompressed internal development build; withdrawn release artifacts are not reused.
+3. Review the uncompressed development folder and Yomogi paths before deciding whether to merge or publish.
+4. If accepted later, rebuild any release artifact from the reviewed commit rather than reusing the development folder.
+5. Publish only after the main task completes a separate release review.

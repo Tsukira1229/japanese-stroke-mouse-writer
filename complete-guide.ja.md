@@ -1,4 +1,4 @@
-# Japanese Stroke Mouse Writer V2.6.2 完全ガイド
+# Japanese Stroke Mouse Writer V2.7.0 Development 完全ガイド
 
 初回起動から、書き込み範囲の設定、プレビュー確認、安全な実行までを順番に説明します。
 
