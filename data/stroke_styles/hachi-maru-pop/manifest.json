@@ -1,0 +1,89 @@
+{
+  "schema_version": 3,
+  "id": "hachi-maru-pop",
+  "display_order": 30,
+  "labels": {
+    "zh-Hant": "Hachi Maru Pop直繪中心線",
+    "zh-Hans": "Hachi Maru Pop直绘中心线",
+    "ja": "Hachi Maru Pop直接中心線",
+    "en": "Hachi Maru Pop Direct Centreline"
+  },
+  "runtime_mode": "direct",
+  "view_box": "0 0 109 109",
+  "path_semantics": "visual-centerline",
+  "order_semantics": "none",
+  "strokes_archive": "strokes.zip",
+  "strokes_archive_sha256": "f532cad5a310239553db7252e0abaeaed4fcbd7df116e477948e6709027e223e",
+  "fallback_style": "kanjivg",
+  "fallback_codepoints_file": "fallback.json",
+  "supports_horizontal": true,
+  "supports_vertical": true,
+  "source": {
+    "font_name": "Hachi Maru Pop Regular",
+    "font_version": "Version 1.300",
+    "repository": "https://github.com/noriokanisawa/HachiMaruPop",
+    "commit": "252adbcc5e3722bd514c424c4a4395127f18d73c",
+    "sha256": "78408910c8f1a2f174a279cbc1484b48b71780039eba3fe1be2bfcc5d4df3f98",
+    "copyright": "Copyright 2020 The Hachi Maru Pop Project Authors (https://github.com/noriokanisawa/HachiMaruPop)",
+    "filename": "HachiMaruPop-Regular.ttf"
+  },
+  "license": {
+    "id": "OFL-1.1",
+    "file": "OFL.txt",
+    "derivative_data_license": "OFL-1.1"
+  },
+  "conversion": {
+    "converter": "reviewed build generator recorded in SOURCE.md",
+    "promoter": "scripts/promote_reviewed_direct_style_packs.py",
+    "generated_at": "2026-07-18",
+    "catalog": "kanjivg-20250816",
+    "catalog_codepoints": 6702,
+    "style_only_codepoints": [],
+    "catalog_eligible_glyphs": 6608,
+    "eligible_glyphs": 6608,
+    "approved_geometry_glyphs": 389,
+    "fallback_glyphs": 94,
+    "source_font_missing_glyphs": 88,
+    "conversion_ineligible_glyphs": 6,
+    "source_geometry": "Hachi Maru Pop Regular source font outlines only",
+    "runtime_mode": "direct",
+    "view_box": "0 0 109 109",
+    "path_commands": [
+      "M",
+      "L"
+    ]
+  },
+  "quality": {
+    "status": "formal-automatic-gates-with-389-human-approved",
+    "hard_gates": {
+      "minimum_coverage_1_5px": 0.99,
+      "missing_source_components": 0,
+      "all_within_outline_or_0_5": true
+    },
+    "aggregate": {
+      "catalog_codepoints": 6702,
+      "source_supported_glyphs": 6614,
+      "source_missing_glyphs": 88,
+      "conversion_ineligible_glyphs": 6,
+      "generated_glyphs": 6608,
+      "fallback_glyphs": 94,
+      "conversion_hard_failure_glyphs": 0,
+      "approved_geometry_glyphs": 189,
+      "flagged_glyphs": 7,
+      "missing_source_components": 0,
+      "suppressed_micro_skeleton_pixels": 1580,
+      "minimum_coverage_1_5px": 0.993902,
+      "all_within_outline_or_0_5": true,
+      "total_paths": 70221,
+      "total_points": 298300
+    },
+    "human_review_file": "HUMAN_REVIEW.json",
+    "usage_notice": "Visual centreline only; path order is not traditional stroke order. The 94 explicitly listed source-missing or conversion-ineligible glyphs fall back to KanjiVG."
+  },
+  "source_box": {
+    "font_size_px": 390,
+    "anchor_y_px": 182,
+    "canvas_px": 436,
+    "boundary_contact_allowed": false
+  }
+}
