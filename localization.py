@@ -44,6 +44,7 @@ ZH_HANT = {
 
 3. 調整排版
 「一般設定」可調整字體大小、字距、行距、水平或垂直排列，以及向右或向左流向。半形字元彼此相鄰時使用一半字距；只要任一側為全形字元就使用完整字距。空格與 Tab 亦遵循此規則。文字到達主方向邊界時會自動換行或換欄；副方向空間不足時會在移動滑鼠前停止並顯示錯誤。垂直排列會自動旋轉英數字、括號與長音符號。
+書寫風格可選擇KanjiVG原始筆跡或Yomogi直繪中心線。Yomogi以最終外觀為優先，路徑順序不代表傳統筆順；96個無法產生合格中心線的目錄字元會明確回退KanjiVG。
 
 4. 調整書寫環境
 「環境設定」可切換語言，並調整開始倒數、曲線精細度與取樣點停頓。曲線精細度越小越平滑但耗時越長；若筆畫斷線，可增加取樣點停頓。
@@ -69,6 +70,7 @@ ZH_HANT = {
     "line_gap_px": "行距（px）",
     "orientation": "排列方向",
     "flow": "流向",
+    "stroke_style": "書寫風格",
     "horizontal": "水平",
     "vertical": "垂直",
     "right": "向右",
@@ -78,7 +80,7 @@ ZH_HANT = {
     "preset_overwrite": "覆寫",
     "preset_rename": "重新命名",
     "preset_delete": "刪除",
-    "preset_hint": "自訂選項只保存字體大小、字距、行距、排列方向與流向。",
+    "preset_hint": "自訂選項保存字體大小、字距、行距、排列方向、流向與書寫風格。",
     "writing_environment": "書寫環境",
     "language": "語言",
     "appearance": "外觀主題",
@@ -162,6 +164,7 @@ ZH_HANT = {
     "layout_character_overflow": "第 {index} 個字元超出畫布範圍。",
     "unsupported_character": "第 {index} 個字元「{char}」不是支援的書寫字元。",
     "missing_character": "找不到第 {index} 個字元「{char}」的筆順資料。",
+    "stroke_style_resource": "Yomogi風格包中缺少預期字元「{char}」，資料可能已損毀。",
     "escape_operation": "已按下 ESC，操作已停止。",
     "escape_writing": "已按下 ESC，書寫已停止。",
     "failsafe_stop": "滑鼠已移到安全停止角落，書寫已中止。",
@@ -192,6 +195,7 @@ After clicking a detection button, the main window is minimized. The pointer's c
 
 3. Adjust the layout
 General settings control font size, character gap, line gap, horizontal or vertical orientation, and right or left flow. Adjacent halfwidth characters use half the configured gap; a pair containing any fullwidth character uses the full gap. Spaces and Tab follow the same rule. Text wraps at the main-axis boundary. If the secondary axis has no room, writing stops before the pointer moves and an error is shown. Vertical layout automatically rotates letters, numbers, brackets, and long marks.
+Writing style selects KanjiVG Original or Yomogi Direct Centreline. Yomogi prioritizes the final visual result, so its path order is not traditional stroke order. The 96 catalog characters that cannot produce a valid Yomogi centreline explicitly fall back to KanjiVG.
 
 4. Adjust the writing environment
 Environment settings control language, start countdown, curve detail, and sample delay. Smaller curve-detail values are smoother but take longer. Increase sample delay if strokes break.
@@ -203,9 +207,9 @@ Click Update preview first and confirm that all content is inside the rectangle.
 Press ESC during coordinate detection, the start countdown, or writing. During writing, moving the pointer quickly to any screen corner also triggers the failsafe. The program releases the left mouse button automatically after a stop or error.""",
     "start_coordinates": "Start coordinates", "end_coordinates": "End coordinates", "detect": "Detect {target}", "update_preview": "Update preview", "start_writing": "Start writing",
     "actual_preview": "Layout preview", "preview_hint": "Light cells show placement; black paths are the actual strokes.", "preview_empty": "Check the text, coordinates, and layout settings",
-    "text_layout": "Text and layout", "font_size_px": "Font size (px)", "char_gap_px": "Character gap (px)", "line_gap_px": "Line gap (px)", "orientation": "Orientation", "flow": "Flow",
+    "text_layout": "Text and layout", "font_size_px": "Font size (px)", "char_gap_px": "Character gap (px)", "line_gap_px": "Line gap (px)", "orientation": "Orientation", "flow": "Flow", "stroke_style": "Writing style",
     "horizontal": "Horizontal", "vertical": "Vertical", "right": "Right", "left": "Left", "presets": "Presets", "preset_add": "Add", "preset_overwrite": "Overwrite",
-    "preset_rename": "Rename", "preset_delete": "Delete", "preset_hint": "Presets save font size, character gap, line gap, orientation, and flow only.",
+    "preset_rename": "Rename", "preset_delete": "Delete", "preset_hint": "Presets save font size, character gap, line gap, orientation, flow, and writing style.",
     "writing_environment": "Writing environment", "language": "Language", "appearance": "Appearance", "appearance_system": "Follow system", "appearance_light": "Light theme", "appearance_dark": "Dark theme", "appearance_hint": "The light theme is used by default; you can choose the dark theme or follow Windows.", "countdown_seconds": "Start countdown (seconds)", "curve_detail": "Curve detail", "point_delay_ms": "Sample delay (ms)",
     "countdown_hint": "Countdown: time to switch to the target window after starting.", "curve_hint": "Curve detail: 0.1–20; smaller values are smoother but take longer.", "delay_hint": "Sample delay: 1–1000 ms; increase it if strokes break.",
     "ready": "Ready", "language_changed": "Interface language changed", "appearance_changed": "Appearance theme changed", "preview_updating": "Updating layout preview…", "preview_updated": "Preview updated", "preview_summary": "{cells} cells · {strokes} strokes · {points} points",
@@ -223,7 +227,7 @@ Press ESC during coordinate detection, the start countdown, or writing. During w
     "layout_vertical_small": "The vertical range is smaller than half a character cell.", "layout_right_small": "For right flow, End X must be to the right and fit at least half a cell.", "layout_left_small": "For left flow, the horizontal range must fit at least half a cell.",
     "layout_text_empty": "Enter at least one supported writing character.", "layout_wrap_overflow": "Character {index} exceeds the canvas after wrapping.", "layout_primary_overflow": "Character {index} cannot fit in the canvas width or height.",
     "layout_wrap_still_overflow": "Character {index} still cannot fit after wrapping.", "layout_character_overflow": "Character {index} exceeds the canvas.", "unsupported_character": "Character {index}, “{char}”, is not a supported writing character.",
-    "missing_character": "No stroke data was found for character {index}, “{char}”.", "escape_operation": "ESC was pressed. The operation stopped.", "escape_writing": "ESC was pressed. Writing stopped.", "failsafe_stop": "The pointer reached a failsafe screen corner. Writing stopped.", "virtual_screen_error": "Cannot read the Windows virtual screen dimensions.", "send_input_error": "Windows SendInput mouse event failed (error {code}).",
+    "missing_character": "No stroke data was found for character {index}, “{char}”.", "stroke_style_resource": "The expected character “{char}” is missing from the Yomogi style pack; the resource may be damaged.", "escape_operation": "ESC was pressed. The operation stopped.", "escape_writing": "ESC was pressed. Writing stopped.", "failsafe_stop": "The pointer reached a failsafe screen corner. Writing stopped.", "virtual_screen_error": "Cannot read the Windows virtual screen dimensions.", "send_input_error": "Windows SendInput mouse event failed (error {code}).",
     "screen_overflow": "Stroke coordinate ({x:.0f}, {y:.0f}) is outside the virtual screen ({min_x}, {min_y})–({max_x}, {max_y}).", "settings_schema": "Unsupported settings file version.",
     "preset_missing": "The selected preset was not found.", "preset_name_length": "Preset names must contain 1–40 characters.", "preset_duplicate": "A preset with this name already exists.",
     "portable_permission": "The Portable folder is not writable: {path}\nMove the entire program folder to Documents, Desktop, or another writable location.",
@@ -245,6 +249,7 @@ ZH_HANS = {**ZH_HANT,
 
 3. 调整排版
 “常规设置”可调整字体大小、字距、行距、水平或垂直排列，以及向右或向左流向。半形字符彼此相邻时使用一半字距；只要任一侧为全形字符就使用完整字距。空格与 Tab 也遵循此规则。文字到达主方向边界时会自动换行或换列；副方向空间不足时会在移动鼠标前停止并显示错误。垂直排列会自动旋转英文字母、数字、括号和长音符号。
+书写风格可选择KanjiVG原始笔迹或Yomogi直绘中心线。Yomogi以最终外观为优先，路径顺序不代表传统笔顺；96个无法生成合格中心线的目录字符会明确回退到KanjiVG。
 
 4. 调整书写环境
 “环境设置”可切换语言，并调整开始倒计时、曲线精细度与采样点停顿。曲线精细度越小越平滑但耗时越长；若笔画断线，可增加采样点停顿。
@@ -257,8 +262,8 @@ ZH_HANS = {**ZH_HANT,
     "writing_text": "书写文字",
     "canvas_coordinates": "画布坐标", "start_coordinates": "起始坐标", "end_coordinates": "末端坐标", "detect": "检测{target}", "update_preview": "更新预览", "start_writing": "开始书写",
     "actual_preview": "实际排版预览", "preview_hint": "浅色字格仅供定位；实际输出为黑色笔顺路径。", "preview_empty": "请确认文字、坐标与排版设置", "text_layout": "文字与排版",
-    "font_size_px": "字体大小（px）", "char_gap_px": "字距（px）", "line_gap_px": "行距（px）", "orientation": "排列方向", "flow": "流向", "horizontal": "水平", "vertical": "垂直", "right": "向右", "left": "向左",
-    "presets": "自定义选项", "preset_add": "新增", "preset_overwrite": "覆盖", "preset_rename": "重命名", "preset_delete": "删除", "preset_hint": "自定义选项只保存字体大小、字距、行距、排列方向与流向。",
+    "font_size_px": "字体大小（px）", "char_gap_px": "字距（px）", "line_gap_px": "行距（px）", "orientation": "排列方向", "flow": "流向", "stroke_style": "书写风格", "horizontal": "水平", "vertical": "垂直", "right": "向右", "left": "向左",
+    "presets": "自定义选项", "preset_add": "新增", "preset_overwrite": "覆盖", "preset_rename": "重命名", "preset_delete": "删除", "preset_hint": "自定义选项保存字体大小、字距、行距、排列方向、流向与书写风格。",
     "writing_environment": "书写环境", "language": "语言", "appearance": "外观主题", "appearance_system": "跟随系统", "appearance_light": "亮色主题", "appearance_dark": "暗色主题", "appearance_hint": "默认使用亮色主题，也可改为暗色主题或跟随 Windows。", "countdown_seconds": "开始倒计时（秒）", "curve_detail": "曲线精细度", "point_delay_ms": "采样点停顿（毫秒）",
     "countdown_hint": "倒计时：按下开始后保留的窗口切换时间。", "curve_hint": "曲线精细度：范围 0.1–20；数值越小越细致，但书写时间越长。", "delay_hint": "采样点停顿：范围 1–1000 毫秒；若笔画断线可适度提高。",
     "ready": "准备就绪", "language_changed": "界面语言已切换", "appearance_changed": "外观主题已切换", "preview_updating": "正在更新排版预览…", "preview_updated": "预览已更新", "preview_summary": "{cells} 格 · {strokes} 笔 · {points} 点", "settings_error": "设置错误", "preview_error": "无法建立预览",
@@ -273,7 +278,7 @@ ZH_HANS = {**ZH_HANT,
     "layout_font_range": "字体大小必须介于 10 与 1000 px。", "layout_gap_negative": "字距与行距不可为负数。", "layout_end_pair": "末端 X 与 Y 坐标必须同时设置。", "layout_vertical_small": "起点与末端的垂直范围小于半个字格。",
     "layout_right_small": "向右排版时，末端 X 必须位于起点右侧且至少容纳半个字格。", "layout_left_small": "向左排版时，起点与末端的水平范围至少需要容纳半个字格。", "layout_text_empty": "请输入至少一个支持的书写字符。",
     "layout_wrap_overflow": "第 {index} 个字符换行后超出画布范围。", "layout_primary_overflow": "第 {index} 个字符无法放入当前画布宽度或高度。", "layout_wrap_still_overflow": "第 {index} 个字符换行后仍无法放入画布。", "layout_character_overflow": "第 {index} 个字符超出画布范围。",
-    "unsupported_character": "第 {index} 个字符“{char}”不是支持的书写字符。", "missing_character": "找不到第 {index} 个字符“{char}”的笔顺数据。", "escape_operation": "已按下 ESC，操作已停止。", "escape_writing": "已按下 ESC，书写已停止。", "failsafe_stop": "鼠标已移到安全停止角落，书写已中止。", "virtual_screen_error": "无法获取 Windows 虚拟屏幕尺寸。", "send_input_error": "Windows SendInput 鼠标事件发送失败（错误码 {code}）。",
+    "unsupported_character": "第 {index} 个字符“{char}”不是支持的书写字符。", "missing_character": "找不到第 {index} 个字符“{char}”的笔顺数据。", "stroke_style_resource": "Yomogi风格包中缺少预期字符“{char}”，资源可能已损坏。", "escape_operation": "已按下 ESC，操作已停止。", "escape_writing": "已按下 ESC，书写已停止。", "failsafe_stop": "鼠标已移到安全停止角落，书写已中止。", "virtual_screen_error": "无法获取 Windows 虚拟屏幕尺寸。", "send_input_error": "Windows SendInput 鼠标事件发送失败（错误码 {code}）。",
     "screen_overflow": "笔迹坐标 ({x:.0f}, {y:.0f}) 超出虚拟屏幕范围 ({min_x}, {min_y})–({max_x}, {max_y})。", "settings_schema": "不支持的设置文件版本。", "preset_missing": "找不到指定的自定义选项。", "preset_name_length": "自定义选项名称必须为 1 至 40 个字符。", "preset_duplicate": "已有相同名称的自定义选项。",
     "portable_permission": "Portable 文件夹无法写入：{path}\n请将整个程序文件夹移动到文档、桌面或其他可写入位置。",
 }
@@ -294,6 +299,7 @@ JA = {**EN,
 
 3. レイアウトを調整する
 「一般設定」では文字サイズ、文字間隔、行間隔、横書きまたは縦書き、右方向または左方向を設定します。半角文字同士は半分の文字間隔を使用し、どちらかが全角文字なら完全な文字間隔を使用します。スペースと Tab にも同じ規則を適用します。主方向の境界に達すると自動で改行または改列します。副方向の空間が不足する場合は、マウスを動かす前に停止してエラーを表示します。縦書きでは英数字、括弧、長音記号を自動回転します。
+書き込みスタイルはKanjiVGオリジナルまたはYomogi直接中心線を選択できます。Yomogiは最終的な外観を優先するため、パス順序は伝統的な筆順を示しません。有効な中心線を生成できない96文字はKanjiVGに明示的にフォールバックします。
 
 4. 書き込み環境を調整する
 「環境設定」では言語、開始カウントダウン、曲線精度、サンプル待機を設定します。曲線精度は小さいほど滑らかですが時間がかかります。線が途切れる場合はサンプル待機を増やしてください。
@@ -306,8 +312,8 @@ JA = {**EN,
     "writing_text": "書く文字",
     "canvas_coordinates": "キャンバス座標", "start_coordinates": "開始座標", "end_coordinates": "終了座標", "detect": "{target}を検出", "update_preview": "プレビュー更新", "start_writing": "書き始める",
     "actual_preview": "レイアウトプレビュー", "preview_hint": "薄い枠は配置位置、黒い線が実際の筆順です。", "preview_empty": "文字、座標、レイアウト設定を確認してください", "text_layout": "文字とレイアウト",
-    "font_size_px": "文字サイズ（px）", "char_gap_px": "文字間隔（px）", "line_gap_px": "行間隔（px）", "orientation": "配置方向", "flow": "進行方向", "horizontal": "横書き", "vertical": "縦書き", "right": "右へ", "left": "左へ",
-    "presets": "プリセット", "preset_add": "追加", "preset_overwrite": "上書き", "preset_rename": "名前変更", "preset_delete": "削除", "preset_hint": "プリセットには文字サイズ、文字間隔、行間隔、配置方向、進行方向のみ保存されます。",
+    "font_size_px": "文字サイズ（px）", "char_gap_px": "文字間隔（px）", "line_gap_px": "行間隔（px）", "orientation": "配置方向", "flow": "進行方向", "stroke_style": "書き込みスタイル", "horizontal": "横書き", "vertical": "縦書き", "right": "右へ", "left": "左へ",
+    "presets": "プリセット", "preset_add": "追加", "preset_overwrite": "上書き", "preset_rename": "名前変更", "preset_delete": "削除", "preset_hint": "プリセットには文字サイズ、文字間隔、行間隔、配置方向、進行方向、書き込みスタイルが保存されます。",
     "writing_environment": "書き込み環境", "language": "言語", "appearance": "外観テーマ", "appearance_system": "システムに合わせる", "appearance_light": "ライトテーマ", "appearance_dark": "ダークテーマ", "appearance_hint": "初期設定ではライトテーマを使用します。ダークテーマまたは Windows に合わせる設定も選択できます。", "countdown_seconds": "開始カウントダウン（秒）", "curve_detail": "曲線精度", "point_delay_ms": "サンプル待機（ミリ秒）",
     "countdown_hint": "カウントダウン：開始後に対象画面へ切り替える時間です。", "curve_hint": "曲線精度：0.1～20。小さいほど滑らかですが時間がかかります。", "delay_hint": "サンプル待機：1～1000 ミリ秒。線が途切れる場合は増やしてください。",
     "ready": "準備完了", "language_changed": "表示言語を変更しました", "appearance_changed": "外観テーマを変更しました", "preview_updating": "プレビューを更新中…", "preview_updated": "プレビューを更新しました", "preview_summary": "{cells} マス・{strokes} 画・{points} 点",
@@ -323,7 +329,7 @@ JA = {**EN,
     "layout_font_range": "文字サイズは 10～1000 px にしてください。", "layout_gap_negative": "文字間隔と行間隔に負の値は使用できません。", "layout_end_pair": "終了 X と Y は同時に設定してください。", "layout_vertical_small": "縦方向の範囲が半文字分より小さいです。",
     "layout_right_small": "右方向では終了 X を開始点より右に置き、半文字分以上確保してください。", "layout_left_small": "左方向では横幅を半文字分以上確保してください。", "layout_text_empty": "対応している書き込み文字を1文字以上入力してください。",
     "layout_wrap_overflow": "{index} 文字目は改行後にキャンバスを超えます。", "layout_primary_overflow": "{index} 文字目をキャンバスの幅または高さに配置できません。", "layout_wrap_still_overflow": "{index} 文字目は改行後も配置できません。", "layout_character_overflow": "{index} 文字目がキャンバスを超えます。",
-    "unsupported_character": "{index} 文字目の「{char}」は対応している書き込み文字ではありません。", "missing_character": "{index} 文字目の「{char}」に対応する筆順データがありません。", "escape_operation": "ESC が押されたため操作を停止しました。", "escape_writing": "ESC が押されたため書き込みを停止しました。", "failsafe_stop": "マウスが安全停止用の画面の隅に移動したため書き込みを停止しました。", "virtual_screen_error": "Windows の仮想画面サイズを取得できません。", "send_input_error": "Windows SendInput のマウスイベント送信に失敗しました（エラー {code}）。",
+    "unsupported_character": "{index} 文字目の「{char}」は対応している書き込み文字ではありません。", "missing_character": "{index} 文字目の「{char}」に対応する筆順データがありません。", "stroke_style_resource": "Yomogiスタイルパックに必要な文字「{char}」がありません。データが破損している可能性があります。", "escape_operation": "ESC が押されたため操作を停止しました。", "escape_writing": "ESC が押されたため書き込みを停止しました。", "failsafe_stop": "マウスが安全停止用の画面の隅に移動したため書き込みを停止しました。", "virtual_screen_error": "Windows の仮想画面サイズを取得できません。", "send_input_error": "Windows SendInput のマウスイベント送信に失敗しました（エラー {code}）。",
     "settings_schema": "対応していない設定ファイルです。", "preset_missing": "指定したプリセットが見つかりません。", "preset_name_length": "プリセット名は1～40文字にしてください。", "preset_duplicate": "同じ名前のプリセットがあります。",
     "screen_overflow": "筆跡座標 ({x:.0f}, {y:.0f}) は仮想画面の範囲外です ({min_x}, {min_y})–({max_x}, {max_y})。",
     "portable_permission": "Portable フォルダーに書き込めません：{path}\nプログラムフォルダー全体を書き込み可能な場所へ移動してください。",

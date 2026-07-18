@@ -1,5 +1,13 @@
 # Changelog
 
+## Unreleased - Yomogi direct-centreline integration
+
+- Adds a selectable Yomogi Direct Centreline style without changing the V2.6.2 version number.
+- Uses 6,608 font-derived direct SVGs and never projects KanjiVG geometry onto the font skeleton.
+- Preserves 191 manually approved glyph geometries and reports 96 explicit KanjiVG fallbacks.
+- Keeps KanjiVG as the default for legacy settings and unknown style identifiers.
+- This branch is not merged, pushed, packaged as a release, or published.
+
 ## V2.6.2 - 2026-07-13
 
 - Adds live crosshair guides, coordinates, and a three-second countdown while detecting start and end positions.

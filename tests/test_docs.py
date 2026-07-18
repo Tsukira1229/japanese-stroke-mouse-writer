@@ -139,11 +139,11 @@ class DocumentationTests(unittest.TestCase):
                 document.name,
             )
 
-    def test_readmes_document_future_font_and_symbol_expansion(self) -> None:
+    def test_readmes_document_current_stroke_styles_and_symbol_expansion(self) -> None:
         expectations = {
-            "README.md": ("文字字型選擇", "特殊符號"),
-            "README.en.md": ("selectable writing fonts", "special symbols"),
-            "README.ja.md": ("書き込み用フォント", "特殊記号"),
+            "README.md": ("KanjiVG原始筆跡", "Yomogi直繪中心線", "特殊符號"),
+            "README.en.md": ("KanjiVG Original", "Yomogi Direct Centreline", "special symbols"),
+            "README.ja.md": ("KanjiVGオリジナル", "Yomogi直接中心線", "特殊記号"),
         }
         for filename, phrases in expectations.items():
             text = (ROOT / filename).read_text(encoding="utf-8")

@@ -38,12 +38,13 @@ Press `ESC` during detection to cancel without replacing the previous values. Th
 - **Line gap**: row spacing in horizontal layout or column spacing in vertical layout.
 - **Orientation**: horizontal places characters left or right; vertical places characters downward.
 - **Flow**: right or left, which also determines the side used by the start coordinate.
+- **Writing style**: KanjiVG Original follows the source stroke order. Yomogi Direct Centreline reproduces the font skeleton directly, and its path order is not traditional stroke order.
 
 Halfwidth characters occupy `0.5` cell, fullwidth and wide characters occupy `1` cell, and Tab equals four halfwidth spaces. Valid halfwidth katakana combinations such as `ｶﾞ` and `ﾊﾟ` occupy one half-cell.
 
 In vertical layout, alphanumeric characters, brackets, and long marks rotate clockwise. `、。` move to the upper-right of their cells. Arrows and box-drawing characters preserve their direction.
 
-**Presets** can add, load, overwrite, rename, or delete named settings. A preset stores only font size, character gap, line gap, orientation, and flow; it does not store text or coordinates.
+**Presets** can add, load, overwrite, rename, or delete named settings. A preset stores font size, character gap, line gap, orientation, flow, and writing style; it does not store text or coordinates.
 
 ## 5. Adjust Environment Settings
 
@@ -58,6 +59,8 @@ Environment settings are saved automatically. Switching language or appearance p
 ## 6. Check Supported Input
 
 Supported input includes Japanese kana, kanji available in KanjiVG, `A–Z`, `a–z`, `0–9`, fullwidth alphanumerics, halfwidth katakana, and common symbols.
+
+Yomogi provides 6,608 direct-centreline glyphs, including the style-only kana `ゟ` and `ヿ` that have no KanjiVG baseline. The 96 catalog characters missing from the source or unable to pass the centreline gates fall back to KanjiVG.
 
 Halfwidth/fullwidth pairs include `#＃`, `(（`, `)）`, `[［`, `]］`, `@＠`, `~～`, `、､`, `。｡`, `・･`, `ーｰ`, `「」`, `【】`, and `｢｣`. The program also supports some commonly used geometry, stars, checks, arrows, brackets, mathematics, and box-drawing symbols. See [Supported Centerline Symbols](SUPPORTED_SYMBOLS.md) for the complete list.
 

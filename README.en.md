@@ -18,7 +18,7 @@ Settings are stored in `user_data/settings.json` inside the program folder. Regi
 1. Open Paint or another target canvas and select its pen or pencil tool.
 2. Enter text in **Content & Preview**.
 3. Use **Detect start coordinates** and **Detect end coordinates** to define the writable rectangle.
-4. Adjust font size, character gap, line gap, orientation, and flow in **General Settings**.
+4. Select KanjiVG or Yomogi and adjust font size, character gap, line gap, orientation, and flow in **General Settings**.
 5. Click **Update preview** and confirm that every black writing path is inside the rectangle.
 6. Click **Start writing**, then switch to the target canvas during the countdown.
 
@@ -26,17 +26,19 @@ Open the offline [HTML Complete Guide](complete-guide.en.html) for detailed inst
 
 ## Features
 
-- Writes Japanese kana, kanji, alphanumeric characters, halfwidth katakana, and symbols using KanjiVG or project-authored centerline SVG data.
+- Selects either KanjiVG Original or Yomogi Direct Centreline; preview and mouse output use the same direct path data.
 - Preserves spaces, Tab, explicit and repeated line breaks, and wraps automatically at the writable boundary.
 - Supports horizontal, vertical, right, and left layouts. Preview and mouse output use the same path data.
 - Halfwidth characters occupy `0.5` cell; fullwidth and wide characters occupy `1` cell. Adjacent halfwidth characters use half the character gap; other pairs use the full gap.
-- Saves font size, character gap, line gap, orientation, and flow as multiple named presets.
+- Saves font size, character gap, line gap, orientation, flow, and writing style as multiple named presets.
 - Provides light, dark, and Windows-following appearance modes. New users start with the light theme, and switching appearance preserves current input and session state.
 - Accepts manually assembled Kaomoji such as `(^O^)`, `(≧▽≦)`, `m(_ _)m`, `(/ω＼)`, and `(╯°□°)╯︵ ┻━┻`. Each supported character is written with centerline strokes.
 
 ## Supported Text
 
 Supported input includes Japanese kana, kanji available in KanjiVG, `A–Z`, `a–z`, `0–9`, fullwidth alphanumerics, and halfwidth katakana. Valid voiced and semi-voiced combinations such as `ｶﾞ` and `ﾊﾟ` are merged into one half-cell character.
+
+The Yomogi pack contains 6,608 direct-centreline SVGs: 6,606 KanjiVG-catalog characters plus the Yomogi-only kana `ゟ` and `ヿ`. The 96 catalog characters that cannot produce a valid Yomogi centreline explicitly fall back to KanjiVG. Yomogi prioritizes the final visual result; path order is not traditional stroke order.
 
 Printable ASCII punctuation and fullwidth counterparts are supported, including `#＃`, `(（`, `)）`, `[［`, `]］`, `@＠`, and `~～`. Japanese symbols include `、､`, `。｡`, `・･`, `ーｰ`, `「」`, `【】`, and `｢｣`.
 
@@ -46,7 +48,6 @@ The program supports some commonly used special symbols, including geometry, sta
 
 ## Roadmap
 
-- Add selectable writing fonts so users can choose different writing styles.
 - Continue expanding special symbols that work well as centerline strokes.
 
 ## Emergency Stop
@@ -55,4 +56,4 @@ Press `ESC` during coordinate detection, the start countdown, or writing. During
 
 ## License
 
-Project code and project-authored centerline SVG files use the MIT License. KanjiVG data uses CC BY-SA 3.0. See [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
+Project code and project-authored centerline SVG files use the MIT License. KanjiVG data uses CC BY-SA 3.0. The Yomogi font and its derived centreline data use the SIL Open Font License 1.1. See [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).

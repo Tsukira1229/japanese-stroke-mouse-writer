@@ -12,6 +12,18 @@ This application includes KanjiVG stroke-order SVG data.
 
 KanjiVG data remains subject to its original attribution and share-alike terms.
 
+## Yomogi
+
+This feature branch includes centreline SVG data derived solely from Yomogi Regular 3.100 glyph shapes.
+
+- Project: https://github.com/satsuyako/YomogiFont
+- Pinned commit: `2dcc1a21e9ee7cb66606d0be9099752504efe559`
+- Source SHA-256: `3424e34bb951e89bf5dd2554a65d8964335ea3c0560f8d1ea9aa3591ef73cba9`
+- Copyright: Copyright 2020 The Yomogi Project Authors (https://github.com/satsuyako/YomogiFont), all rights reserved.
+- License: SIL Open Font License 1.1
+
+The Yomogi-derived centreline archive, original copyright, OFL text, conversion record, and fallback list are stored under `data/stroke_styles/yomogi`. KanjiVG geometry is not included in that OFL archive. At runtime, 96 explicitly listed catalog characters use the separately bundled KanjiVG resource.
+
 ## Python dependencies
 
 The Portable build includes open-source Python and Python packages. Direct project dependencies include:
@@ -23,6 +35,11 @@ The Portable build includes open-source Python and Python packages. Direct proje
 - ttkbootstrap: MIT License
 - PyInstaller: GNU GPL with the PyInstaller bootloader exception
 - Python-Markdown: BSD 3-Clause License (build-time HTML documentation generation)
+- fontTools: MIT License (build-time font inspection)
+- NumPy: BSD 3-Clause License (build-time centreline conversion)
+- Pillow: HPND License (build-time glyph rasterization)
+- scikit-image: BSD 3-Clause License (build-time skeletonization)
+- SciPy: BSD 3-Clause License (build-time geometry validation)
 
 These packages may include transitive open-source dependencies under their respective licenses. Their original copyright and license terms remain in effect.
 

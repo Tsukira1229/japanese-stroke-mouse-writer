@@ -60,6 +60,13 @@ class JapaneseWriterUiTests(unittest.TestCase):
         self.assertEqual(self.app.t("appearance_light"), "亮色主題")
         self.assertEqual(self.app.t("appearance_dark"), "暗色主題")
 
+    def test_yomogi_direct_style_is_selectable(self) -> None:
+        labels = self.app._stroke_style_labels()
+        self.assertEqual(set(labels.values()), {"kanjivg", "yomogi"})
+        selected = next(label for label, style_id in labels.items() if style_id == "yomogi")
+        self.app.stroke_style.set(selected)
+        self.assertEqual(self.app.read_general().stroke_style, "yomogi")
+
     def test_emergency_hint_uses_previous_status_bar_style(self) -> None:
         self.assertIs(self.app.emergency_label.master, self.app.status_bar)
         self.assertEqual(self.app.emergency_label.pack_info()["side"], "right")
@@ -76,6 +83,8 @@ class JapaneseWriterUiTests(unittest.TestCase):
         self.assertIn("預計書寫矩形", help_text)
         self.assertIn("顏文字", help_text)
         self.assertIn("特殊符號", help_text)
+        self.assertIn("Yomogi直繪中心線", help_text)
+        self.assertIn("不代表傳統筆順", help_text)
         self.assertIn("左上角", help_text)
         self.assertIn("右上角", help_text)
         self.assertIn("ESC", help_text)
