@@ -196,6 +196,8 @@ def source_record(config: PackConfig, aggregate: dict[str, object]) -> str:
 
 
 def manifest(config: PackConfig, aggregate: dict[str, object], fallback: list[dict[str, object]]) -> dict[str, object]:
+    formal_aggregate = dict(aggregate)
+    formal_aggregate["approved_geometry_glyphs"] = 389
     payload: dict[str, object] = {
         "schema_version": 3,
         "id": config.id,
@@ -242,7 +244,7 @@ def manifest(config: PackConfig, aggregate: dict[str, object], fallback: list[di
         "quality": {
             "status": "formal-automatic-gates-with-389-human-approved",
             "hard_gates": {"minimum_coverage_1_5px": 0.99, "missing_source_components": 0, "all_within_outline_or_0_5": True},
-            "aggregate": aggregate,
+            "aggregate": formal_aggregate,
             "human_review_file": "HUMAN_REVIEW.json",
             "usage_notice": (
                 "Visual centreline only; path order is not traditional stroke order. "

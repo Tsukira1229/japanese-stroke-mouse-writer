@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Validate and reproduce the Zen Kurenaido and Hachi Maru Pop formal packs."""
+"""Validate formal packs and optionally re-promote local reviewed build inputs."""
 
 from __future__ import annotations
 
@@ -79,6 +79,8 @@ def validate_pack(config) -> dict[str, object]:
     for key, value in expected.items():
         if conversion[key] != value:
             raise RuntimeError(f"Manifest count mismatch {config.id}/{key}")
+    if manifest["quality"]["aggregate"]["approved_geometry_glyphs"] != 389:
+        raise RuntimeError(f"Quality aggregate approval mismatch: {config.id}")
     if sha256(pack / "strokes.zip") != config.archive_sha256:
         raise RuntimeError(f"Archive hash mismatch: {config.id}")
     fallback = json.loads((pack / "fallback.json").read_text(encoding="utf-8"))
@@ -109,7 +111,26 @@ def validate_pack(config) -> dict[str, object]:
 
 
 def reproduce() -> None:
-    with tempfile.TemporaryDirectory(prefix="direct-style-reproduce-", dir=ROOT / "build") as temporary:
+    build_root = ROOT / "build"
+    required = []
+    for config in PACKS:
+        required.extend(
+            (
+                build_root / f"glyph-proof-{config.build_name}-direct-full" / "strokes.zip",
+                build_root / f"glyph-proof-{config.build_name}-direct-kana-review" / "approved_geometry.json",
+                build_root / f"glyph-proof-{config.build_name}-direct-kanji-anchors" / "approved_geometry.json",
+                build_root / f"glyph-proof-{config.build_name}-direct-random-200" / "approved_geometry.json",
+            )
+        )
+    missing = [path for path in required if not path.is_file()]
+    if missing:
+        relative = ", ".join(path.relative_to(ROOT).as_posix() for path in missing)
+        raise RuntimeError(
+            "Local promotion reproduction requires the preserved reviewed build workspace; "
+            f"missing: {relative}"
+        )
+    build_root.mkdir(parents=True, exist_ok=True)
+    with tempfile.TemporaryDirectory(prefix="direct-style-reproduce-", dir=build_root) as temporary:
         destination = Path(temporary)
         completed = subprocess.run(
             [sys.executable, str(PROMOTER), "--destination-root", str(destination)],
@@ -125,12 +146,16 @@ def reproduce() -> None:
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--reproduce", action="store_true")
+    parser.add_argument(
+        "--reproduce",
+        action="store_true",
+        help="re-promote from the preserved local build/glyph-proof-* review workspace",
+    )
     args = parser.parse_args(argv)
     result = [validate_pack(config) for config in PACKS]
     if args.reproduce:
         reproduce()
-    print(json.dumps({"packs": result, "reproducible": args.reproduce}, ensure_ascii=False, indent=2))
+    print(json.dumps({"packs": result, "local_promotion_reproduced": args.reproduce}, ensure_ascii=False, indent=2))
     return 0
 
 

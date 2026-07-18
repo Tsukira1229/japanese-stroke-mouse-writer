@@ -171,6 +171,8 @@ class DocumentationTests(unittest.TestCase):
         build_script = (ROOT / "scripts" / "build_development_portable.ps1").read_text(encoding="utf-8")
         self.assertIn("JapaneseStrokeMouseWriter-v2.7.0-development-win-x64-portable", build_script)
         self.assertIn("build\\development-v2.7.0", build_script)
+        for style_id in ("yomogi", "zen-kurenaido", "hachi-maru-pop"):
+            self.assertIn(style_id, build_script)
         self.assertNotIn("CreateFromDirectory", build_script)
         self.assertNotIn("Compress-Archive", build_script)
         self.assertNotIn("gh release", build_script.lower())

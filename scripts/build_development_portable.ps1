@@ -58,14 +58,16 @@ try {
         Remove-Item -LiteralPath $MatplotlibSampleData -Recurse -Force
     }
 
-    $SourceStyle = Join-Path $Root "data\stroke_styles\yomogi\strokes.zip"
-    $PackagedStyle = Join-Path $PackageDir "_internal\data\stroke_styles\yomogi\strokes.zip"
-    if (-not (Test-Path -LiteralPath $PackagedStyle -PathType Leaf)) {
-        throw "Packaged Yomogi style archive is missing."
-    }
-    if ((Get-FileHash -LiteralPath $SourceStyle -Algorithm SHA256).Hash -ne
-        (Get-FileHash -LiteralPath $PackagedStyle -Algorithm SHA256).Hash) {
-        throw "Packaged Yomogi style archive differs from the source pack."
+    foreach ($StyleId in @("yomogi", "zen-kurenaido", "hachi-maru-pop")) {
+        $SourceStyle = Join-Path $Root "data\stroke_styles\$StyleId\strokes.zip"
+        $PackagedStyle = Join-Path $PackageDir "_internal\data\stroke_styles\$StyleId\strokes.zip"
+        if (-not (Test-Path -LiteralPath $PackagedStyle -PathType Leaf)) {
+            throw "Packaged style archive is missing: $StyleId"
+        }
+        if ((Get-FileHash -LiteralPath $SourceStyle -Algorithm SHA256).Hash -ne
+            (Get-FileHash -LiteralPath $PackagedStyle -Algorithm SHA256).Hash) {
+            throw "Packaged style archive differs from the source pack: $StyleId"
+        }
     }
 
     $Executable = Join-Path $PackageDir "JapaneseStrokeMouseWriter.exe"

@@ -71,7 +71,9 @@ The random samples used Python seed `20260718` and were approved in full by the 
 - Existing settings remain compatible; unknown style IDs still normalize to KanjiVG.
 - Path order is visual only and does not represent traditional stroke order.
 
-## Reproduction and validation
+## Validation and local promotion reproduction
+
+The formal packs, archive hashes, SVG contract, fallback lists, provenance, and 389 exact human-review locks can be validated from a clean checkout. The optional `--reproduce` step re-promotes the packs from the preserved local `build/glyph-proof-*` review workspace; those review work files are intentionally not committed, so that step is not a clean-checkout source reproduction.
 
 Commands run from the repository root:
 
@@ -85,16 +87,26 @@ python mouse_writer_ui.pyw --self-test --settings-path build/zen-hachi-handoff-s
 powershell -NoProfile -ExecutionPolicy Bypass -File scripts/build_development_portable.ps1
 ```
 
-Results:
+Results on the handoff workstation:
 
 - Both formal packs passed full SVG contract, fallback, provenance, archive hash, and all 389 human-lock comparisons.
-- Deterministic promotion reproduction passed; every formal file hash matched.
+- Local deterministic promotion reproduction passed; every formal file hash matched. This result depends on the preserved untracked review workspace described above.
 - Existing Yomogi validator passed unchanged.
 - Complete test suite: 140 tests passed.
 - Source self-test: passed.
 - PyInstaller uncompressed development build: passed.
 - Frozen executable self-test: passed.
 - Bundled Yomogi, Zen Kurenaido, and Hachi Maru Pop archive hashes equal their formal source hashes.
+
+## Version-control review follow-up
+
+The version-control review corrected three delivery-only inconsistencies without changing any stroke geometry:
+
+- The development build now compares the bundled archive hash for all three direct styles, not only Yomogi.
+- The Zen Kurenaido and Hachi Maru Pop quality aggregates now report the same 389 reviewed geometry locks as their conversion records and `HUMAN_REVIEW.json` files.
+- The optional reproduction command now reports clearly that it requires the preserved local review workspace.
+
+After these corrections, all 140 tests, source and frozen self-tests, local promotion reproduction, and the three packaged archive hash comparisons passed. The branch remains a development candidate and requires real drawing acceptance before merge or release.
 
 Local build for optional main-task inspection:
 

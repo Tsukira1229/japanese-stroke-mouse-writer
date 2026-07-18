@@ -189,6 +189,7 @@ class ReviewedDirectStyleTests(unittest.TestCase):
                 self.assertEqual(hashlib.sha256((pack / "strokes.zip").read_bytes()).hexdigest(), expected["archive"])
                 manifest = json.loads((pack / "manifest.json").read_text(encoding="utf-8"))
                 self.assertEqual(manifest["conversion"]["approved_geometry_glyphs"], 389)
+                self.assertEqual(manifest["quality"]["aggregate"]["approved_geometry_glyphs"], 389)
                 review = json.loads((pack / "HUMAN_REVIEW.json").read_text(encoding="utf-8"))
                 self.assertEqual(review["approved_glyphs"], 389)
                 self.assertIn("SIL Open Font License", (pack / "OFL.txt").read_text(encoding="utf-8"))
