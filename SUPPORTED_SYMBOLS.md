@@ -1,6 +1,6 @@
 # Supported Centerline Symbols
 
-V2.7.0 supports these centerline symbols for users who want to assemble kaomoji and line drawings manually.
+V2.7.1 supports these centerline symbols for users who want to assemble kaomoji and line drawings manually.
 
 Total additional centerline symbols: 430
 

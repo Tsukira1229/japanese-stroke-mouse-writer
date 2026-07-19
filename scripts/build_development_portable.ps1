@@ -4,10 +4,10 @@ param(
 
 $ErrorActionPreference = "Stop"
 $Root = (Resolve-Path (Join-Path $PSScriptRoot "..")).Path
-$PackageName = "JapaneseStrokeMouseWriter-v2.7.0-development-win-x64-portable"
-$OutputRoot = Join-Path $Root "build\development-v2.7.0"
+$PackageName = "JapaneseStrokeMouseWriter-v2.7.1-development-win-x64-portable"
+$OutputRoot = Join-Path $Root "build\development-v2.7.1"
 $PackageDir = Join-Path $OutputRoot $PackageName
-$WorkDir = Join-Path $Root ("build\development-v2.7.0-work-" + [guid]::NewGuid().ToString("N"))
+$WorkDir = Join-Path $Root ("build\development-v2.7.1-work-" + [guid]::NewGuid().ToString("N"))
 
 function Assert-ChildPath {
     param(
@@ -47,7 +47,7 @@ try {
     Copy-Item -LiteralPath (Join-Path $Root "LICENSE") -Destination $PackageDir -Force
     New-Item -ItemType Directory -Path (Join-Path $PackageDir "user_data") -Force | Out-Null
     @(
-        "Japanese Stroke Mouse Writer V2.7.0 Development"
+        "Japanese Stroke Mouse Writer V2.7.1 Development"
         "Internal uncompressed build. Not a GitHub Release."
         "The bundled executable is unsigned."
     ) | Set-Content -LiteralPath (Join-Path $PackageDir "DEVELOPMENT_BUILD.txt") -Encoding utf8
@@ -59,14 +59,16 @@ try {
     }
 
     foreach ($StyleId in @("yomogi", "zen-kurenaido", "hachi-maru-pop")) {
-        $SourceStyle = Join-Path $Root "data\stroke_styles\$StyleId\strokes.zip"
-        $PackagedStyle = Join-Path $PackageDir "_internal\data\stroke_styles\$StyleId\strokes.zip"
-        if (-not (Test-Path -LiteralPath $PackagedStyle -PathType Leaf)) {
-            throw "Packaged style archive is missing: $StyleId"
-        }
-        if ((Get-FileHash -LiteralPath $SourceStyle -Algorithm SHA256).Hash -ne
-            (Get-FileHash -LiteralPath $PackagedStyle -Algorithm SHA256).Hash) {
-            throw "Packaged style archive differs from the source pack: $StyleId"
+        foreach ($ArchiveName in @("strokes.zip", "orders.zip")) {
+            $SourceStyle = Join-Path $Root "data\stroke_styles\$StyleId\$ArchiveName"
+            $PackagedStyle = Join-Path $PackageDir "_internal\data\stroke_styles\$StyleId\$ArchiveName"
+            if (-not (Test-Path -LiteralPath $PackagedStyle -PathType Leaf)) {
+                throw "Packaged style archive is missing: $StyleId/$ArchiveName"
+            }
+            if ((Get-FileHash -LiteralPath $SourceStyle -Algorithm SHA256).Hash -ne
+                (Get-FileHash -LiteralPath $PackagedStyle -Algorithm SHA256).Hash) {
+                throw "Packaged style archive differs from the source pack: $StyleId/$ArchiveName"
+            }
         }
     }
 
@@ -81,7 +83,7 @@ try {
     if (Get-ChildItem -LiteralPath $OutputRoot -Filter "*.zip" -File) {
         throw "An unexpected outer ZIP was created in the development output."
     }
-    Write-Output "Uncompressed V2.7.0 development build: $PackageDir"
+    Write-Output "Uncompressed V2.7.1 development build: $PackageDir"
 }
 finally {
     Remove-Item Env:JSMW_PACKAGE_NAME -ErrorAction SilentlyContinue

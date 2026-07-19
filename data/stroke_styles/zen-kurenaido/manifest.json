@@ -3,15 +3,15 @@
   "id": "zen-kurenaido",
   "display_order": 20,
   "labels": {
-    "zh-Hant": "Zen Kurenaido直繪中心線",
-    "zh-Hans": "Zen Kurenaido直绘中心线",
-    "ja": "Zen Kurenaido直接中心線",
-    "en": "Zen Kurenaido Direct Centreline"
+    "zh-Hant": "Zen Kurenaido",
+    "zh-Hans": "Zen Kurenaido",
+    "ja": "Zen Kurenaido",
+    "en": "Zen Kurenaido"
   },
   "runtime_mode": "direct",
   "view_box": "0 0 109 109",
   "path_semantics": "visual-centerline",
-  "order_semantics": "none",
+  "order_semantics": "best-effort-kanjivg-guided",
   "strokes_archive": "strokes.zip",
   "strokes_archive_sha256": "be8bc959480909f88a203f817ba546314ec49b4b9282d6252885923413c0b3c5",
   "fallback_style": "kanjivg",
@@ -78,6 +78,16 @@
       "total_points": 262596
     },
     "human_review_file": "HUMAN_REVIEW.json",
-    "usage_notice": "Visual centreline only; path order is not traditional stroke order. The 111 explicitly listed source-missing or conversion-ineligible glyphs fall back to KanjiVG."
+    "usage_notice": "Visual centreline with a locked best-effort drawing order; not authoritative Japanese stroke order. The 111 explicitly listed source-missing or conversion-ineligible glyphs fall back to KanjiVG."
+  },
+  "drawing_order": {
+    "archive": "orders.zip",
+    "sha256": "209caf2a443060b4fd5c4d4107f4004c1810f138cb2087e349c117101d895fe1",
+    "eligible_maps": 6591,
+    "semantics": "best-effort-kanjivg-guided",
+    "authoritative_japanese_stroke_order": false,
+    "missing_kvg_strokes": 0,
+    "geometry_contract": "frozen M/L points; each source edge used exactly once; reorder, reverse, and split at existing points only",
+    "fallback": "original direct SVG path order"
   }
 }

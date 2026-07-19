@@ -2040,8 +2040,10 @@ def run_self_test(settings_path: Path = DEFAULT_SETTINGS_PATH) -> int:
     styles = discover_stroke_styles(BUNDLE_DIR)
     expected_styles = [DEFAULT_STROKE_STYLE_ID, "yomogi", "zen-kurenaido", "hachi-maru-pop"]
     if [style.id for style in styles] != expected_styles:
-        raise RuntimeError("直繪中心線風格包不完整。")
+        raise RuntimeError("字型風格包不完整。")
     for style in styles[1:]:
+        if style.order_archive is None or style.order_maps <= 0:
+            raise RuntimeError(f"最佳努力繪製順序資料不完整：{style.id}")
         for orientation in Orientation:
             styled = build_layout(
                 "あ龍區始得助",

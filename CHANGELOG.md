@@ -1,5 +1,13 @@
 # Changelog
 
+## V2.7.1 Development - 2026-07-19
+
+- Adds locked best-effort drawing-order sidecars for 6,606 Yomogi, 6,591 Zen Kurenaido, and 6,608 Hachi Maru Pop catalog characters.
+- Preserves every original centreline edge exactly once and safely falls back to each SVG's original path order if sidecar data is missing, damaged, or mismatched.
+- Renames the writing-style choices to KanjiVG (Default), Yomogi, Zen Kurenaido, and Hachi Maru Pop.
+- Locks named presets to save and restore the selected writing style together with the existing layout settings.
+- Remains an unsigned, uncompressed internal development build; no GitHub Release is created.
+
 ## V2.7.0 Development - 2026-07-18
 
 - Adds a selectable Yomogi Direct Centreline style as the internal V2.7.0 development build.

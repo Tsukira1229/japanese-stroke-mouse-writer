@@ -18,6 +18,7 @@ from functools import lru_cache
 from pathlib import Path
 
 from localization import Language, LocalizedOSError, LocalizedValueError, tr
+from stroke_order import StrokeOrderSidecarError, ordered_source_paths, sample_polylines
 from stroke_styles import DEFAULT_STROKE_STYLE_ID, StrokeStyle, discover_stroke_styles, style_by_id
 from symbol_catalog import load_symbol_catalog
 
@@ -25,7 +26,7 @@ Point = tuple[float, float]
 PathList = list[list[Point]]
 PathBounds = tuple[float, float, float, float]
 
-APP_VERSION = "2.7.0"
+APP_VERSION = "2.7.1"
 SCRIPT_DIR = Path(__file__).resolve().parent
 BUNDLE_DIR = Path(getattr(sys, "_MEIPASS", SCRIPT_DIR))
 EXECUTABLE_DIR = Path(sys.executable).resolve().parent if getattr(sys, "frozen", False) else SCRIPT_DIR
@@ -332,6 +333,11 @@ def _open_stroke_style_archive(archive_path: Path) -> zipfile.ZipFile:
     return zipfile.ZipFile(archive_path)
 
 
+@lru_cache(maxsize=4)
+def _open_stroke_order_archive(archive_path: Path) -> zipfile.ZipFile:
+    return zipfile.ZipFile(archive_path)
+
+
 def stroke_style_svg_for_char(char: str, style: StrokeStyle) -> bytes | None:
     resolved = STROKE_ALIASES.get(char, char)
     filename = f"{ord(resolved):05x}.svg"
@@ -360,6 +366,29 @@ def _sample_svg_root(root: ET.Element, sample_spacing: float) -> PathList:
         if len(sampled) >= 2:
             paths.append(sampled)
     return paths
+
+
+def _ordered_style_paths(
+    char: str,
+    style: StrokeStyle,
+    style_svg: bytes,
+    sample_spacing: float,
+) -> PathList | None:
+    if style.order_archive is None or not style.strokes_archive_sha256:
+        return None
+    try:
+        order_data = _open_stroke_order_archive(style.order_archive).read(f"orders/{ord(char):05x}.json")
+        source_paths = ordered_source_paths(
+            style_svg,
+            order_data,
+            character=char,
+            style_id=style.id,
+            source_archive_sha256=style.strokes_archive_sha256,
+        )
+        paths = sample_polylines(source_paths, sample_spacing)
+        return paths or None
+    except (KeyError, OSError, zipfile.BadZipFile, StrokeOrderSidecarError):
+        return None
 
 
 def _load_base_glyph(
@@ -397,7 +426,9 @@ def load_glyph_paths(
             or root.attrib.get("viewBox") != "0 0 109 109"
         ):
             raise StrokeStyleResourceError("stroke_style_resource", style=style.id, char=resolved)
-        paths = _sample_svg_root(root, sample_spacing)
+        paths = _ordered_style_paths(resolved, style, style_svg, sample_spacing)
+        if paths is None:
+            paths = _sample_svg_root(root, sample_spacing)
         if not paths:
             raise StrokeStyleResourceError("stroke_style_resource", style=style.id, char=resolved)
         return LoadedGlyph(paths, style.view_box, style.id, False)

@@ -63,10 +63,23 @@ class JapaneseWriterUiTests(unittest.TestCase):
     def test_all_direct_styles_are_selectable(self) -> None:
         labels = self.app._stroke_style_labels()
         self.assertEqual(set(labels.values()), {"kanjivg", "yomogi", "zen-kurenaido", "hachi-maru-pop"})
+        self.assertIn("KanjiVG (預設)", labels)
+        self.assertIn("Yomogi", labels)
+        self.assertFalse(any("直繪中心線" in label for label in labels))
         for style_id in ("yomogi", "zen-kurenaido", "hachi-maru-pop"):
             selected = next(label for label, value in labels.items() if value == style_id)
             self.app.stroke_style.set(selected)
             self.assertEqual(self.app.read_general().stroke_style, style_id)
+
+    def test_named_preset_restores_writing_style(self) -> None:
+        labels = self.app._stroke_style_labels()
+        hachi_label = next(label for label, value in labels.items() if value == "hachi-maru-pop")
+        self.app.stroke_style.set(hachi_label)
+        preset = self.app.store.add_preset("Hachi", self.app.read_general())
+        self.app.refresh_preset_list(preset.id)
+        self.app.stroke_style.set(next(label for label, value in labels.items() if value == "kanjivg"))
+        self.app.load_selected_preset()
+        self.assertEqual(self.app.read_general().stroke_style, "hachi-maru-pop")
 
     def test_emergency_hint_uses_previous_status_bar_style(self) -> None:
         self.assertIs(self.app.emergency_label.master, self.app.status_bar)
@@ -84,10 +97,11 @@ class JapaneseWriterUiTests(unittest.TestCase):
         self.assertIn("預計書寫矩形", help_text)
         self.assertIn("顏文字", help_text)
         self.assertIn("特殊符號", help_text)
-        self.assertIn("Yomogi直繪中心線", help_text)
+        self.assertIn("KanjiVG (預設)", help_text)
+        self.assertIn("最佳努力", help_text)
         self.assertIn("Zen Kurenaido", help_text)
         self.assertIn("Hachi Maru Pop", help_text)
-        self.assertIn("不代表傳統筆順", help_text)
+        self.assertIn("不保證正統日文筆順", help_text)
         self.assertIn("左上角", help_text)
         self.assertIn("右上角", help_text)
         self.assertIn("ESC", help_text)

@@ -1,4 +1,4 @@
-# Japanese Stroke Mouse Writer V2.7.0 Development
+# Japanese Stroke Mouse Writer V2.7.1 Development
 
 A portable Windows 10/11 x64 mouse-writing tool. It converts Japanese text, alphanumeric characters, and supported symbols into centerline strokes, then writes them in Paint or another mouse-driven canvas.
 
@@ -6,7 +6,7 @@ A portable Windows 10/11 x64 mouse-writing tool. It converts Japanese text, alph
 
 ## Installation
 
-1. Place the complete `JapaneseStrokeMouseWriter-v2.7.0-development-win-x64-portable` folder in a writable location such as Documents or Desktop.
+1. Place the complete `JapaneseStrokeMouseWriter-v2.7.1-development-win-x64-portable` folder in a writable location such as Documents or Desktop.
 2. Do not move the EXE alone. Keep `_internal`, `user_data`, and all bundled files in their original relative locations.
 3. Run `JapaneseStrokeMouseWriter.exe`. Python and administrator privileges are not required.
 4. If Windows SmartScreen shows an unknown-publisher warning, verify that the files came from this project before choosing **More info** and **Run anyway**. The program is currently unsigned.
@@ -26,7 +26,7 @@ Open the offline [HTML Complete Guide](complete-guide.en.html) for detailed inst
 
 ## Features
 
-- Selects KanjiVG Original, Yomogi Direct Centreline, Zen Kurenaido Direct Centreline, or Hachi Maru Pop Direct Centreline; preview and mouse output use the same path data.
+- Selects KanjiVG (Default), Yomogi, Zen Kurenaido, or Hachi Maru Pop; preview and mouse output use the same path data.
 - Preserves spaces, Tab, explicit and repeated line breaks, and wraps automatically at the writable boundary.
 - Supports horizontal, vertical, right, and left layouts. Preview and mouse output use the same path data.
 - Halfwidth characters occupy `0.5` cell; fullwidth and wide characters occupy `1` cell. Adjacent halfwidth characters use half the character gap; other pairs use the full gap.
@@ -38,7 +38,7 @@ Open the offline [HTML Complete Guide](complete-guide.en.html) for detailed inst
 
 Supported input includes Japanese kana, kanji available in KanjiVG, `A–Z`, `a–z`, `0–9`, fullwidth alphanumerics, and halfwidth katakana. Valid voiced and semi-voiced combinations such as `ｶﾞ` and `ﾊﾟ` are merged into one half-cell character.
 
-Yomogi contains 6,608 direct-centreline SVGs, with 96 catalog fallbacks, and includes the style-only kana `ゟ` and `ヿ`. Zen Kurenaido contains 6,591 direct SVGs and 111 fallbacks. Hachi Maru Pop contains 6,608 direct SVGs and 94 fallbacks. All three direct styles prioritize the final visual result; path order is not traditional stroke order.
+Yomogi contains 6,608 centreline SVGs, with 96 catalog fallbacks, and includes the style-only kana `ゟ` and `ヿ`. Zen Kurenaido contains 6,591 centreline SVGs and 111 fallbacks. Hachi Maru Pop contains 6,608 centreline SVGs and 94 fallbacks. Their supported catalog characters have 6,606, 6,591, and 6,608 locked best-effort drawing-order maps respectively. Every original skeleton edge is used exactly once, but authoritative Japanese stroke order is not guaranteed. Missing, damaged, or source-mismatched order data safely falls back to the original centreline path order.
 
 Printable ASCII punctuation and fullwidth counterparts are supported, including `#＃`, `(（`, `)）`, `[［`, `]］`, `@＠`, and `~～`. Japanese symbols include `、､`, `。｡`, `・･`, `ーｰ`, `「」`, `【】`, and `｢｣`.
 

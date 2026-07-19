@@ -83,7 +83,7 @@ class DocumentationTests(unittest.TestCase):
     def test_all_documents_use_current_version(self) -> None:
         for document in (*DOCS, *HTML_GUIDES):
             text = document.read_text(encoding="utf-8")
-            self.assertIn("V2.7.0", text)
+            self.assertIn("V2.7.1", text)
             self.assertNotIn("2.6.0-preview", text.lower())
             self.assertNotIn("V2.4.1", text)
             self.assertNotIn("V2.4.0", text)
@@ -141,14 +141,15 @@ class DocumentationTests(unittest.TestCase):
 
     def test_readmes_document_current_stroke_styles_and_symbol_expansion(self) -> None:
         expectations = {
-            "README.md": ("KanjiVG原始筆跡", "Yomogi直繪中心線", "Zen Kurenaido", "Hachi Maru Pop", "特殊符號"),
-            "README.en.md": ("KanjiVG Original", "Yomogi Direct Centreline", "Zen Kurenaido", "Hachi Maru Pop", "special symbols"),
-            "README.ja.md": ("KanjiVGオリジナル", "Yomogi直接中心線", "Zen Kurenaido", "Hachi Maru Pop", "特殊記号"),
+            "README.md": ("KanjiVG (預設)", "Yomogi", "Zen Kurenaido", "Hachi Maru Pop", "最佳努力", "特殊符號"),
+            "README.en.md": ("KanjiVG (Default)", "Yomogi", "Zen Kurenaido", "Hachi Maru Pop", "best-effort", "special symbols"),
+            "README.ja.md": ("KanjiVG (既定)", "Yomogi", "Zen Kurenaido", "Hachi Maru Pop", "ベストエフォート", "特殊記号"),
         }
         for filename, phrases in expectations.items():
             text = (ROOT / filename).read_text(encoding="utf-8")
             for phrase in phrases:
                 self.assertIn(phrase, text)
+            self.assertTrue("自訂選項" in text or "presets" in text.lower() or "プリセット" in text)
 
     def test_ui_guidance_matches_bottom_status_bar_and_help_tab(self) -> None:
         old_descriptions = ("標題下方固定", "below the title", "タイトル下")
@@ -159,7 +160,7 @@ class DocumentationTests(unittest.TestCase):
     def test_readmes_document_current_portable_folder(self) -> None:
         for document in DOCS[:3]:
             text = document.read_text(encoding="utf-8")
-            self.assertIn("JapaneseStrokeMouseWriter-v2.7.0-development-win-x64-portable", text)
+            self.assertIn("JapaneseStrokeMouseWriter-v2.7.1-development-win-x64-portable", text)
             self.assertNotIn("JapaneseStrokeMouseWriter-v2.4.1-win-x64-portable", text)
 
     def test_portable_build_includes_html_guides(self) -> None:
@@ -167,10 +168,10 @@ class DocumentationTests(unittest.TestCase):
         self.assertIn('-Filter "*.html"', build_script)
         self.assertIn("generate_html_guides.py", build_script)
 
-    def test_v270_development_build_is_uncompressed_and_local(self) -> None:
+    def test_v271_development_build_is_uncompressed_and_local(self) -> None:
         build_script = (ROOT / "scripts" / "build_development_portable.ps1").read_text(encoding="utf-8")
-        self.assertIn("JapaneseStrokeMouseWriter-v2.7.0-development-win-x64-portable", build_script)
-        self.assertIn("build\\development-v2.7.0", build_script)
+        self.assertIn("JapaneseStrokeMouseWriter-v2.7.1-development-win-x64-portable", build_script)
+        self.assertIn("build\\development-v2.7.1", build_script)
         for style_id in ("yomogi", "zen-kurenaido", "hachi-maru-pop"):
             self.assertIn(style_id, build_script)
         self.assertNotIn("CreateFromDirectory", build_script)

@@ -3,15 +3,15 @@
   "id": "hachi-maru-pop",
   "display_order": 30,
   "labels": {
-    "zh-Hant": "Hachi Maru Pop直繪中心線",
-    "zh-Hans": "Hachi Maru Pop直绘中心线",
-    "ja": "Hachi Maru Pop直接中心線",
-    "en": "Hachi Maru Pop Direct Centreline"
+    "zh-Hant": "Hachi Maru Pop",
+    "zh-Hans": "Hachi Maru Pop",
+    "ja": "Hachi Maru Pop",
+    "en": "Hachi Maru Pop"
   },
   "runtime_mode": "direct",
   "view_box": "0 0 109 109",
   "path_semantics": "visual-centerline",
-  "order_semantics": "none",
+  "order_semantics": "best-effort-kanjivg-guided",
   "strokes_archive": "strokes.zip",
   "strokes_archive_sha256": "f532cad5a310239553db7252e0abaeaed4fcbd7df116e477948e6709027e223e",
   "fallback_style": "kanjivg",
@@ -78,7 +78,17 @@
       "total_points": 298300
     },
     "human_review_file": "HUMAN_REVIEW.json",
-    "usage_notice": "Visual centreline only; path order is not traditional stroke order. The 94 explicitly listed source-missing or conversion-ineligible glyphs fall back to KanjiVG."
+    "usage_notice": "Visual centreline with a locked best-effort drawing order; not authoritative Japanese stroke order. The 94 explicitly listed source-missing or conversion-ineligible glyphs fall back to KanjiVG."
+  },
+  "drawing_order": {
+    "archive": "orders.zip",
+    "sha256": "bafada4c7571940c771a55a0af30ef708df143b745c9dc2b99f1e91edf927b94",
+    "eligible_maps": 6608,
+    "semantics": "best-effort-kanjivg-guided",
+    "authoritative_japanese_stroke_order": false,
+    "missing_kvg_strokes": 2,
+    "geometry_contract": "frozen M/L points; each source edge used exactly once; reorder, reverse, and split at existing points only",
+    "fallback": "original direct SVG path order"
   },
   "source_box": {
     "font_size_px": 390,

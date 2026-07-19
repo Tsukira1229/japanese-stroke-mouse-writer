@@ -233,11 +233,11 @@ def formal_manifest(archive_hash: str, fallback: list[int], aggregate: dict[str,
         "schema_version": 3,
         "id": "yomogi",
         "display_order": 10,
-        "labels": {"zh-Hant": "Yomogi直繪中心線", "zh-Hans": "Yomogi直绘中心线", "ja": "Yomogi直接中心線", "en": "Yomogi Direct Centreline"},
+        "labels": {"zh-Hant": "Yomogi", "zh-Hans": "Yomogi", "ja": "Yomogi", "en": "Yomogi"},
         "runtime_mode": "direct",
         "view_box": "0 0 109 109",
         "path_semantics": "visual-centerline",
-        "order_semantics": "none",
+        "order_semantics": "best-effort-kanjivg-guided",
         "strokes_archive": "strokes.zip",
         "strokes_archive_sha256": archive_hash,
         "fallback_style": "kanjivg",
@@ -275,7 +275,17 @@ def formal_manifest(archive_hash: str, fallback: list[int], aggregate: dict[str,
             "status": "formal-automatic-gates-with-191-human-approved",
             "hard_gates": {"minimum_coverage_1_5px": 0.99, "missing_source_components": 0, "all_within_outline_or_0_5": True},
             "aggregate": aggregate,
-            "usage_notice": "Visual centreline only; path order is not traditional stroke order. The 96 explicitly listed source-missing or conversion-ineligible glyphs fall back to KanjiVG.",
+            "usage_notice": "Visual centreline with a locked best-effort drawing order; not authoritative Japanese stroke order. The 96 explicitly listed source-missing or conversion-ineligible glyphs fall back to KanjiVG.",
+        },
+        "drawing_order": {
+            "archive": "orders.zip",
+            "sha256": "cd1f778ff2793c737d3b0908976dddfa95a7d9bb991b345eb44e21ac1bfec331",
+            "eligible_maps": 6606,
+            "semantics": "best-effort-kanjivg-guided",
+            "authoritative_japanese_stroke_order": False,
+            "missing_kvg_strokes": 0,
+            "geometry_contract": "frozen M/L points; each source edge used exactly once; reorder, reverse, and split at existing points only",
+            "fallback": "original direct SVG path order",
         },
     }
 
@@ -289,6 +299,11 @@ def promote(formal_dir: Path, build_dir: Path, manifest: dict[str, object]) -> N
     shutil.copyfile(build_dir / "fallback.json", staging / "fallback.json")
     shutil.copyfile(build_dir / "fallback.csv", staging / "fallback.csv")
     shutil.copyfile(DEFAULT_OFL, staging / "OFL.txt")
+    order_source = ROOT / "data" / "stroke_styles" / "yomogi" / "orders.zip"
+    expected_order_hash = str(manifest["drawing_order"]["sha256"])
+    if not order_source.is_file() or sha256(order_source) != expected_order_hash:
+        raise RuntimeError("Formal Yomogi drawing-order sidecar is missing or changed")
+    (staging / "orders.zip").write_bytes(order_source.read_bytes())
     (staging / "manifest.json").write_text(json.dumps(manifest, ensure_ascii=False, indent=2) + "\n", encoding="utf-8", newline="\n")
     (staging / "SOURCE.md").write_text(source_record(manifest), encoding="utf-8", newline="\n")
     if formal_dir.exists():

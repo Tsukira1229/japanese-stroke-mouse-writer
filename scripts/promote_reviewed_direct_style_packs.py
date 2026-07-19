@@ -36,6 +36,9 @@ class PackConfig:
     source_missing: int
     conversion_ineligible: int
     labels: dict[str, str]
+    order_archive_sha256: str
+    order_maps: int
+    missing_kvg_strokes: int
     source_box: dict[str, object] | None = None
 
 
@@ -56,12 +59,10 @@ PACKS = (
         fallback=111,
         source_missing=88,
         conversion_ineligible=23,
-        labels={
-            "zh-Hant": "Zen Kurenaido直繪中心線",
-            "zh-Hans": "Zen Kurenaido直绘中心线",
-            "ja": "Zen Kurenaido直接中心線",
-            "en": "Zen Kurenaido Direct Centreline",
-        },
+        labels={"zh-Hant": "Zen Kurenaido", "zh-Hans": "Zen Kurenaido", "ja": "Zen Kurenaido", "en": "Zen Kurenaido"},
+        order_archive_sha256="209caf2a443060b4fd5c4d4107f4004c1810f138cb2087e349c117101d895fe1",
+        order_maps=6591,
+        missing_kvg_strokes=0,
     ),
     PackConfig(
         id="hachi-maru-pop",
@@ -79,12 +80,10 @@ PACKS = (
         fallback=94,
         source_missing=88,
         conversion_ineligible=6,
-        labels={
-            "zh-Hant": "Hachi Maru Pop直繪中心線",
-            "zh-Hans": "Hachi Maru Pop直绘中心线",
-            "ja": "Hachi Maru Pop直接中心線",
-            "en": "Hachi Maru Pop Direct Centreline",
-        },
+        labels={"zh-Hant": "Hachi Maru Pop", "zh-Hans": "Hachi Maru Pop", "ja": "Hachi Maru Pop", "en": "Hachi Maru Pop"},
+        order_archive_sha256="bafada4c7571940c771a55a0af30ef708df143b745c9dc2b99f1e91edf927b94",
+        order_maps=6608,
+        missing_kvg_strokes=2,
         source_box={
             "font_size_px": 390,
             "anchor_y_px": 182,
@@ -206,7 +205,7 @@ def manifest(config: PackConfig, aggregate: dict[str, object], fallback: list[di
         "runtime_mode": "direct",
         "view_box": "0 0 109 109",
         "path_semantics": "visual-centerline",
-        "order_semantics": "none",
+        "order_semantics": "best-effort-kanjivg-guided",
         "strokes_archive": "strokes.zip",
         "strokes_archive_sha256": config.archive_sha256,
         "fallback_style": "kanjivg",
@@ -247,9 +246,19 @@ def manifest(config: PackConfig, aggregate: dict[str, object], fallback: list[di
             "aggregate": formal_aggregate,
             "human_review_file": "HUMAN_REVIEW.json",
             "usage_notice": (
-                "Visual centreline only; path order is not traditional stroke order. "
+                "Visual centreline with a locked best-effort drawing order; not authoritative Japanese stroke order. "
                 f"The {len(fallback)} explicitly listed source-missing or conversion-ineligible glyphs fall back to KanjiVG."
             ),
+        },
+        "drawing_order": {
+            "archive": "orders.zip",
+            "sha256": config.order_archive_sha256,
+            "eligible_maps": config.order_maps,
+            "semantics": "best-effort-kanjivg-guided",
+            "authoritative_japanese_stroke_order": False,
+            "missing_kvg_strokes": config.missing_kvg_strokes,
+            "geometry_contract": "frozen M/L points; each source edge used exactly once; reorder, reverse, and split at existing points only",
+            "fallback": "original direct SVG path order",
         },
     }
     if config.source_box:
@@ -278,8 +287,12 @@ def promote(config: PackConfig, destination_root: Path) -> None:
         raise RuntimeError(f"Source-missing count drift: {config.id}")
     if sum(count for reason, count in reasons.items() if reason != "source-font-missing") != config.conversion_ineligible:
         raise RuntimeError(f"Conversion fallback count drift: {config.id}")
-    review = merged_review_lock(config, archive)
     destination = destination_root / config.id
+    order_source = ROOT / "data" / "stroke_styles" / config.id / "orders.zip"
+    if not order_source.is_file() or sha256(order_source) != config.order_archive_sha256:
+        raise RuntimeError(f"Formal drawing-order sidecar is missing or changed: {config.id}")
+    order_data = order_source.read_bytes()
+    review = merged_review_lock(config, archive)
     if destination.exists():
         shutil.rmtree(destination)
     destination.mkdir(parents=True)
@@ -287,6 +300,7 @@ def promote(config: PackConfig, destination_root: Path) -> None:
     shutil.copyfile(build / "fallback.json", destination / "fallback.json")
     shutil.copyfile(build / "fallback.csv", destination / "fallback.csv")
     shutil.copyfile(build / "OFL.txt", destination / "OFL.txt")
+    (destination / "orders.zip").write_bytes(order_data)
     (destination / "HUMAN_REVIEW.json").write_text(json.dumps(review, ensure_ascii=False, indent=2) + "\n", encoding="utf-8", newline="\n")
     payload = manifest(config, aggregate, fallback)
     (destination / "manifest.json").write_text(json.dumps(payload, ensure_ascii=False, indent=2) + "\n", encoding="utf-8", newline="\n")

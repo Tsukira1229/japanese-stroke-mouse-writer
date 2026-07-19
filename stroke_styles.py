@@ -19,6 +19,10 @@ class StrokeStyle:
     labels: dict[str, str]
     strokes_dir: Path | None
     strokes_archive: Path | None
+    order_archive: Path | None
+    strokes_archive_sha256: str | None
+    order_archive_sha256: str | None
+    order_maps: int
     source_name: str
     license_id: str
     generated_glyphs: int
@@ -37,13 +41,17 @@ def _default_style() -> StrokeStyle:
     return StrokeStyle(
         id=DEFAULT_STROKE_STYLE_ID,
         labels={
-            "zh-Hant": "KanjiVG原始筆跡",
-            "zh-Hans": "KanjiVG原始笔迹",
-            "ja": "KanjiVGオリジナル",
-            "en": "KanjiVG Original",
+            "zh-Hant": "KanjiVG (預設)",
+            "zh-Hans": "KanjiVG (默认)",
+            "ja": "KanjiVG (既定)",
+            "en": "KanjiVG (Default)",
         },
         strokes_dir=None,
         strokes_archive=None,
+        order_archive=None,
+        strokes_archive_sha256=None,
+        order_archive_sha256=None,
+        order_maps=0,
         source_name="KanjiVG",
         license_id="CC-BY-SA-3.0",
         generated_glyphs=0,
@@ -84,6 +92,8 @@ def discover_stroke_styles(bundle_dir: Path) -> tuple[StrokeStyle, ...]:
                 continue
             strokes_dir = manifest_path.parent / str(payload.get("strokes_dir", "strokes"))
             strokes_archive = manifest_path.parent / str(payload.get("strokes_archive", "strokes.zip"))
+            order_payload = dict(payload.get("drawing_order", {}))
+            order_archive = manifest_path.parent / str(order_payload.get("archive", "orders.zip"))
             if not strokes_dir.is_dir() and not strokes_archive.is_file():
                 continue
             conversion = dict(payload["conversion"])
@@ -92,6 +102,10 @@ def discover_stroke_styles(bundle_dir: Path) -> tuple[StrokeStyle, ...]:
                 labels={str(key): str(value) for key, value in dict(payload["labels"]).items()},
                 strokes_dir=strokes_dir if strokes_dir.is_dir() else None,
                 strokes_archive=strokes_archive if strokes_archive.is_file() else None,
+                order_archive=order_archive if order_archive.is_file() else None,
+                strokes_archive_sha256=str(payload.get("strokes_archive_sha256", "")) or None,
+                order_archive_sha256=str(order_payload.get("sha256", "")) or None,
+                order_maps=int(order_payload.get("eligible_maps", 0)),
                 source_name=str(dict(payload["source"])["font_name"]),
                 license_id=str(dict(payload["license"])["id"]),
                 generated_glyphs=int(conversion["eligible_glyphs"]),

@@ -10,6 +10,7 @@ import tempfile
 import unittest
 import xml.etree.ElementTree as ET
 import zipfile
+from dataclasses import replace
 from pathlib import Path
 from unittest.mock import patch
 
@@ -28,12 +29,18 @@ from mouse_writer_pro import (
     sample_svg_path,
 )
 from stroke_styles import DEFAULT_STROKE_STYLE_ID, discover_stroke_styles
+from stroke_order import direct_svg_source_paths, ordered_source_paths, sample_polylines
 
 
 PACK_DIR = BUNDLE_DIR / "data" / "stroke_styles" / "yomogi"
 REVIEWED_PACKS = {
     "zen-kurenaido": {"generated": 6591, "fallback": 111, "archive": "be8bc959480909f88a203f817ba546314ec49b4b9282d6252885923413c0b3c5"},
     "hachi-maru-pop": {"generated": 6608, "fallback": 94, "archive": "f532cad5a310239553db7252e0abaeaed4fcbd7df116e477948e6709027e223e"},
+}
+ORDER_PACKS = {
+    "yomogi": {"maps": 6606, "archive": "cd1f778ff2793c737d3b0908976dddfa95a7d9bb991b345eb44e21ac1bfec331"},
+    "zen-kurenaido": {"maps": 6591, "archive": "209caf2a443060b4fd5c4d4107f4004c1810f138cb2087e349c117101d895fe1"},
+    "hachi-maru-pop": {"maps": 6608, "archive": "bafada4c7571940c771a55a0af30ef708df143b745c9dc2b99f1e91edf927b94"},
 }
 NUMBER_RE = re.compile(r"[-+]?(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][-+]?\d+)?")
 
@@ -102,13 +109,9 @@ class YomogiDirectStyleTests(unittest.TestCase):
         self.assertFalse(loaded.fallback_used)
         self.assertEqual(loaded.source_bounds, (0.0, 0.0, 109.0, 109.0))
         with zipfile.ZipFile(PACK_DIR / "strokes.zip") as archive:
-            root = ET.fromstring(archive.read("strokes/09f8d.svg"))
-        expected = [
-            sample_svg_path(node.attrib["d"], 2.0)
-            for node in root.iter()
-            if node.tag.endswith("path")
-        ]
-        self.assertEqual(loaded.paths, expected)
+            source_points = [point for path in direct_svg_source_paths(archive.read("strokes/09f8d.svg")) for point in path]
+        loaded_points = [point for path in loaded.paths for point in path]
+        self.assertTrue(set(source_points) <= set(loaded_points))
         base = load_kanjivg_strokes(char, DEFAULT_KANJIVG_DIR, 2.0)
         self.assertIsNotNone(base)
         assert base is not None
@@ -221,6 +224,59 @@ class ReviewedDirectStyleTests(unittest.TestCase):
                 assert styled is not None
                 self.assertTrue(styled.fallback_used)
                 self.assertEqual(styled.actual_source, DEFAULT_STROKE_STYLE_ID)
+
+
+class BestEffortDrawingOrderTests(unittest.TestCase):
+    def tearDown(self) -> None:
+        core._open_stroke_order_archive.cache_clear()
+
+    def test_formal_order_archives_are_registered_and_hashed(self) -> None:
+        styles = {style.id: style for style in discover_stroke_styles(BUNDLE_DIR)}
+        for style_id, expected in ORDER_PACKS.items():
+            with self.subTest(style=style_id):
+                style = styles[style_id]
+                self.assertIsNotNone(style.order_archive)
+                assert style.order_archive is not None
+                self.assertEqual(style.order_maps, expected["maps"])
+                self.assertEqual(style.order_archive_sha256, expected["archive"])
+                self.assertEqual(hashlib.sha256(style.order_archive.read_bytes()).hexdigest(), expected["archive"])
+                with zipfile.ZipFile(style.order_archive) as archive:
+                    self.assertEqual(len(archive.namelist()), expected["maps"])
+
+    def test_runtime_uses_validated_sidecar_paths(self) -> None:
+        char = "あ"
+        for style in discover_stroke_styles(BUNDLE_DIR)[1:]:
+            with self.subTest(style=style.id):
+                assert style.strokes_archive is not None and style.order_archive is not None
+                with zipfile.ZipFile(style.strokes_archive) as strokes, zipfile.ZipFile(style.order_archive) as orders:
+                    svg_data = strokes.read("strokes/03042.svg")
+                    raw = ordered_source_paths(
+                        svg_data,
+                        orders.read("orders/03042.json"),
+                        character=char,
+                        style_id=style.id,
+                        source_archive_sha256=style.strokes_archive_sha256 or "",
+                    )
+                loaded = load_glyph_paths(char, DEFAULT_KANJIVG_DIR, 2.0, stroke_style=style.id)
+                assert loaded is not None
+                self.assertEqual(loaded.paths, sample_polylines(raw, 2.0))
+
+    def test_missing_or_damaged_sidecar_safely_uses_direct_path_order(self) -> None:
+        style = discover_stroke_styles(BUNDLE_DIR)[1]
+        assert style.strokes_archive is not None
+        with zipfile.ZipFile(style.strokes_archive) as archive:
+            svg_data = archive.read("strokes/03042.svg")
+        expected = core._sample_svg_root(ET.fromstring(svg_data), 2.0)
+        with tempfile.TemporaryDirectory() as temporary:
+            bad_archive = Path(temporary) / "orders.zip"
+            with zipfile.ZipFile(bad_archive, "w") as archive:
+                archive.writestr("orders/03042.json", b"not json")
+            damaged = replace(style, order_archive=bad_archive)
+            with patch.object(core, "style_by_id", return_value=damaged):
+                loaded = load_glyph_paths("あ", DEFAULT_KANJIVG_DIR, 2.0, stroke_style=style.id)
+            assert loaded is not None
+            self.assertEqual(loaded.paths, expected)
+            core._open_stroke_order_archive.cache_clear()
 
 
 if __name__ == "__main__":

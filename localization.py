@@ -44,7 +44,7 @@ ZH_HANT = {
 
 3. 調整排版
 「一般設定」可調整字體大小、字距、行距、水平或垂直排列，以及向右或向左流向。半形字元彼此相鄰時使用一半字距；只要任一側為全形字元就使用完整字距。空格與 Tab 亦遵循此規則。文字到達主方向邊界時會自動換行或換欄；副方向空間不足時會在移動滑鼠前停止並顯示錯誤。垂直排列會自動旋轉英數字、括號與長音符號。
-書寫風格可選擇KanjiVG原始筆跡、Yomogi直繪中心線、Zen Kurenaido直繪中心線或Hachi Maru Pop直繪中心線。直繪風格以最終外觀為優先，路徑順序不代表傳統筆順；各風格無法產生合格中心線的字元會依其清單明確回退KanjiVG。
+書寫風格可選擇KanjiVG (預設)、Yomogi、Zen Kurenaido或Hachi Maru Pop。三款字型使用已鎖定的最佳努力繪製順序，以完整保留字形骨架為優先，不保證正統日文筆順；無法產生合格中心線的字元會依各風格清單回退KanjiVG。自訂選項會一併保存目前書寫風格。
 
 4. 調整書寫環境
 「環境設定」可切換語言，並調整開始倒數、曲線精細度與取樣點停頓。曲線精細度越小越平滑但耗時越長；若筆畫斷線，可增加取樣點停頓。
@@ -195,7 +195,7 @@ After clicking a detection button, the main window is minimized. The pointer's c
 
 3. Adjust the layout
 General settings control font size, character gap, line gap, horizontal or vertical orientation, and right or left flow. Adjacent halfwidth characters use half the configured gap; a pair containing any fullwidth character uses the full gap. Spaces and Tab follow the same rule. Text wraps at the main-axis boundary. If the secondary axis has no room, writing stops before the pointer moves and an error is shown. Vertical layout automatically rotates letters, numbers, brackets, and long marks.
-Writing style selects KanjiVG Original or the Yomogi, Zen Kurenaido, and Hachi Maru Pop direct-centreline styles. Direct styles prioritize the final visual result, so path order is not traditional stroke order. Characters that cannot produce a valid centreline explicitly fall back to KanjiVG according to each pack's list.
+Writing style selects KanjiVG (Default), Yomogi, Zen Kurenaido, or Hachi Maru Pop. The three font styles use locked best-effort drawing orders that prioritize complete skeleton geometry and do not guarantee authoritative Japanese stroke order. Characters without a valid centreline fall back to KanjiVG according to each pack's list. Named presets also save the selected writing style.
 
 4. Adjust the writing environment
 Environment settings control language, start countdown, curve detail, and sample delay. Smaller curve-detail values are smoother but take longer. Increase sample delay if strokes break.
@@ -249,7 +249,7 @@ ZH_HANS = {**ZH_HANT,
 
 3. 调整排版
 “常规设置”可调整字体大小、字距、行距、水平或垂直排列，以及向右或向左流向。半形字符彼此相邻时使用一半字距；只要任一侧为全形字符就使用完整字距。空格与 Tab 也遵循此规则。文字到达主方向边界时会自动换行或换列；副方向空间不足时会在移动鼠标前停止并显示错误。垂直排列会自动旋转英文字母、数字、括号和长音符号。
-书写风格可选择KanjiVG原始笔迹、Yomogi、Zen Kurenaido或Hachi Maru Pop直绘中心线。直绘风格以最终外观为优先，路径顺序不代表传统笔顺；各风格无法生成合格中心线的字符会依据各自清单明确回退到KanjiVG。
+书写风格可选择KanjiVG (默认)、Yomogi、Zen Kurenaido或Hachi Maru Pop。三款字体使用已经锁定的最佳努力绘制顺序，以完整保留字形骨架为优先，不保证正统日文笔顺；无法生成合格中心线的字符会依据各自清单回退到KanjiVG。自定义选项也会保存当前书写风格。
 
 4. 调整书写环境
 “环境设置”可切换语言，并调整开始倒计时、曲线精细度与采样点停顿。曲线精细度越小越平滑但耗时越长；若笔画断线，可增加采样点停顿。
@@ -299,7 +299,7 @@ JA = {**EN,
 
 3. レイアウトを調整する
 「一般設定」では文字サイズ、文字間隔、行間隔、横書きまたは縦書き、右方向または左方向を設定します。半角文字同士は半分の文字間隔を使用し、どちらかが全角文字なら完全な文字間隔を使用します。スペースと Tab にも同じ規則を適用します。主方向の境界に達すると自動で改行または改列します。副方向の空間が不足する場合は、マウスを動かす前に停止してエラーを表示します。縦書きでは英数字、括弧、長音記号を自動回転します。
-書き込みスタイルはKanjiVGオリジナル、Yomogi、Zen Kurenaido、Hachi Maru Popの直接中心線を選択できます。直接中心線は最終的な外観を優先するため、パス順序は伝統的な筆順を示しません。有効な中心線を生成できない文字は各パックの一覧に従ってKanjiVGへ明示的にフォールバックします。
+書き込みスタイルはKanjiVG (既定)、Yomogi、Zen Kurenaido、Hachi Maru Popから選択できます。3つのフォントスタイルは骨格を完全に保持することを優先した、固定済みのベストエフォート描画順を使用します。正統な日本語の筆順を保証するものではありません。有効な中心線を生成できない文字は各パックの一覧に従ってKanjiVGへフォールバックします。プリセットには選択中の書き込みスタイルも保存されます。
 
 4. 書き込み環境を調整する
 「環境設定」では言語、開始カウントダウン、曲線精度、サンプル待機を設定します。曲線精度は小さいほど滑らかですが時間がかかります。線が途切れる場合はサンプル待機を増やしてください。

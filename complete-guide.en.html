@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="color-scheme" content="light">
-  <title>Japanese Stroke Mouse Writer V2.7.0 Development - Complete Guide</title>
+  <title>Japanese Stroke Mouse Writer V2.7.1 Development - Complete Guide</title>
   <style>:root {
   color-scheme: light;
   --background: #fff8fb;
@@ -105,7 +105,7 @@ h1:hover .headerlink, h2:hover .headerlink { color: var(--accent); }
 </head>
 <body>
   <header class="topbar">
-    <a class="brand" href="#content">Japanese Stroke Mouse Writer V2.7.0 Development</a>
+    <a class="brand" href="#content">Japanese Stroke Mouse Writer V2.7.1 Development</a>
     <nav class="languages" aria-label="Languages">
       <a href="complete-guide.html">繁體中文</a>
 <a href="complete-guide.en.html" aria-current="page">English</a>
@@ -131,7 +131,7 @@ h1:hover .headerlink, h2:hover .headerlink { color: var(--accent); }
 
     </nav>
     <main id="content">
-      <h1 id="japanese-stroke-mouse-writer-v270-development-complete-guide">Japanese Stroke Mouse Writer V2.7.0 Development Complete Guide</h1>
+      <h1 id="japanese-stroke-mouse-writer-v271-development-complete-guide">Japanese Stroke Mouse Writer V2.7.1 Development Complete Guide</h1>
 <p>This guide starts with the first launch and explains how to define the writing area, verify the preview, and run the program safely.</p>
 <h2 id="1-launch-and-prepare-the-canvas">1. Launch and Prepare the Canvas</h2>
 <ol>
@@ -164,7 +164,7 @@ h1:hover .headerlink, h2:hover .headerlink { color: var(--accent); }
 <li><strong>Line gap</strong>: row spacing in horizontal layout or column spacing in vertical layout.</li>
 <li><strong>Orientation</strong>: horizontal places characters left or right; vertical places characters downward.</li>
 <li><strong>Flow</strong>: right or left, which also determines the side used by the start coordinate.</li>
-<li><strong>Writing style</strong>: KanjiVG Original follows the source stroke order. Yomogi, Zen Kurenaido, and Hachi Maru Pop Direct Centreline reproduce each font skeleton directly; path order is not traditional stroke order.</li>
+<li><strong>Writing style</strong>: KanjiVG (Default) follows its source stroke order. Yomogi, Zen Kurenaido, and Hachi Maru Pop use locked best-effort drawing orders that preserve every original skeleton edge but do not guarantee authoritative Japanese stroke order. Invalid order data falls back to the original centreline path order.</li>
 </ul>
 <p>Halfwidth characters occupy <code>0.5</code> cell, fullwidth and wide characters occupy <code>1</code> cell, and Tab equals four halfwidth spaces. Valid halfwidth katakana combinations such as <code>ｶﾞ</code> and <code>ﾊﾟ</code> occupy one half-cell.</p>
 <p>In vertical layout, alphanumeric characters, brackets, and long marks rotate clockwise. <code>、。</code> move to the upper-right of their cells. Arrows and box-drawing characters preserve their direction.</p>
@@ -181,6 +181,7 @@ h1:hover .headerlink, h2:hover .headerlink { color: var(--accent); }
 <h2 id="6-check-supported-input">6. Check Supported Input</h2>
 <p>Supported input includes Japanese kana, kanji available in KanjiVG, <code>A–Z</code>, <code>a–z</code>, <code>0–9</code>, fullwidth alphanumerics, halfwidth katakana, and common symbols.</p>
 <p>Yomogi provides 6,608 direct glyphs and 96 fallbacks, including the style-only kana <code>ゟ</code> and <code>ヿ</code>. Zen Kurenaido provides 6,591 direct glyphs and 111 fallbacks; Hachi Maru Pop provides 6,608 direct glyphs and 94 fallbacks. Fallback is limited to the source-missing or conversion-ineligible characters explicitly listed by each pack.</p>
+<p>The three font styles provide 6,606, 6,591, and 6,608 best-effort drawing-order maps respectively. An order map only reorders, reverses, or splits at existing points, so every original skeleton edge is still used exactly once; this is not an authoritative Japanese stroke order. Missing, damaged, or source-mismatched order data automatically uses the original centreline path order. Named presets save and restore the selected writing style.</p>
 <p>Halfwidth/fullwidth pairs include <code>#＃</code>, <code>(（</code>, <code>)）</code>, <code>[［</code>, <code>]］</code>, <code>@＠</code>, <code>~～</code>, <code>、､</code>, <code>。｡</code>, <code>・･</code>, <code>ーｰ</code>, <code>「」</code>, <code>【】</code>, and <code>｢｣</code>. The program also supports some commonly used geometry, stars, checks, arrows, brackets, mathematics, and box-drawing symbols. See <a href="SUPPORTED_SYMBOLS.md">Supported Centerline Symbols</a> for the complete list.</p>
 <p>Not every special symbol is available. If the text contains an unsupported special symbol, the first unsupported character is reported before writing starts.</p>
 <p>For box drawing, set character gap and line gap to <code>0 px</code> to connect adjacent endpoints in <code>┏━┷━┓</code>, <code>┃　　┃</code>, and <code>┗━━━┛</code>.</p>
@@ -209,7 +210,7 @@ h1:hover .headerlink, h2:hover .headerlink { color: var(--accent); }
 <li><strong>Output is offset</strong>: detect the coordinates again and do not move the canvas, window, or zoom after the countdown.</li>
 <li><strong>Kaomoji proportions look wrong</strong>: adjust character gap and verify the intended halfwidth or fullwidth symbols.</li>
 </ul>
-      <p class="footer">Japanese Stroke Mouse Writer V2.7.0 Development - Offline documentation</p>
+      <p class="footer">Japanese Stroke Mouse Writer V2.7.1 Development - Offline documentation</p>
     </main>
   </div>
 </body>
