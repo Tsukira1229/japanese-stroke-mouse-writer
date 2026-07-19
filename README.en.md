@@ -1,4 +1,4 @@
-# Japanese Stroke Mouse Writer V2.7.1 Development
+# Japanese Stroke Mouse Writer V2.7.1
 
 A portable Windows 10/11 x64 mouse-writing tool. It converts Japanese text, alphanumeric characters, and supported symbols into centerline strokes, then writes them in Paint or another mouse-driven canvas.
 
@@ -6,7 +6,7 @@ A portable Windows 10/11 x64 mouse-writing tool. It converts Japanese text, alph
 
 ## Installation
 
-1. Place the complete `JapaneseStrokeMouseWriter-v2.7.1-development-win-x64-portable` folder in a writable location such as Documents or Desktop.
+1. Download and extract `JapaneseStrokeMouseWriter-v2.7.1-win-x64-portable.zip`, then place the complete folder in a writable location such as Documents or Desktop.
 2. Do not move the EXE alone. Keep `_internal`, `user_data`, and all bundled files in their original relative locations.
 3. Run `JapaneseStrokeMouseWriter.exe`. Python and administrator privileges are not required.
 4. If Windows SmartScreen shows an unknown-publisher warning, verify that the files came from this project before choosing **More info** and **Run anyway**. The program is currently unsigned.

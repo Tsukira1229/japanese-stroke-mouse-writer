@@ -4,7 +4,7 @@ param(
 
 $ErrorActionPreference = "Stop"
 $Root = (Resolve-Path (Join-Path $PSScriptRoot "..")).Path
-$PackageName = "JapaneseStrokeMouseWriter-v2.6.2-win-x64-portable"
+$PackageName = "JapaneseStrokeMouseWriter-v2.7.1-win-x64-portable"
 $Dist = Join-Path $Root "dist"
 $PackageDir = Join-Path $Dist $PackageName
 $Archive = Join-Path $Dist "$PackageName.zip"
@@ -20,8 +20,24 @@ try {
     & $Python -m PyInstaller --noconfirm --clean "JapaneseStrokeMouseWriter.spec"
     if ($LASTEXITCODE -ne 0) { throw "PyInstaller build failed." }
 
-    Get-ChildItem -LiteralPath $Root -Filter "*.md" -File |
-        Copy-Item -Destination $PackageDir -Force
+    $DocumentationFiles = @(
+        "CHANGELOG.md",
+        "CODE_SIGNING_POLICY.md",
+        "FONT_STYLE_POLICY.md",
+        "PRIVACY.md",
+        "README.md",
+        "README.en.md",
+        "README.ja.md",
+        "SECURITY.md",
+        "SUPPORTED_SYMBOLS.md",
+        "THIRD_PARTY_NOTICES.md",
+        "complete-guide.md",
+        "complete-guide.en.md",
+        "complete-guide.ja.md"
+    )
+    foreach ($Document in $DocumentationFiles) {
+        Copy-Item -LiteralPath (Join-Path $Root $Document) -Destination $PackageDir -Force
+    }
     Get-ChildItem -LiteralPath $Root -Filter "*.html" -File |
         Copy-Item -Destination $PackageDir -Force
     Copy-Item -LiteralPath (Join-Path $Root "LICENSE") -Destination $PackageDir -Force
@@ -44,6 +60,20 @@ try {
         -WindowStyle Hidden -Wait -PassThru
     if ($SelfTest.ExitCode -ne 0) { throw "Frozen executable self-test failed." }
     Remove-Item -LiteralPath $SelfTestSettings -Force -ErrorAction SilentlyContinue
+
+    foreach ($StyleId in @("yomogi", "zen-kurenaido", "hachi-maru-pop")) {
+        foreach ($ArchiveName in @("strokes.zip", "orders.zip")) {
+            $SourceStyle = Join-Path $Root "data\stroke_styles\$StyleId\$ArchiveName"
+            $PackagedStyle = Join-Path $PackageDir "_internal\data\stroke_styles\$StyleId\$ArchiveName"
+            if (-not (Test-Path -LiteralPath $PackagedStyle -PathType Leaf)) {
+                throw "Packaged style archive is missing: $StyleId/$ArchiveName"
+            }
+            if ((Get-FileHash -LiteralPath $SourceStyle -Algorithm SHA256).Hash -ne
+                (Get-FileHash -LiteralPath $PackagedStyle -Algorithm SHA256).Hash) {
+                throw "Packaged style archive differs from the source pack: $StyleId/$ArchiveName"
+            }
+        }
+    }
 
     Remove-Item -LiteralPath $Archive -Force -ErrorAction SilentlyContinue
     Remove-Item -LiteralPath $HashFile -Force -ErrorAction SilentlyContinue
