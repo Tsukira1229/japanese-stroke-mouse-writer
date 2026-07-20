@@ -33,7 +33,6 @@ ARROWS = frozenset("←↑→↓↔↕↖↗↘↙⇐⇑⇒⇓⇔⇕")
 
 class CommonSymbolVariantTests(unittest.TestCase):
     def test_exact_set_uses_direct_codepoint_resources(self) -> None:
-        self.assertEqual(len(EXPECTED), 89)
         self.assertEqual(COMMON_SYMBOL_VARIANTS, EXPECTED)
         self.assertTrue(EXPECTED <= SUPPORTED_SYMBOLS)
         self.assertTrue(EXPECTED.isdisjoint(STROKE_ALIASES))

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Project-authored outline stroke data for U+0021 and fullwidth alias U+FF01. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 109 109">
+  <path id="custom:00021-s1" d="M49,14 L60,14 L58,64 L51,64 L49,14" />
+  <path id="custom:00021-s2" d="M49,75 L60,75 L60,84 L49,84 L49,75" />
+</svg>

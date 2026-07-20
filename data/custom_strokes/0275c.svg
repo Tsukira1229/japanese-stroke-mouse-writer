@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Project-authored centerline stroke data for U+275C. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 109 109">
+  <path id="custom:0275c-s1" d="M54,17 C60,17 64,21 64,27 C64,33 60,37 54,37 C48,37 44,33 44,27 C44,21 48,17 54,17" />
+  <path id="custom:0275c-s2" d="M54,21 C58,21 60,23.5 60,27 C60,30.5 58,33 54,33 C50,33 48,30.5 48,27 C48,23.5 50,21 54,21" />
+  <path id="custom:0275c-s3" d="M54,37 C54,44 50,48 44,50" />
+</svg>

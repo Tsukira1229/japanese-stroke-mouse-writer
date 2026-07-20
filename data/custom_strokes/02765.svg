@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Project-authored centerline stroke data for U+2765. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 109 109">
+  <path id="custom:02765-s1" d="M39,54.5 C24,44 28,22 45,22 C62,22 77,43 88,54.5 C77,66 62,87 45,87 C28,87 24,65 39,54.5" />
+  <path id="custom:02765-s2" d="M34,36 L62,36" />
+  <path id="custom:02765-s3" d="M28,48 L81,48" />
+  <path id="custom:02765-s4" d="M28,61 L81,61" />
+  <path id="custom:02765-s5" d="M34,73 L62,73" />
+</svg>

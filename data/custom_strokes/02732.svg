@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Project-authored centerline stroke data for U+2732. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 109 109">
+  <path id="custom:02732-s1" d="M54.5,50.5 C56.71,50.5 58.5,52.29 58.5,54.5 C58.5,56.71 56.71,58.5 54.5,58.5 C52.29,58.5 50.5,56.71 50.5,54.5 C50.5,52.29 52.29,50.5 54.5,50.5" />
+  <path id="custom:02732-s2" d="M54.5,45.5 L54.5,13.5" />
+  <path id="custom:02732-s3" d="M62.29,50 L90.01,34" />
+  <path id="custom:02732-s4" d="M62.29,59 L90.01,75" />
+  <path id="custom:02732-s5" d="M54.5,63.5 L54.5,95.5" />
+  <path id="custom:02732-s6" d="M46.71,59 L18.99,75" />
+  <path id="custom:02732-s7" d="M46.71,50 L18.99,34" />
+</svg>

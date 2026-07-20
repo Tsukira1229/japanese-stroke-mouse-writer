@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Project-authored centerline stroke data for U+2737. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 109 109">
+  <path id="custom:02737-s1" d="M54.5,14.5 L62.15,36.02 L82.78,26.22 L72.98,46.85 L94.5,54.5 L72.98,62.15 L82.78,82.78 L62.15,72.98 L54.5,94.5 L46.85,72.98 L26.22,82.78 L36.02,62.15 L14.5,54.5 L36.02,46.85 L26.22,26.22 L46.85,36.02 L54.5,14.5" />
+  <path id="custom:02737-s2" d="M19.5,54.5 L89.5,54.5" />
+  <path id="custom:02737-s3" d="M29.75,29.75 L79.25,79.25" />
+  <path id="custom:02737-s4" d="M54.5,19.5 L54.5,89.5" />
+  <path id="custom:02737-s5" d="M79.25,29.75 L29.75,79.25" />
+</svg>

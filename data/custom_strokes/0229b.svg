@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Project-authored centerline stroke data for U+229B. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 109 109">
+  <path id="custom:0229b-s1" d="M54.5,25.5 C70.52,25.5 83.5,38.48 83.5,54.5 C83.5,70.52 70.52,83.5 54.5,83.5 C38.48,83.5 25.5,70.52 25.5,54.5 C25.5,38.48 38.48,25.5 54.5,25.5" />
+  <path id="custom:0229b-s2" d="M54.5,34 L54.5,75" />
+  <path id="custom:0229b-s3" d="M37,44 L72,65" />
+  <path id="custom:0229b-s4" d="M72,44 L37,65" />
+</svg>

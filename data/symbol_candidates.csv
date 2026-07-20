@@ -1,1 +1,85 @@
 symbol,codepoint,category,status,family,use_case,reason,notes
+◴,U+25F4,eyes-face-geometry,verified,kaomoji-eyes-geometry-01,kaomoji eye,Completes four quadrant eye directions,Upper-left filled quadrant
+◵,U+25F5,eyes-face-geometry,verified,kaomoji-eyes-geometry-01,kaomoji eye,Completes four quadrant eye directions,Lower-left filled quadrant
+◶,U+25F6,eyes-face-geometry,verified,kaomoji-eyes-geometry-01,kaomoji eye,Completes four quadrant eye directions,Lower-right filled quadrant
+◷,U+25F7,eyes-face-geometry,verified,kaomoji-eyes-geometry-01,kaomoji eye,Completes four quadrant eye directions,Upper-right filled quadrant
+⊖,U+2296,eyes-face-geometry,verified,kaomoji-eyes-geometry-01,mechanical eye,Common circled relation variant,Circled minus
+⊘,U+2298,eyes-face-geometry,verified,kaomoji-eyes-geometry-01,mechanical eye,Common circled relation variant,Circled slash
+⊚,U+229A,eyes-face-geometry,verified,kaomoji-eyes-geometry-01,mechanical eye,Adds concentric-ring eye form,Circled ring
+⊛,U+229B,eyes-face-geometry,verified,kaomoji-eyes-geometry-01,mechanical eye,Adds sparkle pupil eye form,Circled asterisk
+⊜,U+229C,eyes-face-geometry,verified,kaomoji-eyes-geometry-01,mechanical eye,Adds equal-line eye form,Circled equals
+⊝,U+229D,eyes-face-geometry,verified,kaomoji-eyes-geometry-01,mechanical eye,Completes circled dash pair,Circled dash
+⊞,U+229E,eyes-face-geometry,verified,kaomoji-eyes-geometry-01,mechanical eye,Adds squared operator eye form,Squared plus
+⊟,U+229F,eyes-face-geometry,verified,kaomoji-eyes-geometry-01,mechanical eye,Adds squared operator eye form,Squared minus
+⊠,U+22A0,eyes-face-geometry,verified,kaomoji-eyes-geometry-01,mechanical eye,Adds squared operator eye form,Squared times
+⊡,U+22A1,eyes-face-geometry,verified,kaomoji-eyes-geometry-01,mechanical eye,Adds squared pupil eye form,Squared dot
+⦿,U+29BF,eyes-face-geometry,verified,kaomoji-eyes-geometry-01,mechanical eye,Adds bold circled pupil eye form,Circled bullet
+✢,U+2722,sparkle-decoration,verified,kaomoji-sparkle-decoration-02,kaomoji decoration,Completes the Dingbats star and florette family,Teardrop four-way sparkle
+✱,U+2731,sparkle-decoration,verified,kaomoji-sparkle-decoration-02,kaomoji decoration,Completes the Dingbats star and florette family,Heavy six-spoke accent
+✲,U+2732,sparkle-decoration,verified,kaomoji-sparkle-decoration-02,kaomoji decoration,Completes the Dingbats star and florette family,Open-centre six-spoke accent
+✳,U+2733,sparkle-decoration,verified,kaomoji-sparkle-decoration-02,kaomoji decoration,Completes the Dingbats star and florette family,Eight-spoke accent
+✴,U+2734,sparkle-decoration,verified,kaomoji-sparkle-decoration-02,kaomoji decoration,Completes the Dingbats star and florette family,Filled eight-point star
+✵,U+2735,sparkle-decoration,verified,kaomoji-sparkle-decoration-02,kaomoji decoration,Completes the Dingbats star and florette family,Pinwheel star accent
+✶,U+2736,sparkle-decoration,verified,kaomoji-sparkle-decoration-02,kaomoji decoration,Completes the Dingbats star and florette family,Filled six-point star
+✷,U+2737,sparkle-decoration,verified,kaomoji-sparkle-decoration-02,kaomoji decoration,Completes the Dingbats star and florette family,Rectilinear eight-point star
+✸,U+2738,sparkle-decoration,verified,kaomoji-sparkle-decoration-02,kaomoji decoration,Completes the Dingbats star and florette family,Heavy rectilinear star
+✹,U+2739,sparkle-decoration,verified,kaomoji-sparkle-decoration-02,kaomoji decoration,Completes the Dingbats star and florette family,Twelve-point star
+✺,U+273A,sparkle-decoration,verified,kaomoji-sparkle-decoration-02,kaomoji decoration,Completes the Dingbats star and florette family,Sixteen-spoke accent
+✻,U+273B,sparkle-decoration,verified,kaomoji-sparkle-decoration-02,kaomoji decoration,Completes the Dingbats star and florette family,Filled teardrop sparkle
+✼,U+273C,sparkle-decoration,verified,kaomoji-sparkle-decoration-02,kaomoji decoration,Completes the Dingbats star and florette family,Open-centre teardrop sparkle
+✽,U+273D,sparkle-decoration,verified,kaomoji-sparkle-decoration-02,kaomoji decoration,Completes the Dingbats star and florette family,Heavy teardrop sparkle
+✾,U+273E,sparkle-decoration,verified,kaomoji-sparkle-decoration-02,kaomoji decoration,Completes the Dingbats star and florette family,Alternating six-petal florette
+❀,U+2740,sparkle-decoration,verified,kaomoji-sparkle-decoration-02,kaomoji decoration,Completes the Dingbats star and florette family,Notched white florette
+❂,U+2742,sparkle-decoration,verified,kaomoji-dingbat-decoration-03,kaomoji decoration,Continues the Dingbats ornament family,Circled open-centre star
+❃,U+2743,sparkle-decoration,verified,kaomoji-dingbat-decoration-03,kaomoji decoration,Continues the Dingbats ornament family,Heavy pinwheel teardrop asterisk
+❄,U+2744,sparkle-decoration,verified,kaomoji-dingbat-decoration-03,kaomoji decoration,Adds a common seasonal accent,Snowflake
+❅,U+2745,sparkle-decoration,verified,kaomoji-dingbat-decoration-03,kaomoji decoration,Completes the snowflake variants,Tight trifoliate snowflake
+❆,U+2746,sparkle-decoration,verified,kaomoji-dingbat-decoration-03,kaomoji decoration,Completes the snowflake variants,Heavy chevron snowflake
+❇,U+2747,sparkle-decoration,verified,kaomoji-dingbat-decoration-03,kaomoji decoration,Continues the Dingbats sparkle family,Sparkle
+❈,U+2748,sparkle-decoration,verified,kaomoji-dingbat-decoration-03,kaomoji decoration,Completes the sparkle weight pair,Heavy sparkle
+❉,U+2749,sparkle-decoration,verified,kaomoji-dingbat-decoration-03,kaomoji decoration,Continues the asterisk family,Balloon-spoked asterisk
+❊,U+274A,sparkle-decoration,verified,kaomoji-dingbat-decoration-03,kaomoji decoration,Adds a propeller ornament,Eight teardrop-spoked propeller
+❋,U+274B,sparkle-decoration,verified,kaomoji-dingbat-decoration-03,kaomoji decoration,Completes the propeller weight pair,Heavy eight teardrop-spoked propeller
+❌,U+274C,common-unicode-symbol-variants,verified,kaomoji-dingbat-decoration-03,mark or reaction,Adds a bold cross mark,Dingbat cross mark
+❍,U+274D,common-unicode-symbol-variants,verified,kaomoji-dingbat-decoration-03,eye or geometric accent,Adds a shadowed circle variant,Shadowed white circle
+❎,U+274E,common-unicode-symbol-variants,verified,kaomoji-dingbat-decoration-03,mark or reaction,Completes the squared cross variant,Negative squared cross mark
+❏,U+274F,common-unicode-symbol-variants,verified,kaomoji-dingbat-decoration-03,geometric accent,Starts the shadowed-square family,Lower-right drop-shadowed square
+❐,U+2750,common-unicode-symbol-variants,verified,kaomoji-dingbat-decoration-03,geometric accent,Completes the drop-shadow direction pair,Upper-right drop-shadowed square
+❑,U+2751,common-unicode-symbol-variants,verified,kaomoji-dingbat-decoration-03,geometric accent,Adds the solid-shadow square variant,Lower-right shadowed square
+❒,U+2752,common-unicode-symbol-variants,verified,kaomoji-dingbat-decoration-03,geometric accent,Completes the solid-shadow direction pair,Upper-right shadowed square
+❓,U+2753,common-unicode-symbol-variants,verified,kaomoji-dingbat-punctuation-heart-04,reaction mark,Adds the filled question-mark ornament,Black question mark
+❔,U+2754,common-unicode-symbol-variants,verified,kaomoji-dingbat-punctuation-heart-04,reaction mark,Completes the question-mark weight pair,White question mark
+❕,U+2755,common-unicode-symbol-variants,verified,kaomoji-dingbat-punctuation-heart-04,reaction mark,Adds an outlined exclamation variant,White exclamation mark
+❖,U+2756,common-unicode-symbol-variants,verified,kaomoji-dingbat-punctuation-heart-04,geometric accent,Adds a diamond-cross ornament,Black diamond with white X
+❗,U+2757,common-unicode-symbol-variants,verified,kaomoji-dingbat-punctuation-heart-04,reaction mark,Adds the heavy exclamation symbol,Heavy exclamation mark
+❘,U+2758,common-unicode-symbol-variants,verified,kaomoji-dingbat-punctuation-heart-04,separator or face side,Starts the vertical-bar weight family,Light vertical bar
+❙,U+2759,common-unicode-symbol-variants,verified,kaomoji-dingbat-punctuation-heart-04,separator or face side,Completes the medium bar variant,Medium vertical bar
+❚,U+275A,common-unicode-symbol-variants,verified,kaomoji-dingbat-punctuation-heart-04,separator or face side,Completes the vertical-bar weight family,Heavy vertical bar
+❜,U+275C,accent-small-mark,verified,kaomoji-dingbat-punctuation-heart-04,kaomoji accent,Completes the single high quote pair,Heavy single comma quote
+❝,U+275D,accent-small-mark,verified,kaomoji-dingbat-punctuation-heart-04,kaomoji accent,Adds a double opening quote accent,Heavy double turned comma quote
+❞,U+275E,accent-small-mark,verified,kaomoji-dingbat-punctuation-heart-04,kaomoji accent,Completes the double high quote pair,Heavy double comma quote
+❟,U+275F,accent-small-mark,verified,kaomoji-dingbat-punctuation-heart-04,kaomoji accent,Adds a low single quote accent,Heavy low single comma quote
+❠,U+2760,accent-small-mark,verified,kaomoji-dingbat-punctuation-heart-04,kaomoji accent,Completes the low quote pair,Heavy low double comma quote
+❡,U+2761,common-unicode-symbol-variants,verified,kaomoji-dingbat-punctuation-heart-04,decorative mark,Adds the curved-stem paragraph ornament,Curved stem paragraph sign
+❢,U+2762,common-unicode-symbol-variants,verified,kaomoji-dingbat-punctuation-heart-04,reaction mark,Completes the exclamation ornaments,Heavy exclamation ornament
+❣,U+2763,love-sparkle,verified,kaomoji-dingbat-punctuation-heart-04,love reaction,Combines heart and exclamation semantics,Heart exclamation ornament
+❤,U+2764,love-sparkle,verified,kaomoji-dingbat-punctuation-heart-04,love decoration,Adds the Dingbats heavy heart,Heavy black heart
+❥,U+2765,love-sparkle,verified,kaomoji-dingbat-punctuation-heart-04,love decoration,Adds a directional heart bullet,Rotated heavy black heart
+❮,U+276E,common-unicode-symbol-variants,verified,kaomoji-bracket-ornament-05,kaomoji side or quote,Completes the heavy angle quotation pair,Heavy left angle quotation mark
+❯,U+276F,common-unicode-symbol-variants,verified,kaomoji-bracket-ornament-05,kaomoji side or quote,Completes the heavy angle quotation pair,Heavy right angle quotation mark
+⦃,U+2983,brackets-curves,verified,kaomoji-bracket-ornament-05,kaomoji arm or side,Adds an outlined curly bracket pair,Left white curly bracket
+⦄,U+2984,brackets-curves,verified,kaomoji-bracket-ornament-05,kaomoji arm or side,Adds an outlined curly bracket pair,Right white curly bracket
+⦅,U+2985,brackets-curves,verified,kaomoji-bracket-ornament-05,kaomoji arm or side,Adds an outlined parenthesis pair,Left white parenthesis
+⦆,U+2986,brackets-curves,verified,kaomoji-bracket-ornament-05,kaomoji arm or side,Adds an outlined parenthesis pair,Right white parenthesis
+⦇,U+2987,brackets-curves,verified,kaomoji-bracket-ornament-05,technical bracket,Adds the Z notation image pair,Left image bracket
+⦈,U+2988,brackets-curves,verified,kaomoji-bracket-ornament-05,technical bracket,Adds the Z notation image pair,Right image bracket
+⦉,U+2989,brackets-curves,verified,kaomoji-bracket-ornament-05,technical bracket,Adds the Z notation binding pair,Left binding bracket
+⦊,U+298A,brackets-curves,verified,kaomoji-bracket-ornament-05,technical bracket,Adds the Z notation binding pair,Right binding bracket
+⦋,U+298B,brackets-curves,verified,kaomoji-bracket-ornament-05,technical bracket,Adds the underbar bracket pair,Left square bracket with underbar
+⦌,U+298C,brackets-curves,verified,kaomoji-bracket-ornament-05,technical bracket,Adds the underbar bracket pair,Right square bracket with underbar
+⦍,U+298D,brackets-curves,verified,kaomoji-bracket-ornament-05,technical bracket,Completes square bracket corner ticks,Left bracket with top tick
+⦎,U+298E,brackets-curves,verified,kaomoji-bracket-ornament-05,technical bracket,Completes square bracket corner ticks,Right bracket with bottom tick
+⦏,U+298F,brackets-curves,verified,kaomoji-bracket-ornament-05,technical bracket,Completes square bracket corner ticks,Left bracket with bottom tick
+⦐,U+2990,brackets-curves,verified,kaomoji-bracket-ornament-05,technical bracket,Completes square bracket corner ticks,Right bracket with top tick
+⦑,U+2991,brackets-curves,verified,kaomoji-bracket-ornament-05,kaomoji eye or side,Adds the angle bracket with dot pair,Left angle bracket with dot
+⦒,U+2992,brackets-curves,verified,kaomoji-bracket-ornament-05,kaomoji eye or side,Adds the angle bracket with dot pair,Right angle bracket with dot

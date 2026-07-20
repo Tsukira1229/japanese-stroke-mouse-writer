@@ -1,5 +1,12 @@
 # Changelog
 
+## V2.7.2 Development - 2026-07-20
+
+- Adds 84 reviewed Unicode symbols for kaomoji eyes, decorations, punctuation, hearts, and bracket variants.
+- Adds 86 project-authored SVG resources, including dedicated outline resources shared by halfwidth and fullwidth exclamation and question marks.
+- Expands the validated symbol catalog from 430 to 514 symbols and verifies all 2,056 orientation and flow combinations.
+- Keeps this work as an internal development version; no portable package, tag, or GitHub Release is created.
+
 ## V2.7.1 - 2026-07-19
 
 - Adds locked best-effort drawing-order sidecars for 6,606 Yomogi, 6,591 Zen Kurenaido, and 6,608 Hachi Maru Pop catalog characters.

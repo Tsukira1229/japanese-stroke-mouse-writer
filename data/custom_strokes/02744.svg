@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Project-authored centerline stroke data for U+2744. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 109 109">
+  <path id="custom:02744-s1" d="M54.5,14 L54.5,95" />
+  <path id="custom:02744-s2" d="M19.43,34.25 L89.57,74.75" />
+  <path id="custom:02744-s3" d="M89.57,34.25 L19.43,74.75" />
+  <path id="custom:02744-s4" d="M45.5,28 L54.5,36 L63.5,28" />
+  <path id="custom:02744-s5" d="M45.5,81 L54.5,73 L63.5,81" />
+  <path id="custom:02744-s6" d="M75,31 L73.5,43 L85,47" />
+  <path id="custom:02744-s7" d="M34,78 L35.5,66 L24,62" />
+  <path id="custom:02744-s8" d="M85,62 L73.5,66 L75,78" />
+  <path id="custom:02744-s9" d="M24,47 L35.5,43 L34,31" />
+</svg>

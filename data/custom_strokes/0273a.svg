@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Project-authored centerline stroke data for U+273A. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 109 109">
+  <path id="custom:0273a-s1" d="M15.5,54.5 L93.5,54.5" />
+  <path id="custom:0273a-s2" d="M18.47,39.58 L90.53,69.42" />
+  <path id="custom:0273a-s3" d="M26.92,26.92 L82.08,82.08" />
+  <path id="custom:0273a-s4" d="M39.58,18.47 L69.42,90.53" />
+  <path id="custom:0273a-s5" d="M54.5,15.5 L54.5,93.5" />
+  <path id="custom:0273a-s6" d="M69.42,18.47 L39.58,90.53" />
+  <path id="custom:0273a-s7" d="M82.08,26.92 L26.92,82.08" />
+  <path id="custom:0273a-s8" d="M90.53,39.58 L18.47,69.42" />
+</svg>

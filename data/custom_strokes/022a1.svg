@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Project-authored centerline stroke data for U+22A1. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 109 109">
+  <path id="custom:022a1-s1" d="M29,26 L80,26 L80,81 L29,81 L29,26" />
+  <path id="custom:022a1-s2" d="M54.5,49 C57.54,49 60,51.46 60,54.5 C60,57.54 57.54,60 54.5,60 C51.46,60 49,57.54 49,54.5 C49,51.46 51.46,49 54.5,49" />
+  <path id="custom:022a1-s3" d="M54.5,52 C55.88,52 57,53.12 57,54.5 C57,55.88 55.88,57 54.5,57 C53.12,57 52,55.88 52,54.5 C52,53.12 53.12,52 54.5,52" />
+</svg>

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Project-authored centerline stroke data for U+2733. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 109 109">
+  <path id="custom:02733-s1" d="M14.5,54.5 L94.5,54.5" />
+  <path id="custom:02733-s2" d="M26.22,26.22 L82.78,82.78" />
+  <path id="custom:02733-s3" d="M54.5,14.5 L54.5,94.5" />
+  <path id="custom:02733-s4" d="M82.78,26.22 L26.22,82.78" />
+</svg>

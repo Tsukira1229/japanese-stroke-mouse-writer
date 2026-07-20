@@ -84,7 +84,7 @@ def bootstrap_manifest(output: Path) -> None:
                 "label": "Common Unicode symbol variants",
                 "group": "common_variant",
                 "order": 110,
-                "description": "Each of these 89 characters has its own direct code-point SVG. Filled geometric shapes use an outer boundary plus sparse diagonal hatching. Brackets rotate in vertical layout; arrows preserve their semantic direction.",
+                "description": "Each supported character has its own direct code-point SVG. Filled geometric shapes use an outer boundary plus sparse diagonal hatching. Brackets rotate in vertical layout; arrows preserve their semantic direction.",
             },
         ]
     )

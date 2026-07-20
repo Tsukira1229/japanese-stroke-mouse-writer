@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Project-authored centerline stroke data for U+274D. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 109 109">
+  <path id="custom:0274d-s1" d="M48,20.5 C66.78,20.5 82,35.72 82,54.5 C82,73.28 66.78,88.5 48,88.5 C29.22,88.5 14,73.28 14,54.5 C14,35.72 29.22,20.5 48,20.5" />
+  <path id="custom:0274d-s2" d="M54,21 C78,22.5 94,35.5 94,54.5 C94,73.5 78,86.5 54,88" />
+</svg>
